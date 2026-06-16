@@ -2,7 +2,7 @@
 
 **Required plugins**: Microsoft Purview Insider Risk Management, Microsoft Purview Data Loss Prevention, Microsoft Entra
 
-**Required Inputs**: User UPN, File or document name
+**Required Inputs**: User, File or document name
 
 **Description**: Investigate an Insider Risk Management (IRM) alert in Microsoft Purview. Walk through the user's risk profile, recent data activity, behavioral anomalies, and the business impact of the alert — then identify risky file interactions and conclude with recommended triage and mitigation actions.
 
@@ -10,22 +10,22 @@
 
 1. Summarize the user's current insider risk profile
 ```
-Summarize the insider risk profile for <UPN>. Include their current risk level, active risk indicators, any open alerts or policy matches, risk score trend over time, and whether they are on a notice or have had prior incidents.
+Summarize the insider risk profile for <User>. Include their current risk level, active risk indicators, any open alerts or policy matches, risk score trend over time, and whether they are on a notice or have had prior incidents.
 ```
 
 2. Summarize the user's data activity over the last 30 days
 ```
-Provide a detailed summary of all data activity performed by <UPN> in the last 30 days. Include file access, downloads, uploads, sharing events, email attachments, sensitivity label interactions, and any DLP policy triggers. Group by activity type and highlight volume spikes or unusual patterns.
+Provide a detailed summary of all data activity performed by <User> in the last 30 days. Include file access, downloads, uploads, sharing events, email attachments, sensitivity label interactions, and any DLP policy triggers. Group by activity type and highlight volume spikes or unusual patterns.
 ```
 
 3. Highlight unusual or anomalous behavior for this user
 ```
-Identify and explain any unusual or anomalous behavior observed for <UPN>. Compare against their baseline and focus on deviations such as access to sensitive data outside normal hours, bulk file downloads, label downgrades or removals, external sharing with personal or unrecognized domains, or access from unexpected locations or devices.
+Identify and explain any unusual or anomalous behavior observed for <User>. Compare against their baseline and focus on deviations such as access to sensitive data outside normal hours, bulk file downloads, label downgrades or removals, external sharing with personal or unrecognized domains, or access from unexpected locations or devices.
 ```
 
 4. Explain the potential business impact of this alert
 ```
-Based on the risk indicators and data activity observed for <UPN>, explain the potential business impact if this behavior represents a genuine insider threat. Include the sensitivity of the data involved, the breadth of exposure, regulatory or compliance implications, and any reputational or operational risk to the organization.
+Based on the risk indicators and data activity observed for <User>, explain the potential business impact if this behavior represents a genuine insider threat. Include the sensitivity of the data involved, the breadth of exposure, regulatory or compliance implications, and any reputational or operational risk to the organization.
 ```
 
 5. Show all users who accessed the file in the last 30 days
@@ -40,5 +40,5 @@ Identify all risky or policy-violating actions taken on the file <File name>. In
 
 7. Summarize the session and provide recommended actions
 ```
-Summarize the full IRM investigation for <UPN> and the file <File name>. Provide a risk verdict of Low, Medium, High, or Critical with justification. Then list specific recommended actions to investigate further, triage the alert, and mitigate the identified insider risk behaviors — including any suggested containment steps, HR or legal escalation triggers, or policy tuning recommendations.
+Summarize the full IRM investigation for <User> and the file <File name>. Provide a risk verdict of Low, Medium, High, or Critical with justification. Then list specific recommended actions to investigate further, triage the alert, and mitigate the identified insider risk behaviors — including any suggested containment steps, HR or legal escalation triggers, or policy tuning recommendations.
 ```
