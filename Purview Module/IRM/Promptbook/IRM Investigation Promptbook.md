@@ -45,11 +45,12 @@ Summarize the full IRM investigation for this user and the specified file. Provi
 
 ## How To Create This Promptbook In Security Copilot
 
-1. Open Create a promptbook and enter the name IRM Investigation.
-2. Add the description and select the Microsoft Purview plugin.
-3. Paste each prompt in order (1 through 7), then review formatting.
-4. Choose who can use the promptbook and select Create.
-5. Verify the success message and open the promptbook from the library.
+1. Start by using each prompt directly first to validate the output quality.
+2. Select all prompts (as shown in the screenshot) to include them in the promptbook.
+3. Enter the promptbook name and description.
+4. Choose how you want to share the promptbook.
+5. Before creating, replace `user` with `UPN` in the prompt text where needed.
+6. Select Create, verify the success message, and open the promptbook from the library.
 
 ### UI Walkthrough Screenshots
 
