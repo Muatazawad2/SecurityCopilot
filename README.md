@@ -33,3 +33,4 @@ Comprehensive guides for using Security Copilot in Microsoft Purview for Insider
 - **[IRM Triage Agent Setup Guide](Purview%20Module/IRM/Agents/IRM%20Triage%20Agent%20Setup%20Guide.md)** — Deployment and configuration of the automated Triage Agent
 - **[Triage Agent Dashboard Guide](Purview%20Module/IRM/Agents/Triage%20Agent%20Dashboard%20Guide.md)** — Using the Triage Agent dashboard for prioritized alert review
 - **[Purview IRM Activity KQL Plugin](Purview%20Module/IRM/Plugins/Purview%20IRM%20Activity%20KQL%20Plugin.yaml)** — Security Copilot KQL plugin to retrieve detailed IRM-related DataSecurityEvents from the last day
+- **[Purview IRM KQL Plugin Installation Guide](Purview%20Module/IRM/Plugins/Purview%20IRM%20KQL%20Plugin%20-%20Installation%20Guide.md)** — Step-by-step instructions to upload, enable, validate, and troubleshoot the custom plugin in Security Copilot
