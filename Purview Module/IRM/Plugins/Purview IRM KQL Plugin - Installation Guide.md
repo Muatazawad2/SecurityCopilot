@@ -1,5 +1,7 @@
 # Purview IRM KQL Plugin - Installation Guide
 
+**Developer**: Dr Muataz Awad
+
 ## Overview
 
 This guide explains how to upload and use the custom Purview IRM KQL plugin in Microsoft Security Copilot.
