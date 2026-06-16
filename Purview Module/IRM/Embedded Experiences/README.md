@@ -2,10 +2,6 @@
 
 This folder contains embedded experience resources and guides for using Security Copilot directly within the Purview portal for IRM investigations.
 
-## Contents
-
-- [User Investigation Guide](User%20Investigation%20Guide.md) - Instructions on how to investigate users and access investigation prompts through the Security Copilot embedded experience in the IRM workload
-
 ## Key Features
 
 - Integrated Security Copilot experience within Purview portal
