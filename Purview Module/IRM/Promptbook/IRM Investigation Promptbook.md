@@ -55,7 +55,3 @@ Summarize the full IRM investigation for this user and the specified file. Provi
 ### UI Walkthrough Screenshots
 
 ![Create promptbook form](images/Promptbook1.png)
-
-![Prompt toolbar actions](images/Promptbook3.png)
-
-![Create button and sharing scope](images/Promptbook4.png)
