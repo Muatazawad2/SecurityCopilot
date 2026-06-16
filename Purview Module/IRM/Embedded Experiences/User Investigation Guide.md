@@ -10,7 +10,7 @@ This guide explains how to investigate a user within the Purview portal using th
 
 ### 1. Launch Purview Portal
 
-Navigate to the Purview portal at https://compliance.microsoft.com.
+Navigate to the Purview portal at https://purview.microsoft.com.
 
 ### 2. Go to the IRM Workload
 
