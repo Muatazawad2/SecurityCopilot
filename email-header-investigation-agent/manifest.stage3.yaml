@@ -1,0 +1,57 @@
+Descriptor:
+  Name: MuatazAwad-HeaderStage3
+  DisplayName: Header Stage 3 Skillset
+  Description: Tests AGENT to GPT child tool invocation with email header input.
+
+SkillGroups:
+  - Format: GPT
+    Skills:
+      - Name: HeaderPresenceCheck
+        DisplayName: Header Presence Check
+        Description: Confirms the child GPT tool receives the email header input.
+        Inputs:
+          - Name: EmailHeaders
+            Description: Raw email headers to inspect.
+            Required: true
+        Settings:
+          ModelName: gpt-4.1
+          Template: |-
+            Read the provided email headers and return exactly these 3 lines:
+            Header received: yes
+            First line: <the first non-empty line only>
+            Suspicious certainty: 10%
+
+            Email headers:
+            {{EmailHeaders}}
+
+  - Format: AGENT
+    Skills:
+      - Name: HeaderStage3Entrypoint
+        DisplayName: Header Stage 3 Entrypoint
+        Description: Calls one child GPT tool and returns its result.
+        Interfaces:
+          - Agent
+        Inputs:
+          - Name: EmailHeaders
+            Description: Raw email headers to inspect.
+            Required: true
+        Settings:
+          Instructions: |
+            Call HeaderPresenceCheck using the provided EmailHeaders.
+            Return the child tool result without adding anything else.
+        ChildSkills:
+          - HeaderPresenceCheck
+
+AgentDefinitions:
+  - Name: MuatazAwad-HeaderStage3
+    DisplayName: Header Stage 3 Agent
+    Description: Tests whether AGENT child skill invocation works in this workspace.
+    Publisher: muataz awad
+    Product: SecurityOperations
+    RequiredSkillsets:
+      - MuatazAwad-HeaderStage3
+    AgentSingleInstanceConstraint: None
+    Triggers:
+      - Name: Default
+        DefaultPeriodSeconds: 0
+        ProcessSkill: MuatazAwad-HeaderStage3.HeaderStage3Entrypoint

@@ -1,0 +1,175 @@
+Descriptor:
+  Name: MuatazAwad-HeaderInvestigation
+  DisplayName: Email Header Investigation Skillset
+  Description: Skillset for triaging suspicious email headers and investigating related indicators.
+
+SkillGroups:
+  - Format: GPT
+    Skills:
+      - Name: ExtractEmailHeaderIndicators
+        DisplayName: Extract Email Header Indicators
+        Description: Extracts investigation entities from raw email headers.
+        Inputs:
+          - Name: EmailHeaders
+            Description: Raw email headers to investigate.
+            Required: true
+        Settings:
+          ModelName: gpt-4.1
+          Template: |-
+            Analyze the provided raw email headers and return a concise text report.
+
+            Return exactly these sections in this order:
+            Suspicious traits:
+            - Up to 5 bullets
+
+            Key indicators:
+            - sender: <value or unknown>
+            - return-path: <value or unknown>
+            - subject: <value or unknown>
+            - message-id: <value or unknown>
+            - IP addresses: <comma-separated list or none>
+            - authentication findings: <SPF/DKIM/DMARC summary or unknown>
+
+            Assessment:
+            - one short paragraph summarizing whether the header looks low, medium, or high risk for phishing
+
+            Final line:
+            Suspicious certainty: <N>%
+
+            Email headers:
+            {{EmailHeaders}}
+
+      - Name: EnrichThreatIndicators
+        DisplayName: Enrich Threat Indicators
+        Description: Performs model-based Phase 2 email investigation across transport, identity, infrastructure, payload, and exposure signals.
+        Inputs:
+          - Name: ExtractedIndicators
+            Description: Structured text output from ExtractEmailHeaderIndicators.
+            Required: true
+        Settings:
+          ModelName: gpt-4.1
+          Template: |-
+            You are a senior email threat investigator producing a no-response-action investigation report.
+
+            Analyze the extracted indicators and cover these 18 checks. If a check cannot be validated from available evidence, mark it as "unavailable" rather than guessing.
+
+            Checks to cover:
+            1) Received chain reconstruction and hop anomalies
+            2) Timestamp drift and impossible sequencing
+            3) SPF include-chain risk
+            4) DKIM selector and signing-domain quality
+            5) DMARC alignment quality
+            6) ARC trust interpretation (if present)
+            7) Sender vs Reply-To mismatch
+            8) Display-name impersonation signal
+            9) Lookalike domain distance signal
+            10) Domain age/ownership-change signal
+            11) Passive DNS stability signal
+            12) IP/ASN infrastructure profiling signal
+            13) URL redirect-chain risk signal
+            14) Attachment MIME/extension mismatch signal
+            15) Tenant hunt signal (same sender/subject/message-id/URL pattern)
+            16) Campaign clustering signal
+            17) Blast-radius estimate signal
+            18) Evidence-weighted final disposition
+
+            Evidence source:
+            {{ExtractedIndicators}}
+
+            Return exactly these sections and labels:
+            Phase 2 checks:
+            - 1. Received chain: <low|medium|high|unavailable> - <brief reason>
+            - 2. Time sequencing: <low|medium|high|unavailable> - <brief reason>
+            - 3. SPF include chain: <low|medium|high|unavailable> - <brief reason>
+            - 4. DKIM quality: <low|medium|high|unavailable> - <brief reason>
+            - 5. DMARC alignment: <low|medium|high|unavailable> - <brief reason>
+            - 6. ARC trust: <low|medium|high|unavailable> - <brief reason>
+            - 7. Sender vs Reply-To: <low|medium|high|unavailable> - <brief reason>
+            - 8. Display-name impersonation: <low|medium|high|unavailable> - <brief reason>
+            - 9. Lookalike domain distance: <low|medium|high|unavailable> - <brief reason>
+            - 10. Domain age/change: <low|medium|high|unavailable> - <brief reason>
+            - 11. Passive DNS stability: <low|medium|high|unavailable> - <brief reason>
+            - 12. IP/ASN profile: <low|medium|high|unavailable> - <brief reason>
+            - 13. URL chain risk: <low|medium|high|unavailable> - <brief reason>
+            - 14. Attachment mismatch risk: <low|medium|high|unavailable> - <brief reason>
+            - 15. Tenant hunt signal: <low|medium|high|unavailable> - <brief reason>
+            - 16. Campaign clustering: <low|medium|high|unavailable> - <brief reason>
+            - 17. Blast radius estimate: <low|medium|high|unavailable> - <brief reason>
+            - 18. Disposition basis: <low|medium|high|unavailable> - <brief reason>
+
+            Notable findings:
+            - [3-8 concise bullets with the strongest evidence only]
+
+            Disposition: [legitimate-marketing / suspicious / malicious]
+            Infrastructure verdict: [legitimate / bulk-mail / suspicious / malicious]
+            TI confidence: <N>%
+
+  - Format: AGENT
+    Skills:
+      - Name: EmailHeaderInvestigationEntrypoint
+        DisplayName: Email Header Investigation Entrypoint
+        Description: End-to-end investigation flow for suspicious email headers.
+        Interfaces:
+          - Agent
+        Inputs:
+          - Name: EmailHeaders
+            Description: Raw email headers to investigate.
+            Required: true
+        Settings:
+          Instructions: |
+            You are an email security analyst. Follow these steps in order:
+
+            Step 1 — Header extraction:
+            Call ExtractEmailHeaderIndicators with the provided EmailHeaders.
+            Capture the full output as the extracted indicators.
+
+            Step 2 — Model-based TI enrichment:
+            Call EnrichThreatIndicators with the output from Step 1 as ExtractedIndicators.
+            Ensure all 18 Phase 2 checks are reported; if evidence is missing, mark the check as unavailable.
+
+            Step 3 — MDTI reputation checks:
+            For each unique IP address and domain found in Step 1, call threatintelligence_get_reputation_by_queries.
+
+            Step 4 — MDTI threat article search:
+            For the sender domain and any suspicious IPs, call threatintelligence_get_articles_by_query_or_indicators.
+
+            Step 5 — XDR incident context:
+            Call GetDefenderIncidents and look for incidents that may be related to Step 1 sender domain, return-path domain, or subject clues.
+            If this call errors, times out, or returns no usable data, do not fail the run.
+            Instead return this exact fallback block:
+            - status: unavailable
+            - probable cause: plugin permission, connector health, or temporary backend error
+            - action: continue investigation using header + MDTI evidence
+
+            Guardrails:
+            - Do not execute containment, blocking, account actions, password resets, token revocations, purge, or quarantine.
+            - Investigation only; no response actions.
+
+            Final output:
+            Present all findings in this order:
+            1. Header extraction output (Step 1, full text)
+            2. TI enrichment output (Step 2, must include all 18 checks)
+            3. MDTI reputation findings (Step 3)
+            4. MDTI threat articles (Step 4)
+            5. XDR incident context (Step 5)
+            6. Final line: Suspicious certainty: <N>% (synthesized from all available evidence)
+        ChildSkills:
+          - ExtractEmailHeaderIndicators
+          - EnrichThreatIndicators
+          - threatintelligence_get_reputation_by_queries
+          - threatintelligence_get_articles_by_query_or_indicators
+          - GetDefenderIncidents
+
+AgentDefinitions:
+  - Name: MuatazAwad-HeaderInvestigation
+    DisplayName: Email Header Investigation Agent
+    Description: Investigates suspicious email headers and reports phishing certainty.
+    Publisher: muataz awad
+    Product: SecurityOperations
+    RequiredSkillsets:
+      - MuatazAwad-HeaderInvestigation
+    AgentSingleInstanceConstraint: None
+    Triggers:
+      - Name: Default
+        DefaultPeriodSeconds: 0
+        ProcessSkill: MuatazAwad-HeaderInvestigation.EmailHeaderInvestigationEntrypoint

@@ -1,0 +1,43 @@
+Descriptor:
+  Name: MuatazAwad-HeaderUltraTest
+  DisplayName: Header Ultra Test Skillset
+  Description: Ultra-minimal diagnostic manifest with no child tools.
+
+SkillGroups:
+  - Format: AGENT
+    Skills:
+      - Name: HeaderUltraTestEntrypoint
+        DisplayName: Header Ultra Test Entrypoint
+        Description: Basic runtime check for agent execution.
+        Interfaces:
+          - Agent
+        Inputs:
+          - Name: EmailHeaders
+            Description: Raw email headers.
+            Required: true
+        Settings:
+          Instructions: |
+            You are running a basic execution test.
+
+            Input handling:
+            - Confirm whether EmailHeaders is present.
+            - Estimate character count.
+
+            Return exactly 3 lines:
+            1) Header received: yes/no
+            2) Character count: <number>
+            3) Suspicious certainty: 10%
+
+AgentDefinitions:
+  - Name: MuatazAwad-HeaderUltraTest
+    DisplayName: Header Ultra Test Agent
+    Description: Ultra-minimal agent to troubleshoot runtime issues.
+    Publisher: muataz awad
+    Product: SecurityOperations
+    RequiredSkillsets:
+      - MuatazAwad-HeaderUltraTest
+    AgentSingleInstanceConstraint: None
+    Triggers:
+      - Name: Default
+        DefaultPeriodSeconds: 0
+        ProcessSkill: MuatazAwad-HeaderUltraTest.HeaderUltraTestEntrypoint

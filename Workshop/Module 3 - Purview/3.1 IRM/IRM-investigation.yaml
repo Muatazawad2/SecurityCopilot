@@ -1,0 +1,82 @@
+Descriptor:
+  Name: MuatazAwad-IRMInvestigation
+  DisplayName: IRM Investigation
+  Description: Investigates Microsoft Purview Information Rights Management incidents end-to-end, analyzes sensitivity label activity, protected document access patterns, and policy violations to produce an analyst-ready risk assessment.
+
+SkillGroups:
+  - Format: GPT
+    Skills:
+      - Name: ExtractIRMIndicators
+        DisplayName: Extract IRM Indicators
+        Description: Extracts investigation entities from IRM incident data, audit logs, and sensitivity label activity.
+        Inputs:
+          - Name: IRMIncidentData
+            Description: Raw IRM incident details, audit log entries, sensitivity label activity, or DLP alerts related to protected content.
+            Required: true
+        Settings:
+          ModelName: gpt-4.1
+          Template: |-
+            Analyze the provided IRM incident data and return a concise extraction report.
+
+            Return exactly these sections in this order:
+            Suspicious traits:
+            - Up to 6 bullets describing anomalous IRM behaviors observed
+
+            Key indicators:
+            - user(s) involved: <UPN or unknown>
+            - document(s) affected: <file names or unknown>
+            - sensitivity label(s): <label names or unknown>
+            - label action(s): <Applied / Changed / Removed / Downgraded or unknown>
+            - policy violated: <DLP or IRM policy name or unknown>
+            - protected content action: <Accessed / Forwarded / Printed / Exported / Decrypted or unknown>
+            - source IP / location: <value or unknown>
+            - timestamp(s): <ISO 8601 or unknown>
+
+            Incident summary:
+            - One short paragraph describing what happened based solely on provided evidence
+
+            Final line:
+            IRM risk certainty: <N>%
+
+            IRM incident data:
+            {{IRMIncidentData}}
+
+      - Name: InvestigateIRMActivity
+        DisplayName: Investigate IRM Activity
+        Description: Performs deep model-based IRM investigation across identity, label policy, data access, and exposure signals.
+        Inputs:
+          - Name: ExtractedIRMIndicators
+            Description: Structured text output from ExtractIRMIndicators.
+            Required: true
+        Settings:
+          ModelName: gpt-4.1
+          Template: |-
+            You are a senior Microsoft Purview IRM analyst producing an investigation-only report.
+
+            Evaluate only the supplied indicators. If a signal cannot be derived from the provided evidence, mark it as "unavailable".
+            Do NOT use external knowledge.
+            Do NOT guess based on common patterns.
+            Do NOT recommend containment or response actions.
+            Only evaluate signals explicitly present in the supplied evidence.
+
+            Checks to cover:
+            1) User identity and role context — is the acting user the document owner, a delegated user, or an external party?
+            2) Sensitivity label lineage — was the label applied by policy or manually? Was it downgraded or removed?
+            3) Label policy authorization — was the user authorized to apply, change, or remove the observed label?
+            4) Protected content access legitimacy — does the access time, location, and device align with normal user behavior?
+            5) Forwarding and sharing risk — was protected content forwarded outside the tenant or to unauthorized recipients?
+            6) Print and export activity — was protected content printed or exported to an unprotected format?
+            7) Decryption event analysis — was protected content decrypted, and was that action expected or authorized?
+            8) DLP policy alignment — does the activity violate any observable DLP rule referenced in the evidence?
+            9) Bulk label change signal — were multiple files relabeled or unprotected in a short time window?
+            10) Insider threat signal — does the activity pattern suggest intentional data exfiltration or policy bypass?
+            11) External collaboration risk — was protected content accessed or shared with external domains or guest users?
+            12) Device compliance signal — was the access from a managed, compliant device or an unmanaged endpoint?
+            13) Geographic anomaly signal — was the access from an unexpected country or location compared to the user's baseline?
+            14) Service principal / application access — was the protected content accessed programmatically via an app or service principal?
+            15) Audit log completeness — are there gaps or suppressions in the audit trail that could indicate tampering?
+            16) Blast-radius estimate — how many documents, users, or data assets may be affected by this incident?
+            17) Evidence-weighted final disposition — based solely on available signals, classify the incident as Low / Medium / High / Critical risk with a one-paragraph justification.
+
+            Evidence source:
+            {{ExtractedIRMIndicators}}

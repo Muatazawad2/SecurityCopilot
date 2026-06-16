@@ -1,0 +1,31 @@
+Descriptor:
+  Name: MuatazAwad-HelloWorld
+  DisplayName: Hello World Skillset
+  Description: Minimal hello world manifest for runtime validation.
+
+SkillGroups:
+  - Format: AGENT
+    Skills:
+      - Name: HelloEntrypoint
+        DisplayName: Hello Entrypoint
+        Description: Returns a fixed response for diagnostics.
+        Interfaces:
+          - Agent
+        Settings:
+          Instructions: |
+            Return exactly this text and nothing else:
+            Hello from Security Copilot agent test.
+
+AgentDefinitions:
+  - Name: MuatazAwad-HelloWorld
+    DisplayName: Hello World Agent
+    Description: Diagnostic agent with no inputs and no tools.
+    Publisher: muataz awad
+    Product: SecurityOperations
+    RequiredSkillsets:
+      - MuatazAwad-HelloWorld
+    AgentSingleInstanceConstraint: None
+    Triggers:
+      - Name: Default
+        DefaultPeriodSeconds: 0
+        ProcessSkill: MuatazAwad-HelloWorld.HelloEntrypoint

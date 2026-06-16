@@ -1,0 +1,57 @@
+Descriptor:
+  Name: MuatazAwad-HeaderTest
+  DisplayName: Header Test Skillset
+  Description: Minimal diagnostic manifest for header input testing.
+
+SkillGroups:
+  - Format: GPT
+    Skills:
+      - Name: EchoHeaderCheck
+        DisplayName: Echo Header Check
+        Description: Minimal tool to confirm input/output path works.
+        Inputs:
+          - Name: EmailHeaders
+            Description: Raw email headers.
+            Required: true
+        Settings:
+          ModelName: gpt-4.1
+          Template: |-
+            Read the input and respond with exactly 3 lines:
+            1) Header received: yes/no
+            2) Character count: <number>
+            3) Suspicious certainty: <N>%
+
+            Input:
+            {{EmailHeaders}}
+
+  - Format: AGENT
+    Skills:
+      - Name: HeaderTestEntrypoint
+        DisplayName: Header Test Entrypoint
+        Description: Minimal orchestration test.
+        Interfaces:
+          - Agent
+        Inputs:
+          - Name: EmailHeaders
+            Description: Raw email headers.
+            Required: true
+        Settings:
+          Instructions: |
+            Call EchoHeaderCheck with EmailHeaders.
+            Return the tool output as-is.
+        ChildSkills:
+          - EchoHeaderCheck
+
+AgentDefinitions:
+  - Name: MuatazAwad-HeaderTest
+    DisplayName: Header Test Agent
+    Description: Minimal test agent for troubleshooting.
+    Publisher: muataz awad
+    Product: SecurityOperations
+    RequiredSkillsets:
+      - MuatazAwad-HeaderTest
+    AgentSingleInstanceConstraint: None
+    Triggers:
+      - Name: Default
+        DefaultPeriodSeconds: 0
+        ProcessSkill: MuatazAwad-HeaderTest.HeaderTestEntrypoint
