@@ -28,6 +28,21 @@ Once the user's details are displayed, locate the **Summarize with Copilot** but
 
 Security Copilot will provide an automated analysis of the user's insider risk profile, including activity summaries, risk indicators, and recommended investigation steps.
 
+### 5. View Additional Investigation Prompts
+
+Click on **View Prompts** to the right side of the screen to access additional investigation prompts. These prompts allow you to expand your investigation with various analysis options, such as:
+
+- List data exfiltration activities involving this user
+- List sequential activities involving this user
+- Identify unusual behavior patterns
+- Show key actions performed in the last 10 days
+- Summarize the user's last 30 days of activity
+- And more...
+
+Select any prompt to dive deeper into specific aspects of the user's insider risk profile.
+
+![View Prompts to Expand Investigation](images/EE2.png)
+
 ## Notes
 
 - The embedded experience requires Security Copilot to be enabled in your organization
