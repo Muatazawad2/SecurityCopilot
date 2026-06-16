@@ -2,7 +2,7 @@
 
 **Developer**: Dr Muataz Awad
 
-**Description**: A ready-to-use set of IRM investigation prompts for assessing user risk, recent data activity, anomalies, business impact, file access patterns, risky actions, and final triage recommendations.
+**Description**: A ready-to-use set of IRM investigation prompts for assessing user risk, recent data activity, anomalies, business impact, file access patterns, risky actions, and final triage recommendations. Results may be limited or incomplete if required Purview plugins are not enabled or if the user running the prompts does not have the necessary permissions.
 
 1. Summarize the user's current insider risk profile (provide User UPN)
 ```

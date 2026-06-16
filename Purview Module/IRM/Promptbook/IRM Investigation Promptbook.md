@@ -2,7 +2,7 @@
 
 **Developer**: Dr Muataz Awad
 
-**Description**: Investigate an Insider Risk Management (IRM) alert in Microsoft Purview. Walk through the user's risk profile, recent data activity, behavioral anomalies, and the business impact of the alert — then identify risky file interactions and conclude with recommended triage and mitigation actions.
+**Description**: Investigate an Insider Risk Management (IRM) alert in Microsoft Purview. Walk through the user's risk profile, recent data activity, behavioral anomalies, and the business impact of the alert — then identify risky file interactions and conclude with recommended triage and mitigation actions. Results may be limited or incomplete if required Purview plugins are not enabled or if the user running the promptbook does not have the necessary permissions.
 
 ---
 
