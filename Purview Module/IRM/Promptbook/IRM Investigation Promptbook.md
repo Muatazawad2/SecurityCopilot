@@ -56,8 +56,6 @@ Summarize the full IRM investigation for this user and the specified file. Provi
 
 ![Create promptbook form](images/Promptbook1.png)
 
-![Promptbook created confirmation](images/Promptbook2.png)
-
 ![Prompt toolbar actions](images/Promptbook3.png)
 
 ![Create button and sharing scope](images/Promptbook4.png)
