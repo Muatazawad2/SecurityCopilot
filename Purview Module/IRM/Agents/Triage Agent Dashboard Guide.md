@@ -77,8 +77,3 @@ If you disagree with the agent's categorization:
 1. Select **Is this incorrect?** in the agent summary
 2. Provide feedback on why the categorization is incorrect
 3. Your feedback helps improve future agent performance
-
-## Important Notes
-
-- The file risk section of the Triage Agent is deprecated
-- For a comprehensive overview of the triage experience, see the [Insider Risk Management Alerts Triage Experience video](https://www.youtube.com/watch?v=KgmpxBLJLPI)
