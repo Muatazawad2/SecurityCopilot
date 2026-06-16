@@ -1,5 +1,7 @@
 # IRM Investigation
 
+**Developer**: Dr Muataz Awad
+
 **Required plugins**: Microsoft Purview Insider Risk Management, Microsoft Purview Data Loss Prevention, Microsoft Entra
 
 **Required Inputs**: User, File or document name
