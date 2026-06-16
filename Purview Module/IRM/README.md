@@ -9,4 +9,4 @@ Comprehensive resources for investigating insider risk alerts using Microsoft Se
 - [User Investigation Guide](Embedded%20Experiences/User%20Investigation%20Guide.md)
 - [IRM Triage Agent Setup Guide](Agents/IRM%20Triage%20Agent%20Setup%20Guide.md)
 - [Triage Agent Dashboard Guide](Agents/Triage%20Agent%20Dashboard%20Guide.md)
-- [Purview IRM Activity KQL Plugin](Agents/Purview%20IRM%20Activity%20KQL%20Plugin.yaml)
+- [Purview IRM Activity KQL Plugin](Plugins/Purview%20IRM%20Activity%20KQL%20Plugin.yaml)
