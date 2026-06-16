@@ -30,15 +30,15 @@ Based on the risk indicators and data activity observed for this user, explain t
 
 5. Show all users who accessed the file in the last 30 days
 ```
-List all users who accessed, modified, shared, or interacted with the file <File name> in the last 30 days. Include their UPN, the type of action performed, the date and time, the device used, and whether the action triggered any DLP or sensitivity policy.
+List all users who accessed, modified, shared, or interacted with the specified file in the last 30 days. Include their UPN, the type of action performed, the date and time, the device used, and whether the action triggered any DLP or sensitivity policy.
 ```
 
 6. Identify risky actions taken on this file
 ```
-Identify all risky or policy-violating actions taken on the file <File name>. Include label downgrades or removals, exports to unprotected formats, printing, external sharing, forwarding, bulk copy or download events, and any DLP rule matches. For each action, specify the user, timestamp, and risk severity.
+Identify all risky or policy-violating actions taken on the specified file. Include label downgrades or removals, exports to unprotected formats, printing, external sharing, forwarding, bulk copy or download events, and any DLP rule matches. For each action, specify the user, timestamp, and risk severity.
 ```
 
 7. Summarize the session and provide recommended actions
 ```
-Summarize the full IRM investigation for this user and the file <File name>. Provide a risk verdict of Low, Medium, High, or Critical with justification. Then list specific recommended actions to investigate further, triage the alert, and mitigate the identified insider risk behaviors — including any suggested containment steps, HR or legal escalation triggers, or policy tuning recommendations.
+Summarize the full IRM investigation for this user and the specified file. Provide a risk verdict of Low, Medium, High, or Critical with justification. Then list specific recommended actions to investigate further, triage the alert, and mitigate the identified insider risk behaviors — including any suggested containment steps, HR or legal escalation triggers, or policy tuning recommendations.
 ```
