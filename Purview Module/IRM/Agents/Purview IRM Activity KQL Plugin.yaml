@@ -1,0 +1,50 @@
+Descriptor:
+  Name: PurviewIRMActivityKQL
+  DisplayName: Purview IRM Activity KQL Plugin
+  Description: KQL skill to retrieve detailed Purview IRM-related Data Security events from the last one day.
+
+SkillGroups:
+  - Format: KQL
+    Skills:
+      - Name: GetPurviewIRMActivityLastDay
+        DisplayName: Get Purview IRM Activity Last Day
+        Description: Returns detailed IRM-related DataSecurityEvents for the last one day.
+        Settings:
+          Target: Defender
+          Template: |-
+            let since = ago(1d);
+            DataSecurityEvents
+            | extend EventTime = todatetime(column_ifexists("Timestamp", column_ifexists("TimeGenerated", datetime(null))))
+            | where EventTime > since
+            | extend
+                IrmActionCategory = tostring(column_ifexists("IrmActionCategory", "")),
+                IsIrmInteresting = tobool(column_ifexists("IsIrmInteresting", false)),
+                AccountUpn = tostring(column_ifexists("AccountUpn", column_ifexists("UserPrincipalName", ""))),
+                AccountName = tostring(column_ifexists("AccountName", column_ifexists("UserName", ""))),
+                AccountObjectId = tostring(column_ifexists("AccountObjectId", "")),
+                Department = tostring(column_ifexists("Department", "")),
+                DeviceName = tostring(column_ifexists("DeviceName", "")),
+                DeviceId = tostring(column_ifexists("DeviceId", "")),
+                FileName = tostring(column_ifexists("FileName", "")),
+                FilePath = tostring(column_ifexists("FilePath", "")),
+                SiteUrl = tostring(column_ifexists("SiteUrl", "")),
+                ActionType = tostring(column_ifexists("ActionType", "")),
+                PolicyName = tostring(column_ifexists("PolicyName", "")),
+                IrmPolicyMatchInfo = tostring(column_ifexists("IrmPolicyMatchInfo", "")),
+                IrmSequenceInfo = tostring(column_ifexists("IrmSequenceInfo", "")),
+                ReportId = tostring(column_ifexists("ReportId", "")),
+                SessionId = tostring(column_ifexists("SessionId", "")),
+                CorrelationId = tostring(column_ifexists("CorrelationId", "")),
+                RawAdditional = tostring(column_ifexists("AdditionalFields", column_ifexists("AdditionalDetails", "")))
+            | where IsIrmInteresting == true or isnotempty(IrmActionCategory)
+            | project
+                EventTime,
+                AccountUpn, AccountName, AccountObjectId, Department,
+                DeviceName, DeviceId,
+                FileName, FilePath, SiteUrl,
+                IrmActionCategory, ActionType, PolicyName,
+                IrmPolicyMatchInfo, IrmSequenceInfo,
+                ReportId, SessionId, CorrelationId,
+                RawAdditional
+            | order by EventTime desc
+            | limit 2000
