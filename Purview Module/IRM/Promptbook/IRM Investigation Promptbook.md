@@ -2,10 +2,6 @@
 
 **Developer**: Dr Muataz Awad
 
-**Required plugins**: Microsoft Purview Insider Risk Management, Microsoft Purview Data Loss Prevention, Microsoft Entra
-
-**Required Inputs**: User, File or document name
-
 **Description**: Investigate an Insider Risk Management (IRM) alert in Microsoft Purview. Walk through the user's risk profile, recent data activity, behavioral anomalies, and the business impact of the alert — then identify risky file interactions and conclude with recommended triage and mitigation actions.
 
 ---
