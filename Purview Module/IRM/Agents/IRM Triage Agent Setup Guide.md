@@ -6,12 +6,6 @@
 
 The Microsoft Purview Triage Agent in Insider Risk Management (IRM) automates alert triaging and prioritization using Security Copilot. It analyzes alerts and categorizes them as "Needs Attention," "Less Urgent," or "Not Categorized."
 
-## Licensing Requirements
-
-- **Microsoft Purview Insider Risk Management** license
-- **Security Compute Units (SCUs)** provisioned in Microsoft Security Copilot
-- Organizations using Microsoft 365 E5 get Security Copilot included
-
 ## Key Permissions
 
 ### For Setup & Administration (Any one from each group):
