@@ -4,4 +4,4 @@ This folder contains screenshots and visual documentation for embedded experienc
 
 ## Current Images
 
-- `User-Investigation-Copilot.png` - Screenshot showing the "Summarize with Copilot" button in the IRM workload user investigation interface
+- `EE1.png` - Screenshot showing the "Summarize with Copilot" button in the IRM workload user investigation interface
