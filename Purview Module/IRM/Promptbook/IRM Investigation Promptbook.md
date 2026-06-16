@@ -40,3 +40,23 @@ Identify all risky or policy-violating actions taken on the specified file. Incl
 ```
 Summarize the full IRM investigation for this user and the specified file. Provide a risk verdict of Low, Medium, High, or Critical with justification. Then list specific recommended actions to investigate further, triage the alert, and mitigate the identified insider risk behaviors — including any suggested containment steps, HR or legal escalation triggers, or policy tuning recommendations.
 ```
+
+---
+
+## How To Create This Promptbook In Security Copilot
+
+1. Open Create a promptbook and enter the name IRM Investigation.
+2. Add the description and select the Microsoft Purview plugin.
+3. Paste each prompt in order (1 through 7), then review formatting.
+4. Choose who can use the promptbook and select Create.
+5. Verify the success message and open the promptbook from the library.
+
+### UI Walkthrough Screenshots
+
+![Create promptbook form](images/01-create-promptbook-form.png)
+
+![Promptbook created confirmation](images/02-promptbook-created.png)
+
+![Prompt toolbar actions](images/03-prompt-toolbar.png)
+
+![Create button and sharing scope](images/04-create-and-scope.png)
