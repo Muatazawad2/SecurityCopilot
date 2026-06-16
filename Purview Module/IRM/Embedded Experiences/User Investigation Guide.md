@@ -24,7 +24,7 @@ In the IRM alerts or cases view, select the user you want to investigate. This w
 
 Once the user's details are displayed, locate the **Summarize with Copilot** button at the top of the page and click it. This will launch the Security Copilot embedded experience to analyze the user's activity and risks.
 
-![Summarize with Copilot Button](images/User-Investigation-Copilot.png)
+![Summarize with Copilot Button](images/EE1.png)
 
 Security Copilot will provide an automated analysis of the user's insider risk profile, including activity summaries, risk indicators, and recommended investigation steps.
 
