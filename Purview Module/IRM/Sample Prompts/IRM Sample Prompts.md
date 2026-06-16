@@ -2,6 +2,8 @@
 
 **Developer**: Dr Muataz Awad
 
+**Description**: A ready-to-use set of IRM investigation prompts for assessing user risk, recent data activity, anomalies, business impact, file access patterns, risky actions, and final triage recommendations.
+
 1. Summarize the user's current insider risk profile
 ```
 Summarize the insider risk profile for this user. Include their current risk level, active risk indicators, any open alerts or policy matches, risk score trend over time, and whether they are on a notice or have had prior incidents.
