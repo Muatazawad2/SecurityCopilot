@@ -4,6 +4,10 @@ Comprehensive guides and resources for using Microsoft Security Copilot with Mic
 
 **Developer**: Dr Muataz Awad
 
-## Coming Soon
+## Key Resources
 
-This module is currently under development. Resources will include investigation methodologies, prompt engineering examples, and automation guides for Entra-related security investigations.
+- [Entra Promptbook](Promptbook/README.md)
+- [Entra Sample Prompts](Sample%20Prompts/README.md)
+- [Entra Embedded Experiences](Embedded%20Experiences/README.md)
+- [Entra Agents](Agents/README.md)
+- [Entra Plugins](Plugins/README.md)
