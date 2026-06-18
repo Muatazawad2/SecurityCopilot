@@ -13,15 +13,6 @@ This index separates prompt samples by Microsoft Entra scenario family so each a
 - [Entra ID Governance Prompt Samples](Entra%20ID%20Governance%20Prompt%20Samples.md)
 - [Entra Internet and Private Access Prompt Samples](Entra%20Internet%20and%20Private%20Access%20Prompt%20Samples.md)
 
-## Source Mapping
-
-The prompt samples were organized from these Microsoft Learn scenario pages:
-
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-id-scenarios
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-id-protection-scenarios
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-id-governance-scenarios
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-internet-access-private-access-scenarios
-
 ## Usage Order
 
 1. Open the scenario-family file that matches your investigation.
