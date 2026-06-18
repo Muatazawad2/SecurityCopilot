@@ -11,7 +11,6 @@
 - Can users in my tenant create new tenants?
 - What are all the active licenses assigned to my tenant?
 - Who is the technical contact for my tenant?
-- Who is the security compliance contact for my tenant?
 
 ## Users
 
