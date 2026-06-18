@@ -250,27 +250,37 @@
 
 ## Conditional Access
 
-### Policy identification and status
+### Policy discovery and status
 
-- Authentication strength policies.
-- Conditional Access policy by name.
-- Active Multifactor Authentication Conditional Access Policies.
-- Enforced MFA policies.
-- Enabled Conditional Access Policies.
-- CA Policies currently enforced.
-- Actively enforced CA Policies.
+- Which Conditional Access policies are currently enabled in my tenant?
+- What Conditional Access policies are disabled?
+- List CA policies enforcing MFA.
+- Show me all authentication strength policies.
+- Which CA policies require MFA for users?
 
-### Policy configuration and management
+### Policy targeting and application
 
-- Conditional Access Policies to enable.
-- What CA Policies are not currently enabled?
-- What policies can I enable?
-- List inactive Conditional Access Policies/
-- Conditional Access Policies.
-- List CA policies.
-- What CA Policies not applicable to trusted locations?
-- Conditional Access Policies excluding all trusted locations.
-- Get all conditional access policies for user considering the groups.
+- Show CA policies applied to a specific user.
+- Which CA policies are targeting {UserPrincipalName}?
+- Show CA policies targeting a specific group.
+- What policies apply to users in the {DepartmentName} group?
+- Which CA policies apply to external users?
+
+### Policy status and management
+
+- List inactive CA policies.
+- How many CA policies are currently active?
+- What CA policies are not applicable to trusted locations?
+- Which CA policies have legacy authentication blocked?
+- Show me CA policies that require compliant devices.
+
+### Policy inventory and export
+
+- Export CA-policy inventory.
+- How many total Conditional Access policies exist in my tenant?
+- What is the count of enabled vs. disabled CA policies?
+- List all CA policies with their current enforcement state.
+- Show me a summary of all CA policy configurations.
 
 ## Authentication
 
