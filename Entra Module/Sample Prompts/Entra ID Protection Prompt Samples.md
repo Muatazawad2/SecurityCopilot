@@ -1,10 +1,5 @@
 # Entra ID Protection Prompt Samples
 
-Source scenarios:
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-id-protection-scenarios
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-risky-user-summarization
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-investigate-risky-apps
-
 **Developer**: Dr Muataz Awad
 
 **Description**: A reusable set of Microsoft Entra ID Protection prompt samples for risky user triage and workload identity/application risk analysis. Replace placeholders with your tenant values. Results may be limited if required ID Protection data, app risk signals, or permissions are unavailable.
