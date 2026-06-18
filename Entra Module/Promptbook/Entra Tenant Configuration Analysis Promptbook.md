@@ -2,138 +2,135 @@
 
 **Developer**: Dr Muataz Awad
 
-**Description**: Analyze your Entra tenant configuration and provide comprehensive information about tenant identity, size, licensing, domains, authentication methods, and overall health. Use prompts from Entra ID Prompt Samples to gather tenant-level insights. Results provide an operational overview of your tenant's identity infrastructure. Results may be limited based on query permissions and available audit data.
+**Description**: Analyze your Entra tenant configuration and provide comprehensive information about tenant identity, size, licensing, domains, authentication methods, and overall health. Results provide an operational overview of your tenant's identity infrastructure. Results may be limited based on query permissions and available audit data.
 
 ---
 
-## Step 1: Identify Tenant Configuration
+1. Identify core tenant configuration and details
 
-Start with basic tenant identification and configuration details.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#tenants):**
-- What is my tenant's display name?
-- What is my tenant ID?
-- Can users in my tenant create new tenants?
-- What are all the active licenses assigned to my tenant?
-- Who is the technical contact for my tenant?
-
----
-
-## Step 2: Analyze User Population
-
-Review user count, organization structure, and departmental breakdown.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#user-information-and-details):**
-- Give the member count of each department.
-- Show users by mail nickname.
-
-**Also from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#user-filtering-and-organization):**
-- List users without assigned licenses.
-- Show users with account disabled.
-- Are there any users with {Specific license}?
-
----
-
-## Step 3: Review Group and Organizational Structure
-
-Examine the group taxonomy and organizational hierarchy in your tenant.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#group-organization-and-governance):**
-- Show the count of groups categorized by group type.
-- List the number of groups under each of the group types.
-- How many groups exist for each group type?
-- Count the total ownerless groups in my tenant.
-
----
-
-## Step 4: Verify Domains and DNS Configuration
-
-Review all registered domains and their verification status.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#domains):**
-- List details of {DomainName}.
-- Show me DNS verification records of {DomainName}.
-- What is my initial domain name?
-
----
-
-## Step 5: Review License Utilization
-
-Assess Microsoft Entra licensing and feature utilization across your tenant.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#licenses):**
-- How many Microsoft Entra P1/P2 licenses do I have?
-- Count of P1/P2 Microsoft Entra licenses.
-- Number of Microsoft Entra ID P1/P2 licenses.
-- What is the usage of Microsoft Entra P1/P2 license?
-- Show me P1/P2 feature utilization.
-- Provide Microsoft Entra P1/P2 license usage details.
-
----
-
-## Step 6: Check Authentication Methods and Security Configuration
-
-Review authentication methods, MFA adoption, and security method enablement.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#authentication-method-configuration):**
-- What authentication methods are enabled in my tenant?
-- Is Microsoft Authenticator enabled in my tenant? For who?
-- Is registration campaign enabled in my tenant? For who?
-- Is system preferred authentication enabled in my tenant? For who?
-- Is report suspicious activity enabled in my tenant? For who?
-
----
-
-## Step 7: Monitor Service Level Agreement and Availability
-
-Check your SLA status and authentication availability metrics.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#service-level-agreement):**
-- What is my SLA for Microsoft Entra authentication?
-- What is my Microsoft Entra SLA?
-- What is the SLA of Microsoft Entra authentication?
-- Show me my tenant's authentication availability.
-- Has my tenant had an SLA breach in the last "X" months?
-
----
-
-## Step 8: Review Health and Operational Alerts
-
-Check for active health monitoring alerts and operational issues.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#health-alert-monitoring):**
-- What health alerts do I have in my tenant?
-- List all active health monitoring alerts.
-- What are my recent health monitoring alerts?
-- What users are impacted according to the active health monitoring alerts?
-
----
-
-## Step 9: Summarize Tenant Configuration and Health Status
-
-Consolidate all findings into a comprehensive tenant analysis report.
-
-**Use this prompt to summarize:**
 ```
-Based on the tenant configuration analysis, provide a comprehensive tenant report including:
-- Tenant identification (name, ID, technical contact)
-- User population metrics (total count, disabled accounts, unlicensed users)
-- Group and organizational structure (group types, ownerless groups)
-- Licensed features and utilization (Entra P1/P2 usage)
-- Authentication posture (enabled methods, MFA adoption, registration campaign status)
-- Domain configuration (registered domains, verification status)
-- Overall health status (SLA compliance, active alerts, impacted users)
-- Key operational recommendations for tenant optimization
+Provide detailed information about my Entra tenant including:
+- Tenant display name
+- Tenant ID
+- Technical contact
+- Tenant creation date
+- Whether users can create new tenants
+- Tenant region and data residency
+```
+
+2. Analyze tenant licensing and feature availability
+
+```
+Review all active licenses and subscriptions in my tenant:
+- Total license count by SKU
+- Microsoft Entra P1 and P2 license utilization
+- License assignment trends
+- Feature usage for each license type
+- Premium feature adoption and enablement
+```
+
+3. Review user population and organizational structure
+
+```
+Provide user population metrics including:
+- Total user count
+- Active vs. inactive users
+- Users by department or organizational unit
+- Disabled user accounts
+- Unlicensed users
+- Guest users and external collaborators
+```
+
+4. Analyze group taxonomy and structure
+
+```
+Review organizational grouping and structure:
+- Total group count by type (Distribution, Security, Microsoft 365)
+- Number of ownerless groups
+- Nested group structures
+- Group membership distribution
+- Dynamic membership rule usage
+```
+
+5. Verify domain configuration and status
+
+```
+List all registered domains in my tenant:
+- Domain names and verification status
+- Primary and secondary domains
+- DNS verification records
+- Initial tenant domain
+- Domain type (verified, unverified, managed)
+```
+
+6. Assess authentication methods and MFA adoption
+
+```
+Review authentication method configuration and adoption:
+- Enabled authentication methods
+- Microsoft Authenticator registration rate
+- FIDO2 security key adoption
+- Phone sign-in adoption
+- Registration campaign status and effectiveness
+- System preferred authentication configuration
+```
+
+7. Check Azure AD P1/P2 feature utilization
+
+```
+Analyze premium feature usage and adoption:
+- Conditional Access policy count and effectiveness
+- PIM (Privileged Identity Management) usage
+- Access reviews and remediation completion
+- Identity Governance features in use
+- Dynamic group usage
+- Self-service password reset (SSPR) adoption
+```
+
+8. Review service level agreement and health
+
+```
+Check tenant SLA and health metrics:
+- Microsoft Entra authentication SLA status
+- Recent SLA compliance record
+- SLA breach history
+- Tenant authentication availability percentage
+- Service health alerts and incidents
+```
+
+9. Monitor tenant health alerts and operational status
+
+```
+Review current health and operational status:
+- Active health monitoring alerts
+- Users impacted by health alerts
+- Recent health alert history
+- Recommended remediation actions
+- Overall tenant health score
+```
+
+10. Summarize tenant configuration and health report
+
+```
+Provide a comprehensive tenant analysis report including:
+- Tenant identification and configuration summary
+- User population metrics (total, departments, licenses)
+- Organizational structure and grouping (groups, types)
+- Domain configuration status
+- Licensing utilization (Entra P1/P2 features in use)
+- Authentication posture (MFA adoption, methods enabled)
+- SLA compliance and availability metrics
+- Overall health status and active alerts
+- Key optimization recommendations
+- Next steps for tenant health improvement
 ```
 
 ---
 
 ## How To Create This Promptbook In Security Copilot
 
-1. Open Security Copilot and navigate to Promptbooks.
-2. Select each prompt step and validate output, replacing placeholders like {DomainName}, {Specific license} with your actual values.
-3. Once all steps are validated, select all prompts to include in the promptbook.
-4. Enter the promptbook name: "Entra Tenant Configuration Analysis"
-5. Add the description: "Analyze your Entra tenant configuration and provide comprehensive information about tenant identity, size, licensing, and health."
-6. Create the promptbook and verify it appears in your promptbook library.
-7. Share with your identity and access governance stakeholders.
+1. Start by using each prompt directly to validate the output quality.
+2. Select all prompts to include them in the promptbook.
+3. Enter the promptbook name and description.
+4. Choose how you want to share the promptbook.
+5. Select Create, verify the success message, and open the promptbook from the library.

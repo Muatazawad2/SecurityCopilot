@@ -2,115 +2,70 @@
 
 **Developer**: Dr Muataz Awad
 
-**Description**: Investigate security incidents involving compromised accounts, suspicious activities, or unauthorized access. Work through the user's risk profile, sign-in patterns, activity anomalies, permissions and roles, and recent audit events to determine the scope and impact of the incident. Use prompts from Entra ID Prompt Samples, Entra ID Protection Prompt Samples, and Entra ID Governance Prompt Samples. Results may be limited if audit logs are not retained or required investigation permissions are unavailable.
+**Description**: Investigate security incidents involving compromised accounts, suspicious activities, or unauthorized access. Work through the user's risk profile, sign-in patterns, activity anomalies, permissions and roles, and recent audit events to determine the scope and impact of the incident. Results may be limited if audit logs are not retained or required investigation permissions are unavailable.
 
 ---
 
-## Step 1: Assess User Risk Profile
+1. Assess user risk profile and current status
 
-Determine if the targeted user is flagged as risky and understand their current risk status.
-
-**Prompts to use from [Entra ID Protection Prompt Samples](../Sample%20Prompts/Entra%20ID%20Protection%20Prompt%20Samples.md#risky-users):**
-- Determine if this user is currently high risk.
-- Display detailed risk information for this user.
-- Show the risk history for this user.
-
----
-
-## Step 2: Analyze Sign-in Patterns and Anomalies
-
-Examine the user's recent sign-in activity to identify suspicious patterns, impossible travel, or unusual authentication methods.
-
-**Prompts to use from [Entra ID Protection Prompt Samples](../Sample%20Prompts/Entra%20ID%20Protection%20Prompt%20Samples.md#risky-sign-ins):**
-- Show risky sign-ins from this user.
-- What risk factors contributed to this sign-in being flagged?
-- Has this user had risky sign-ins from unusual locations?
-- What is the pattern of risky sign-ins for this user?
-
-**Also from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#user-activity-and-security-monitoring):**
-- Show sign-in activity for the user {UserDisplayName}.
-- Show suspicious login activities.
-
----
-
-## Step 3: Review User Permissions and Roles
-
-Check what permissions, roles, and group memberships the compromised user has to assess potential scope of impact.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#user-authentication-and-permissions):**
-- Look up {UserDisplayName}'s permissions.
-
-**Also from [Entra ID Governance Prompt Samples](../Sample%20Prompts/Entra%20ID%20Governance%20Prompt%20Samples.md#access-reviews):**
-- Show current membership for this user's groups.
-- List all groups this user is a member of.
-
-**And from [Entra ID Prompt Samples — Roles](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#role-assignment-queries):**
-- What role does user {UserDisplayName} have?
-- What are the transitive roles user {UserDisplayName} has?
-
----
-
-## Step 4: Check Risky Applications and Permissions
-
-Identify what applications the user has accessed or been granted permissions to, focusing on risky or high-privilege apps.
-
-**Prompts to use from [Entra ID Protection Prompt Samples](../Sample%20Prompts/Entra%20ID%20Protection%20Prompt%20Samples.md#permissions-and-privilege-assessment):**
-- Which permissions are granted to risky apps?
-- Which permissions granted to this app are highly privileged?
-
-**Also from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#application-and-authentication-analysis):**
-- Show sign-ins to a specific application.
-
----
-
-## Step 5: Review Audit and Activity Logs
-
-Examine audit logs to identify what actions the user or attacker took, including policy changes, role modifications, or suspicious operations.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#group-management-activities) and [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#security-and-authentication-activities):**
-- Show me risky sign-ins.
-- List suspicious logins.
-- Are there any risky authentications?
-
-**From [Entra ID Governance Prompt Samples](../Sample%20Prompts/Entra%20ID%20Governance%20Prompt%20Samples.md#pim-activities):**
-- Show PIM activation history for this user.
-- Which users activated privileged roles in the last 24 hours?
-
----
-
-## Step 6: Assess Device and Access Context
-
-Review the devices and locations from which the user accessed systems to determine if access patterns are legitimate.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#device-and-location-analysis):**
-- Show sign-ins from non-compliant devices.
-- Show logins from specific operating systems.
-- Show sign-ins from specific locations.
-
----
-
-## Step 7: Summarize Incident and Determine Scope
-
-Synthesize findings into a risk assessment and identify scope of potential compromise or unauthorized activity.
-
-**Use this prompt to summarize:**
 ```
-Based on the user's risk profile, sign-in patterns, permissions, application access, and audit activity, provide a comprehensive incident summary including:
-- Overall risk verdict (Low, Medium, High, or Critical)
-- Scope of impact (number of users, groups, apps, or resources potentially affected)
-- Timeline of suspicious activity
-- Key risk indicators observed
+Determine if the user {UserPrincipalName} is currently flagged as risky. Display detailed risk information including their current risk level, active risk indicators, recent sign-in attempts, and risk score trend.
+```
+
+2. Analyze risky sign-in patterns and anomalies
+
+```
+Show all risky sign-ins from user {UserPrincipalName}. For each risky sign-in, identify what risk factors contributed to the flagging, including location anomalies, impossible travel patterns, and unusual authentication methods.
+```
+
+3. Review user sign-in activity timeline
+
+```
+Provide a detailed summary of all sign-in activity for user {UserPrincipalName} in the last 30 days. Include sign-in timestamps, applications accessed, devices used, locations, and any authentication challenges or failures. Highlight any unusual patterns or spikes.
+```
+
+4. Check user permissions and role assignments
+
+```
+Look up all permissions and roles assigned to user {UserPrincipalName}. Include direct role assignments, transitive roles, group memberships, and any privileged access assignments through PIM.
+```
+
+5. Review audit logs for suspicious activities
+
+```
+Show all audit log entries for user {UserPrincipalName} in the last 7 days. Include administrative actions, role modifications, group membership changes, policy updates, and any other activities that may indicate compromise or unauthorized changes.
+```
+
+6. Identify risky application access
+
+```
+Show all applications that user {UserPrincipalName} has signed into or been granted permissions to. Identify if any of these applications are flagged as risky or have highly privileged permissions assigned.
+```
+
+7. Assess device and location context
+
+```
+Analyze the devices and locations from which user {UserPrincipalName} has accessed systems. Identify any non-compliant devices, unusual operating systems, impossible travel patterns, or sign-ins from outside normal geographic locations.
+```
+
+8. Summarize incident investigation findings
+
+```
+Provide a comprehensive incident investigation summary for user {UserPrincipalName} including:
+- Overall risk verdict (Low, Medium, High, or Critical) with justification
+- Scope of potential impact (affected resources, groups, applications)
+- Timeline of suspicious activities observed
+- Key risk indicators and anomalies detected
 - Recommended immediate investigation or containment steps
+- Whether escalation to security operations is warranted
 ```
 
 ---
 
 ## How To Create This Promptbook In Security Copilot
 
-1. Open Security Copilot and navigate to Promptbooks.
-2. Select each prompt step and run them in order, replacing placeholders like {UserDisplayName}, {UserPrincipalName} with actual values.
-3. Once validated, select all prompts to include in the promptbook.
-4. Enter the promptbook name: "Entra Incident Response Investigation"
-5. Add the description: "Investigate security incidents involving compromised accounts, suspicious activities, or unauthorized access."
-6. Create the promptbook and verify it appears in your promptbook library.
-7. Share with your security team as needed.
+1. Start by using each prompt directly to validate the output quality, replacing {UserPrincipalName} with the account under investigation.
+2. Select all prompts (as shown in the screenshot) to include them in the promptbook.
+3. Enter the promptbook name and description.
+4. Choose how you want to share the promptbook.
+5. Select Create, verify the success message, and open the promptbook from the library.

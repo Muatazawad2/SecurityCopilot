@@ -2,140 +2,130 @@
 
 **Developer**: Dr Muataz Awad
 
-**Description**: Analyze Conditional Access policies across your Entra tenant. Review policy inventory, targeting scope, enforcement requirements, user compliance patterns, and policy effectiveness. Identify gaps in coverage, policy conflicts, and enforcement challenges. Use prompts from Entra ID Prompt Samples to assess your complete CA policy posture. Results depend on available policy audit logs and sign-in data.
+**Description**: Analyze Conditional Access policies across your Entra tenant. Review policy inventory, targeting scope, enforcement requirements, user compliance patterns, and policy effectiveness. Identify gaps in coverage, policy conflicts, and enforcement challenges. Results depend on available policy audit logs and sign-in data.
 
 ---
 
-## Step 1: Inventory All Conditional Access Policies
+1. Inventory all Conditional Access policies
 
-Start by listing all CA policies and their current deployment status.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#policy-discovery-and-status):**
-- Which Conditional Access policies are currently enabled in my tenant?
-- What Conditional Access policies are disabled?
-- List CA policies enforcing MFA.
-- Show me all authentication strength policies.
-- Which CA policies require MFA for users?
-
----
-
-## Step 2: Review Policy Targeting and Scope
-
-Examine which users, groups, and applications are affected by CA policies.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#policy-targeting-and-application):**
-- Show CA policies applied to a specific user.
-- Which CA policies are targeting {UserPrincipalName}?
-- Show CA policies targeting a specific group.
-- What policies apply to users in the {DepartmentName} group?
-- Which CA policies apply to external users?
-
----
-
-## Step 3: Analyze Policy Requirements and Controls
-
-Review the specific controls and conditions implemented in each policy.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#policy-status-and-management):**
-- List inactive CA policies.
-- How many CA policies are currently active?
-- What CA policies are not applicable to trusted locations?
-- Which CA policies have legacy authentication blocked?
-- Show me CA policies that require compliant devices.
-
----
-
-## Step 4: Check Policy Enforcement and Sign-in Impact
-
-Examine how policies are being enforced and their impact on user sign-ins.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#application-and-authentication-analysis):**
-- Show sign-in failures due to a specific Conditional Access policy.
-- Show sign-ins with unsatisfied Conditional Access Policies.
-
----
-
-## Step 5: Assess Device and Location Controls
-
-Review CA policy controls related to device compliance and location-based access.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#device-identification-and-status):**
-- Show me all compliant devices / Show me all non-compliant devices.
-- List devices that are not under management.
-
-**Also from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#device-and-location-analysis):**
-- Show sign-ins from non-compliant devices.
-- Show logins from specific operating systems.
-- Show sign-ins from specific locations.
-
----
-
-## Step 6: Review Authentication Method Requirements
-
-Examine CA policies enforcing specific authentication methods and MFA configuration.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#authentication-method-configuration):**
-- What authentication methods are enabled in my tenant?
-- Is Microsoft Authenticator enabled in my tenant? For who?
-- Is system preferred authentication enabled in my tenant? For who?
-
----
-
-## Step 7: Export Policy Inventory and Configuration
-
-Get comprehensive policy inventory and configuration export.
-
-**Prompts to use from [Entra ID Prompt Samples](../Sample%20Prompts/Entra%20ID%20Prompt%20Samples.md#policy-inventory-and-export):**
-- Export CA-policy inventory.
-- How many total Conditional Access policies exist in my tenant?
-- What is the count of enabled vs. disabled CA policies?
-- List all CA policies with their current enforcement state.
-- Show me a summary of all CA policy configurations.
-
----
-
-## Step 8: Identify Policy Gaps and Conflicts
-
-Analyze coverage gaps and potential policy conflicts or redundancies.
-
-**Use this prompt to summarize:**
 ```
-Review the CA policy inventory and targeting, then identify:
-- Policies with overlapping or redundant controls
-- User populations not covered by specific policy types (e.g., external users, risky sign-ins)
-- Policies with high sign-in failure rates or exceptions
-- Policies that appear inactive or have low enforcement impact
-- Recommended new policies to close identified coverage gaps
+List all Conditional Access policies in my tenant including:
+- Policy name and ID
+- Current enforcement state (enabled, disabled, report-only)
+- Policies enforcing MFA requirements
+- Authentication strength policies
+- Total policy count and distribution by control type
 ```
 
----
+2. Review policy targeting and user/group scope
 
-## Step 9: Provide Policy Recommendations and Optimization
-
-Consolidate findings into a comprehensive CA policy analysis and recommendations.
-
-**Use this prompt to summarize:**
 ```
-Based on the complete Conditional Access policy analysis, provide a comprehensive assessment including:
-- Total policy count (enabled, disabled, draft)
-- Policy coverage by control type (MFA, device compliance, legacy auth, location, etc.)
-- User and group populations affected by policies
-- Policy enforcement effectiveness (failure rate, unsatisfied policy count)
-- Device compliance adoption and non-compliant device count
-- Key gaps in policy coverage
-- High-priority recommendations for new policies or policy updates
-- Suggested policy review and optimization roadmap
-- Timeline for next CA policy audit
+Analyze which users and groups are targeted by Conditional Access policies:
+- Policies targeting all users vs. specific groups
+- External user policy coverage
+- Administrator-specific policies
+- Policies targeting specific applications or service principals
+- User populations with no policy coverage
+```
+
+3. Assess policy controls and requirements
+
+```
+Review the specific controls implemented by each policy:
+- Policies requiring MFA
+- Device compliance requirements
+- Location and network restrictions
+- Client app restrictions (legacy auth blocking)
+- Session and sign-in frequency controls
+```
+
+4. Analyze policy enforcement and impact
+
+```
+Examine the real-world impact of policy enforcement:
+- Sign-in failures caused by policy violations
+- Frequency of unsatisfied policy conditions
+- Applications most frequently blocked by policies
+- User exception and policy bypass patterns
+- Impact on user productivity vs. security benefit
+```
+
+5. Review device compliance requirements
+
+```
+Analyze device-related policy controls and status:
+- Policies requiring device compliance
+- Device compliance status distribution (compliant vs. non-compliant)
+- Devices requiring remediation
+- Non-managed devices in the environment
+- Mobile device management (MDM) enrollment coverage
+```
+
+6. Check authentication and MFA requirements
+
+```
+Review authentication and MFA policy configuration:
+- Policies requiring MFA
+- MFA method requirements
+- Authentication strength policies
+- Conditional authentication based on risk
+- Legacy authentication blocking coverage
+```
+
+7. Identify policy gaps and coverage issues
+
+```
+Identify areas where Conditional Access coverage may be insufficient:
+- User populations without policy coverage
+- Applications without specific policy controls
+- Risk scenarios not covered by policies
+- External access protection gaps
+- Legacy system access protection gaps
+```
+
+8. Analyze policy conflicts and inefficiencies
+
+```
+Review for policy conflicts and inefficiencies:
+- Overlapping or redundant policies
+- Policies with low enforcement rate or exceptions
+- Policies that appear to have minimal impact
+- Report-only policies pending enforcement decision
+- Policies requiring review or tuning
+```
+
+9. Export and summarize policy inventory
+
+```
+Provide a complete Conditional Access policy summary:
+- Total policy count (enabled, disabled, report-only)
+- Policy count by control type (MFA, device, location, legacy auth)
+- User/group coverage metrics
+- Policy effectiveness and enforcement metrics
+- Device compliance adoption rates
+- Authentication method adoption
+- Recommended new policies to close gaps
+```
+
+10. Provide Conditional Access optimization recommendations
+
+```
+Deliver Conditional Access recommendations and optimization plan:
+- High-priority policy improvements
+- Recommended new policies for identified gaps
+- Policy consolidation or deduplication opportunities
+- Report-only to enforcement transition timeline
+- Device compliance and MFA adoption targets
+- Recommended policy review schedule
+- Implementation roadmap with priority ranking
 ```
 
 ---
 
 ## How To Create This Promptbook In Security Copilot
 
-1. Open Security Copilot and navigate to Promptbooks.
-2. Select each prompt step and validate output, replacing placeholders like {UserPrincipalName}, {DepartmentName} with actual values.
-3. Once all steps are validated, select all prompts to include in the promptbook.
-4. Enter the promptbook name: "Entra Conditional Access Policy Analysis"
-5. Add the description: "Analyze Conditional Access policies across your Entra tenant to assess coverage, effectiveness, and identify optimization opportunities."
-6. Create the promptbook and verify it appears in your promptbook library.
-7. Share with your security and identity governance teams for regular policy audits.
+1. Start by using each prompt directly to validate the output quality.
+2. Select all prompts to include them in the promptbook.
+3. Enter the promptbook name and description.
+4. Choose how you want to share the promptbook.
+5. Select Create, verify the success message, and open the promptbook from the library.
