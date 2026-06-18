@@ -6,10 +6,10 @@
 
 ---
 
-1. Inventory all Conditional Access policies
+1. Inventory Conditional Access policies by state
 
 ```
-List all Conditional Access policies in my tenant including:
+List Conditional Access policies that are enabled or report-only (up to 100 policies) and include:
 - Policy name and ID
 - Current enforcement state (enabled, disabled, report-only)
 - Policies enforcing MFA requirements
@@ -21,7 +21,7 @@ List all Conditional Access policies in my tenant including:
 
 ```
 Analyze which users and groups are targeted by Conditional Access policies:
-- Policies targeting all users vs. specific groups
+- Policies targeting tenant-wide scopes vs. specific groups
 - External user policy coverage
 - Administrator-specific policies
 - Policies targeting specific applications or service principals
@@ -104,7 +104,7 @@ Provide a complete Conditional Access policy summary:
 - Policy effectiveness and enforcement metrics
 - Device compliance adoption rates
 - Authentication method adoption
-- Recommended new policies to close gaps
+- Top 10 recommended new policies to close gaps
 ```
 
 10. Provide Conditional Access optimization recommendations

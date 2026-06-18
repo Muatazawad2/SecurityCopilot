@@ -6,10 +6,10 @@
 
 ---
 
-1. Identify and list all risky applications
+1. Identify and list high-risk applications
 
 ```
-Show me all applications in my tenant flagged as risky. For each risky app, display the application name, ID, risk level, risk state (e.g., confirmed compromise), number of owners, and current enforcement status.
+Show me up to 50 applications in my tenant flagged as risky in the last 30 days, prioritized by High/Critical risk level. For each app, display the application name, ID, risk level, risk state (e.g., confirmed compromise), number of owners, and current enforcement status.
 ```
 
 2. Analyze application permissions and privilege level
@@ -26,7 +26,7 @@ For the risky applications identified, analyze their permissions including:
 3. Review service principals and application ownership
 
 ```
-Provide details about service principals in my tenant including:
+Provide details for up to 50 service principals that are risky, highly privileged, or recently active (last 30 days), including:
 - Service principal name and display name
 - Application ID and object ID
 - Ownership and creation date
@@ -37,7 +37,7 @@ Provide details about service principals in my tenant including:
 4. Identify external and multitenant application exposure
 
 ```
-Show all applications configured for external or multitenant access including:
+Show up to 50 applications configured for external or multitenant access, prioritized by broad OAuth scope or high privilege, including:
 - Applications available to other tenants
 - External API access patterns
 - Cross-tenant resource access
@@ -48,7 +48,7 @@ Show all applications configured for external or multitenant access including:
 5. Assess application credential status and expiration
 
 ```
-Review all application credentials in my tenant including:
+Review application credentials that are expired or expiring in the next 30 days (up to 100 records), including:
 - Certificate and secret status
 - Expiration dates (current, expiring, and expired)
 - Credentials without expiration configured
@@ -59,7 +59,7 @@ Review all application credentials in my tenant including:
 6. Identify unused and stale applications
 
 ```
-List all unused or stale applications in my tenant including:
+List up to 50 unused or stale applications in my tenant, prioritized by high privilege and no sign-in activity in the last 90 days, including:
 - Applications with no sign-in activity in the last 90 days
 - Service principals created but never used
 - Legacy or deprecated applications

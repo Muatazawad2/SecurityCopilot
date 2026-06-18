@@ -10,7 +10,7 @@
 
 ```
 Provide an overview of Privileged Identity Management (PIM) configuration in my tenant including:
-- List of all privileged roles managed by PIM
+- List privileged roles managed by PIM (up to 50 roles)
 - Number of active vs. eligible role assignments
 - PIM approval workflow configuration
 - Just-in-time access activation patterns
@@ -33,7 +33,7 @@ Review PIM activation patterns and privileged access activity:
 
 ```
 Examine access review governance and completion:
-- List all active and pending access review campaigns
+- List active and pending access review campaigns created in the last 12 months (up to 50 campaigns)
 - Access review completion rates and timelines
 - Groups and resources currently under review
 - Access review timeline and deadline status

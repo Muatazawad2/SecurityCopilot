@@ -21,7 +21,7 @@ Provide detailed information about my Entra tenant including:
 2. Analyze tenant licensing and feature availability
 
 ```
-Review all active licenses and subscriptions in my tenant:
+Review active licenses and subscriptions in my tenant. If there are more than 50 SKUs, return the top 50 by assigned seats. Include:
 - Total license count by SKU
 - Microsoft Entra P1 and P2 license utilization
 - License assignment trends
@@ -55,7 +55,7 @@ Review organizational grouping and structure:
 5. Verify domain configuration and status
 
 ```
-List all registered domains in my tenant:
+List verified and unverified domains currently registered in my tenant (up to 50 domains), including:
 - Domain names and verification status
 - Primary and secondary domains
 - DNS verification records

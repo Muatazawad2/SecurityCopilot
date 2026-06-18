@@ -15,7 +15,7 @@ Provide a comprehensive profile summary for user {UserPrincipalName}. Include di
 2. Review user licensing and feature access
 
 ```
-Show all licenses and subscription SKUs assigned to user {UserPrincipalName}. Include license assignment date, any disabled plans, and overall license compliance. Identify if the user is unlicensed or missing required licenses for their role.
+Show licenses and subscription SKUs assigned to user {UserPrincipalName}. Include license assignment date, any disabled plans, and overall license compliance. Identify if the user is unlicensed or missing required licenses for their role.
 ```
 
 3. Assess user risk status and indicators
@@ -24,16 +24,16 @@ Show all licenses and subscription SKUs assigned to user {UserPrincipalName}. In
 Determine if user {UserPrincipalName} is currently flagged as risky. Display their risk level, active risk indicators, recent risky sign-ins, risk score trend, and any security recommendations.
 ```
 
-4. Review all group memberships
+4. Review user group memberships
 
 ```
-List all groups that user {UserPrincipalName} is a member of. For each group, include group name, type (Distribution, Security, Microsoft 365), membership date, and ownership information. Highlight any high-privilege or security-sensitive groups.
+List up to 100 groups that user {UserPrincipalName} is a member of, prioritizing security-enabled and role-assignable groups. For each group, include group name, type (Distribution, Security, Microsoft 365), membership date, and ownership information.
 ```
 
 5. Check role assignments and privileged access
 
 ```
-Display all roles assigned to user {UserPrincipalName}, including:
+Display roles assigned to user {UserPrincipalName}. If there are more than 50 role-related assignments, prioritize privileged and admin roles first, then summarize remaining counts. Include:
 - Direct role assignments
 - Transitive roles inherited through group membership
 - Eligible roles managed through PIM
@@ -43,7 +43,7 @@ Display all roles assigned to user {UserPrincipalName}, including:
 6. Verify authentication methods and MFA status
 
 ```
-Show all authentication methods registered for user {UserPrincipalName}. Include MFA registration status, authentication methods available (phone, authenticator app, FIDO2, etc.), and whether the user has passwordless sign-in configured.
+Show authentication methods registered for user {UserPrincipalName}. Include MFA registration status, authentication methods available (phone, authenticator app, FIDO2, etc.), and whether the user has passwordless sign-in configured.
 ```
 
 7. Analyze recent user activity and sign-ins
