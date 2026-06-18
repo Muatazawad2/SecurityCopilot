@@ -2,110 +2,82 @@
 
 **Developer**: Dr Muataz Awad
 
-**Description**: Audit access control policies and compliance posture across your Entra tenant. Review Conditional Access policies, privileged access management activities, access review status, and device compliance. Assess alignment with security standards and identify gaps in policy enforcement. Results depend on available policy logs and audit trail data.
+**Description**: Audit access governance, privileged access management, and device compliance across your Entra tenant. Review PIM activities, access review campaigns, device compliance status, and authentication method adoption. Assess alignment with compliance standards and identity governance best practices. Results depend on available audit logs and policy configuration data.
 
 ---
 
-1. Inventory all Conditional Access policies
+1. Review Privileged Identity Management (PIM) configuration
 
 ```
-List all Conditional Access policies in my tenant including:
-- Policy name and ID
-- Current enforcement state (enabled/disabled/report-only)
-- Policies enforcing MFA requirements
-- Authentication strength policies
-- Number of policies by control type
+Provide an overview of Privileged Identity Management (PIM) configuration in my tenant including:
+- List of all privileged roles managed by PIM
+- Number of active vs. eligible role assignments
+- PIM approval workflow configuration
+- Just-in-time access activation patterns
+- PIM security rules and constraints (time limits, MFA requirements)
 ```
 
-2. Analyze Conditional Access policy targeting
+2. Analyze PIM activation history and activity
 
 ```
-Review Conditional Access policy targeting and scope:
-- Which users and groups are targeted by policies
-- Policy coverage by user role or department
-- External user policy coverage
-- Application-specific policy targeting
-- Risk areas with low or no policy coverage
+Review PIM activation patterns and privileged access activity:
+- Show PIM activation history for the last 30 days
+- Which users activated privileged roles recently
+- How many users have eligible vs. active role assignments
+- Privileged role activation approval rates
+- Users with frequent or unusual role activations
+- Pending PIM activation approvals
 ```
 
-3. Assess Conditional Access requirements and controls
+3. Review access review campaigns and completion status
 
 ```
-Analyze Conditional Access policy controls:
-- Policies requiring MFA
-- Device compliance requirements
-- Legacy authentication blocking policies
-- Location-based restrictions
-- Session and sign-in frequency controls
-```
-
-4. Review Conditional Access enforcement impact
-
-```
-Analyze the real-world impact of Conditional Access policies:
-- Sign-in failures caused by policy violations
-- Unsatisfied policy patterns
-- High exception rates or policy bypasses
-- User impact metrics from policy enforcement
-- Applications most frequently blocked by policies
-```
-
-5. Examine PIM and privileged access governance
-
-```
-Review Privileged Identity Management (PIM) configuration and activity:
-- Eligible vs. active role assignments
-- PIM activation history and approval workflow
-- Just-in-time access patterns
-- Time-bound role assignments
-- Admin role holders and their activity
-```
-
-6. Review access review campaigns and status
-
-```
-Assess access review campaigns:
-- Active and pending access review campaigns
+Examine access review governance and completion:
+- List all active and pending access review campaigns
 - Access review completion rates and timelines
-- Compliance with access review deadlines
-- Resources and groups under review
-- Access removal recommendations from reviews
+- Groups and resources currently under review
+- Access review timeline and deadline status
+- Recommendations for removal from access reviews
+- Outstanding access review decisions or approvals
 ```
 
-7. Assess device compliance and management
+4. Assess device compliance and management posture
 
 ```
-Review device compliance posture:
+Review device compliance and management coverage:
 - Total device count and compliance distribution
-- Non-compliant devices requiring remediation
-- Devices not under management
+- Number of compliant vs. non-compliant devices
+- Devices requiring remediation
+- Non-managed devices in the environment
 - Device operating systems and risk profiles
-- Mobile device management (MDM) enrollment status
+- Mobile device management (MDM) enrollment rates
 ```
 
-8. Check authentication method policies and adoption
+5. Review authentication method adoption and configuration
 
 ```
-Review authentication method configuration and adoption:
+Examine authentication method policies and adoption:
 - Enabled authentication methods in the tenant
-- MFA method registration rates (Authenticator, FIDO2, phone, etc.)
+- MFA method registration rates by type (Authenticator app, FIDO2, phone, etc.)
 - System preferred authentication configuration
-- Passwordless sign-in adoption
+- Passwordless sign-in adoption rates
 - Authentication method enforcement for privileged users
+- Registration campaign status and effectiveness
 ```
 
-9. Summarize access control and compliance posture
+6. Summarize access governance and compliance posture
 
 ```
-Provide a comprehensive access control and compliance audit including:
-- Conditional Access policy posture (coverage, enforcement, effectiveness)
-- PIM governance maturity and privileged access risk
-- Access review compliance and remediation rates
+Provide a comprehensive access governance and compliance audit including:
+- PIM maturity level and privileged access risk score
+- Active vs. eligible role assignments distribution
+- Access review completion rates and remediation status
 - Device compliance and management coverage
 - Authentication method adoption and MFA coverage
-- Key compliance gaps and priority remediation items
-- Recommended policy adjustments and governance improvements
-- Timeline for next audit cycle
+- Key compliance gaps (PIM, access reviews, device management, MFA)
+- Recommendations for governance improvements
+- Priority actions to enhance access control compliance
+- Timeline for next governance audit cycle
 ```
 
 ---
