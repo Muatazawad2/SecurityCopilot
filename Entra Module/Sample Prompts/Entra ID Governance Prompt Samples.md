@@ -7,7 +7,7 @@
 ### Access review exploration and management
 
 - Show me the top 10 pending access reviews.
-- Get access review details for Finance Microsoft 365 Groups Q2.
+- Get access review details for {AccessReviewName}.
 - Who are the reviewers for the Sales App Access Q2 review?
 
 ### Access review decision analysis
