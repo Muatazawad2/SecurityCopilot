@@ -63,8 +63,3 @@
 
 - Show me apps outside my tenant.
 - How many apps are from outside my tenant?
-
-## Session Hygiene
-
-- Activate the {required role} so that I can perform {desired task}.
-- I am done with my investigation or {desired task}, deactivate my access.
