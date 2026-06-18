@@ -9,13 +9,13 @@
 1. Identify and list high-risk applications
 
 ```
-Show me up to 50 applications in my tenant flagged as risky in the last 30 days, prioritized by High/Critical risk level. For each app, display the application name, ID, risk level, risk state (e.g., confirmed compromise), number of owners, and current enforcement status.
+Start with application {ApplicationIdOrDisplayName}. If that application is unavailable, show up to 20 high-risk applications from the last 30 days, prioritized by High/Critical risk level. For each result, display application name, ID, risk level, risk state (e.g., confirmed compromise), number of owners, and current enforcement status.
 ```
 
 2. Analyze application permissions and privilege level
 
 ```
-For the risky applications identified, analyze their permissions including:
+For this application set, analyze permissions including:
 - API permissions granted (application and delegated)
 - Highly privileged permissions
 - Admin consent status
@@ -26,7 +26,7 @@ For the risky applications identified, analyze their permissions including:
 3. Review service principals and application ownership
 
 ```
-Provide details for up to 50 service principals that are risky, highly privileged, or recently active (last 30 days), including:
+Provide details for up to 20 related service principals that are risky, highly privileged, or recently active (last 30 days), including:
 - Service principal name and display name
 - Application ID and object ID
 - Ownership and creation date
@@ -37,7 +37,7 @@ Provide details for up to 50 service principals that are risky, highly privilege
 4. Identify external and multitenant application exposure
 
 ```
-Show up to 50 applications configured for external or multitenant access, prioritized by broad OAuth scope or high privilege, including:
+For this application set, show up to 20 applications configured for external or multitenant access, prioritized by broad OAuth scope or high privilege, including:
 - Applications available to other tenants
 - External API access patterns
 - Cross-tenant resource access
@@ -48,7 +48,7 @@ Show up to 50 applications configured for external or multitenant access, priori
 5. Assess application credential status and expiration
 
 ```
-Review application credentials that are expired or expiring in the next 30 days (up to 100 records), including:
+Review credentials for this application set that are expired or expiring in the next 30 days (up to 50 records), including:
 - Certificate and secret status
 - Expiration dates (current, expiring, and expired)
 - Credentials without expiration configured
@@ -59,7 +59,7 @@ Review application credentials that are expired or expiring in the next 30 days 
 6. Identify unused and stale applications
 
 ```
-List up to 50 unused or stale applications in my tenant, prioritized by high privilege and no sign-in activity in the last 90 days, including:
+Within this application set, list up to 20 unused or stale applications prioritized by high privilege and no sign-in activity in the last 90 days, including:
 - Applications with no sign-in activity in the last 90 days
 - Service principals created but never used
 - Legacy or deprecated applications
@@ -106,8 +106,9 @@ Provide a comprehensive application security assessment including:
 
 ## How To Create This Promptbook In Security Copilot
 
-1. Start by using each prompt directly to validate the output quality.
-2. Select all prompts to include them in the promptbook.
-3. Enter the promptbook name and description.
-4. Choose how you want to share the promptbook.
-5. Select Create, verify the success message, and open the promptbook from the library.
+1. Start by running step 1 and replacing {ApplicationIdOrDisplayName} with the primary app to investigate.
+2. Run the remaining steps without adding another placeholder; they refer to this application set from step 1 context.
+3. Select all prompts to include them in the promptbook.
+4. Enter the promptbook name and description.
+5. Choose how you want to share the promptbook.
+6. Select Create, verify the success message, and open the promptbook from the library.

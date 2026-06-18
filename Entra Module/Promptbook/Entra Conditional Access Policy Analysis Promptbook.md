@@ -9,7 +9,7 @@
 1. Inventory Conditional Access policies by state
 
 ```
-List Conditional Access policies that are enabled or report-only (up to 100 policies) and include:
+Start with policy scope {PolicyNameOrScope}. If no exact match is found, list enabled or report-only Conditional Access policies (up to 50 policies) and include:
 - Policy name and ID
 - Current enforcement state (enabled, disabled, report-only)
 - Policies enforcing MFA requirements
@@ -20,7 +20,7 @@ List Conditional Access policies that are enabled or report-only (up to 100 poli
 2. Review policy targeting and user/group scope
 
 ```
-Analyze which users and groups are targeted by Conditional Access policies:
+Analyze which users and groups are targeted by this policy set:
 - Policies targeting tenant-wide scopes vs. specific groups
 - External user policy coverage
 - Administrator-specific policies
@@ -31,7 +31,7 @@ Analyze which users and groups are targeted by Conditional Access policies:
 3. Assess policy controls and requirements
 
 ```
-Review the specific controls implemented by each policy:
+Review the specific controls implemented by this policy set:
 - Policies requiring MFA
 - Device compliance requirements
 - Location and network restrictions
@@ -42,7 +42,7 @@ Review the specific controls implemented by each policy:
 4. Analyze policy enforcement and impact
 
 ```
-Examine the real-world impact of policy enforcement:
+Examine the real-world impact of this policy set:
 - Sign-in failures caused by policy violations
 - Frequency of unsatisfied policy conditions
 - Applications most frequently blocked by policies
@@ -53,7 +53,7 @@ Examine the real-world impact of policy enforcement:
 5. Review device compliance requirements
 
 ```
-Analyze device-related policy controls and status:
+Analyze device-related controls and status for this policy set:
 - Policies requiring device compliance
 - Device compliance status distribution (compliant vs. non-compliant)
 - Devices requiring remediation
@@ -64,7 +64,7 @@ Analyze device-related policy controls and status:
 6. Check authentication and MFA requirements
 
 ```
-Review authentication and MFA policy configuration:
+Review authentication and MFA configuration for this policy set:
 - Policies requiring MFA
 - MFA method requirements
 - Authentication strength policies
@@ -75,7 +75,7 @@ Review authentication and MFA policy configuration:
 7. Identify policy gaps and coverage issues
 
 ```
-Identify areas where Conditional Access coverage may be insufficient:
+Identify areas where coverage in this policy set may be insufficient:
 - User populations without policy coverage
 - Applications without specific policy controls
 - Risk scenarios not covered by policies
@@ -86,7 +86,7 @@ Identify areas where Conditional Access coverage may be insufficient:
 8. Analyze policy conflicts and inefficiencies
 
 ```
-Review for policy conflicts and inefficiencies:
+Review this policy set for conflicts and inefficiencies:
 - Overlapping or redundant policies
 - Policies with low enforcement rate or exceptions
 - Policies that appear to have minimal impact
@@ -124,8 +124,9 @@ Deliver Conditional Access recommendations and optimization plan:
 
 ## How To Create This Promptbook In Security Copilot
 
-1. Start by using each prompt directly to validate the output quality.
-2. Select all prompts to include them in the promptbook.
-3. Enter the promptbook name and description.
-4. Choose how you want to share the promptbook.
-5. Select Create, verify the success message, and open the promptbook from the library.
+1. Start by running step 1 and replacing {PolicyNameOrScope} with the policy name, control theme, or scope to investigate.
+2. Run the remaining steps without adding another placeholder; they refer to this policy set from step 1 context.
+3. Select all prompts to include them in the promptbook.
+4. Enter the promptbook name and description.
+5. Choose how you want to share the promptbook.
+6. Select Create, verify the success message, and open the promptbook from the library.
