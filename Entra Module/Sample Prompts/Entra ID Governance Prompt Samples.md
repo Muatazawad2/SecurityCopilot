@@ -1,10 +1,5 @@
 # Entra ID Governance Prompt Samples
 
-Source scenarios:
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-id-governance-scenarios
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-governance-optimization
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-lifecycle-workflows
-
 **Developer**: Dr Muataz Awad
 
 ## Access Reviews
