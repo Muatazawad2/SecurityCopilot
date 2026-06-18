@@ -287,8 +287,3 @@
 - What authentication methods does {UserPrincipalName} have registered?
 - Is user {UserPrincipalName} enabled for per-user MFA?
 - How many users have the FIDO2 Security keys method registered?
-
-## Session Hygiene
-
-- Activate the {required role} so that I can perform {the desired task}.
-- I am done with my investigation or {desired task}, deactivate my access.
