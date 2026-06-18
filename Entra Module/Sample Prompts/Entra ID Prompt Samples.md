@@ -23,23 +23,23 @@ Source scenarios:
 
 - Show recently deleted users.
 - Tell me about myself.
-- Are there guest users in the Human Resources department?
-- Show transitive reports of Brandon Artois.
+- Are there guest users in the {DepartmentName} department?
+- Show transitive reports of {ManagerOrUserDisplayName}.
 - Give the member count of each department.
-- Who is Asha Brunelle's manager?
-- Is Blake Martin's account cloud managed?
+- Who is {UserDisplayName}'s manager?
+- Is {UserDisplayName}'s account cloud managed?
 - Show users by mail nickname.
 
 ### User authentication and permissions
 
-- What are Abbi Atin's authentication methods?
-- Look up Abadi Bod's permissions.
-- How many users are reporting to Brandon Artois?
+- What are {UserDisplayName}'s authentication methods?
+- Look up {UserDisplayName}'s permissions.
+- How many users are reporting to {ManagerDisplayName}?
 
 ### User filtering and organization
 
 - List users without assigned licenses.
-- List users in Finance or Marketing department.
+- List users in {DepartmentName1} or {DepartmentName2} department.
 - Show users not in {Company Name}.
 - Show users with account disabled.
 - Are there any users with {Specific license}?
@@ -71,8 +71,8 @@ Source scenarios:
 
 ## Domains
 
-- List details of contoso.com.
-- Show me DNS verification records of contoso.com.
+- List details of {DomainName}.
+- Show me DNS verification records of {DomainName}.
 - What is my initial domain name?
 
 ## Licenses
@@ -103,7 +103,7 @@ Source scenarios:
 ### User activity and security monitoring
 
 - Show sign-in activities since a specific time period.
-- Show sign-in activity for the user Casey Jensen.
+- Show sign-in activity for the user {UserDisplayName}.
 - Show suspicious login activities.
 - Display risky sign-ins.
 
@@ -119,7 +119,7 @@ Source scenarios:
 - Group creation details.
 - What groups were created by these users?
 - Show groups created by specific users.
-- List all groups created by the user Casey Jensen.
+- List all groups created by the user {UserDisplayName}.
 
 ### Security and authentication activities
 
@@ -164,9 +164,9 @@ Source scenarios:
 
 - List all Entra recommendations.
 - Show my tenant's historical Secure Score data.
-- Show Entra recommendation "example" and its details.
+- Show Entra recommendation "{RecommendationName}" and its details.
 - Show the resources affected by an Entra recommendation.
-- Show resource "example" of Entra recommendation "example".
+- Show resource "{ResourceName}" of Entra recommendation "{RecommendationName}".
 - List secure score recommendations.
 - List best practice recommendations.
 
@@ -230,13 +230,13 @@ Source scenarios:
 ### Role information and identification
 
 - What is the ID of role (role name)
-- Name of the role with ID 5d6b6bb7-de71-4623-b4af-96380a352509
+- Name of the role with ID {RoleId}
 
 ## Devices
 
 ### Device identification and status
 
-- Show me the device for with an ID of {ID}
+- Show me the device with ID {DeviceId}
 - Show me all compliant devices/Show me all non-compliant devices.
 - List devices that are not under management.
 - How many devices are there?
@@ -289,8 +289,8 @@ Source scenarios:
 
 ### User authentication status
 
-- What authentication methods does karita@woodgrovebank.com have registered?
-- Is user karita@woodgrovebank.com enabled for per-user MFA?
+- What authentication methods does {UserPrincipalName} have registered?
+- Is user {UserPrincipalName} enabled for per-user MFA?
 - How many users have the FIDO2 Security keys method registered?
 
 ## Session Hygiene

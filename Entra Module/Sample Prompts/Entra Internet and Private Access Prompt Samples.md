@@ -14,16 +14,16 @@ Source scenario:
 
 ### Investigate blocked traffic and security threats
 
-- Show all blocked traffic for user david.analyst@woodgrovebank.com in the last 24 hours.
+- Show all blocked traffic for user {UserPrincipalName} in the last 24 hours.
 - List all applications with high-risk scores accessed in the last 24 hours based on network traffic logs.
 
 ### Analyze user application access patterns
 
-- List all applications names that user sarah.manager@woodgrovebank.com has accessed in the last 24 hours based on network traffic logs.
+- List all application names that user {UserPrincipalName} has accessed in the last 24 hours based on network traffic logs.
 
 ### Monitor cross-tenant access and external connections
 
-- Show all cross-tenant traffic to tenant aaaabbbb-0000-cccc-1111-dddd2222eeee in the last 7 days based on network traffic logs.
+- Show all cross-tenant traffic to tenant {TargetTenantId} in the last 7 days based on network traffic logs.
 
 ## Session Hygiene
 
