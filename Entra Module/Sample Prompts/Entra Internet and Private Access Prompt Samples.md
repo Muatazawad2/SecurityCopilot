@@ -1,8 +1,5 @@
 # Entra Internet and Private Access Prompt Samples
 
-Source scenario:
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-internet-access-private-access-scenarios
-
 **Developer**: Dr Muataz Awad
 
 **Description**: A reusable set of Microsoft Entra Internet Access and Private Access prompt samples for Global Secure Access traffic analysis, threat investigation, access pattern review, and cross-tenant monitoring. Replace placeholders with your tenant values. Results depend on network traffic telemetry and licensed feature availability.
