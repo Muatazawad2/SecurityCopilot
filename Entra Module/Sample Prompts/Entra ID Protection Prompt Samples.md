@@ -7,6 +7,8 @@ Source scenarios:
 
 **Developer**: Dr Muataz Awad
 
+**Description**: A reusable set of Microsoft Entra ID Protection prompt samples for risky user triage and workload identity/application risk analysis. Replace placeholders with your tenant values. Results may be limited if required ID Protection data, app risk signals, or permissions are unavailable.
+
 ## Risky Users
 
 ### List or identify users based on risk

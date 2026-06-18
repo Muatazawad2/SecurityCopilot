@@ -2,6 +2,8 @@
 
 **Developer**: Dr Muataz Awad
 
+**Description**: A reusable set of Microsoft Entra ID Governance prompt samples for access reviews, entitlement management, PIM, PIM write actions, and lifecycle workflow operations. Replace placeholders with your environment values. Outputs depend on governance configuration, workflow history, and role entitlements.
+
 ## Access Reviews
 
 ### Access review exploration and management

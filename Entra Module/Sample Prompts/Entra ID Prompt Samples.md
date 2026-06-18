@@ -8,6 +8,8 @@ Source scenarios:
 
 **Developer**: Dr Muataz Awad
 
+**Description**: A reusable set of Microsoft Entra ID prompt samples for tenant, user, group, domain, license, sign-in, audit, provisioning, recommendation, health, SLA, role, device, conditional access, and authentication investigations. Replace placeholders with your environment values. Results may vary based on available logs, enabled features, and assigned permissions.
+
 ## Tenants
 
 - What is my tenant's display name?
