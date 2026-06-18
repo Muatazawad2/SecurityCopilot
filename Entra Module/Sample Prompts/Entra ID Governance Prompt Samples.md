@@ -93,8 +93,3 @@
 - What changed in the last version of this workflow?
 - Compare the last two versions of this workflow.
 - Compare {version #} and {version #} of this workflow.
-
-## Session Hygiene
-
-- Activate the {required role} so that I can perform {the desired task}.
-- I am done with my investigation or {desired task}, deactivate my access.
