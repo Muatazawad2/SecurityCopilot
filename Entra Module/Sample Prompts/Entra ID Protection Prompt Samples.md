@@ -27,6 +27,36 @@
 - Has this user ever been flagged as risky.
 - Was this user previously at risk.
 
+## Risky Sign-ins
+
+### List or identify risky sign-ins
+
+- List all sign-in attempts flagged as risky.
+- Show recent risky sign-ins.
+- How many risky sign-ins occurred in the last 24 hours?
+- Identify sign-ins with confirmed compromise risk.
+- Which sign-ins were marked as high risk?
+
+### Sign-in risk details
+
+- Show me details about this risky sign-in.
+- What risk factors contributed to this sign-in being flagged?
+- Display the risk level and risk state for this sign-in.
+
+### Sign-in risk history
+
+- Show the sign-in risk history for user {UserPrincipalName}.
+- List all risky sign-ins from this user.
+- Has this user had risky sign-ins from unusual locations?
+- What is the pattern of risky sign-ins for this user?
+
+### Sign-in anomalies and patterns
+
+- Show me sign-ins from unusual locations.
+- Identify sign-ins with atypical travel patterns.
+- Which sign-ins used uncommon authentication methods?
+- Show sign-ins with impossible travel detection.
+
 ## Application Risk
 
 ### Explore risky service principals
