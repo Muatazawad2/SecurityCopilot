@@ -23,7 +23,3 @@
 ### Monitor cross-tenant access and external connections
 
 - Show all cross-tenant traffic to tenant {TargetTenantId} in the last 7 days based on network traffic logs.
-
-## Session Hygiene
-
-- Activate the {required role} so that I can perform {the desired task}.
