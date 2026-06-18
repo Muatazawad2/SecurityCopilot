@@ -1,11 +1,5 @@
 # Entra ID Prompt Samples
 
-Source scenarios:
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-id-scenarios
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-enterprise-user-management
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-monitoring-operations
-- https://learn.microsoft.com/en-us/entra/security-copilot/entra-security-access-control
-
 **Developer**: Dr Muataz Awad
 
 **Description**: A reusable set of Microsoft Entra ID prompt samples for tenant, user, group, domain, license, sign-in, audit, provisioning, recommendation, health, SLA, role, device, conditional access, and authentication investigations. Replace placeholders with your environment values. Results may vary based on available logs, enabled features, and assigned permissions.
