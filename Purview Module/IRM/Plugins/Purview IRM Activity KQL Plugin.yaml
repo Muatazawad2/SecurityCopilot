@@ -50,3 +50,5 @@ SkillGroups:
                 RawAdditional
             | order by EventTime desc
             | limit 2000
+
+      # Repository maintenance marker

@@ -48,3 +48,5 @@ Select any prompt to dive deeper into specific aspects of the user's insider ris
 - The embedded experience requires Security Copilot to be enabled in your organization
 - Ensure you have the necessary permissions to access IRM data
 - Results may vary based on available data and configured risk indicators
+
+<!-- Repository maintenance marker -->

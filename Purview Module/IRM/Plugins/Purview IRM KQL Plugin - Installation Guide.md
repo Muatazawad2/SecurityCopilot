@@ -70,3 +70,5 @@ Example changes:
 - `let since = ago(30d);`
 
 After updating the file, re-upload or update the plugin in Security Copilot.
+
+<!-- Repository maintenance marker -->
