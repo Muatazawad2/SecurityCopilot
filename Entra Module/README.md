@@ -11,3 +11,5 @@ Comprehensive guides and resources for using Microsoft Security Copilot with Mic
 - [Entra Embedded Experiences](Embedded%20Experiences/README.md)
 - [Entra Agents](Agents/README.md)
 - [Entra Plugins](Plugins/README.md)
+
+<!-- Repository maintenance marker -->

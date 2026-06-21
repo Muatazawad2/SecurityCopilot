@@ -18,3 +18,5 @@ This index separates prompt samples by Microsoft Entra scenario family so each a
 1. Open the scenario-family file that matches your investigation.
 2. Start with discovery prompts, then drill into analysis prompts.
 3. Use role activation/deactivation prompts when elevated access is required.
+
+<!-- Repository maintenance marker -->

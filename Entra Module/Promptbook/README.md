@@ -28,6 +28,8 @@ Use this sequence for every scenario family:
 
 ### Typical investigation goals
 
+<!-- Repository maintenance marker -->
+
 - User and tenant posture discovery
 - Sign-in, audit, and provisioning log review
 - RBAC and privileged assignment checks
