@@ -1,0 +1,87 @@
+# Developer: Dr Muataz Awad
+
+Descriptor:
+  Name: ThreatIntelKQL
+  DisplayName: Threat Intelligence KQL Plugin
+  Description: KQL skills for threat intelligence triage, suspicious connection analysis, and vulnerability exposure in Microsoft Defender.
+
+SkillGroups:
+  - Format: KQL
+    Skills:
+      - Name: GetThreatIntelHighSeverityAlertsLast7Days
+        DisplayName: Get Threat Intel High Severity Alerts Last 7 Days
+        Description: Returns recent high and medium severity security alerts to support threat intelligence triage.
+        Settings:
+          Target: Defender
+          Template: |-
+            let since = ago(7d);
+            AlertInfo
+            | where Timestamp > since
+            | where Severity in ("High", "Medium")
+            | extend
+                ThreatFamily = tostring(column_ifexists("ThreatFamilyName", "")),
+                Techniques = tostring(column_ifexists("AttackTechniques", "")),
+                CategoryValue = tostring(column_ifexists("Category", ""))
+            | project
+                Timestamp,
+                AlertId,
+                Title,
+                Severity,
+                Category = CategoryValue,
+                ServiceSource,
+                DetectionSource,
+                ThreatFamily,
+                Techniques
+            | order by Timestamp desc
+            | limit 500
+
+      - Name: GetPotentialExternalC2ConnectionsLast7Days
+        DisplayName: Get Potential External C2 Connections Last 7 Days
+        Description: Summarizes unusual public network connections to help identify potential command-and-control patterns.
+        Settings:
+          Target: Defender
+          Template: |-
+            let since = ago(7d);
+            DeviceNetworkEvents
+            | where Timestamp > since
+            | extend
+                RemoteIPType = tostring(column_ifexists("RemoteIPType", "")),
+                RemoteUrl = tostring(column_ifexists("RemoteUrl", "")),
+                Proc = tostring(column_ifexists("InitiatingProcessFileName", "")),
+                ProcCmd = tostring(column_ifexists("InitiatingProcessCommandLine", "")),
+                UserUpn = tostring(column_ifexists("InitiatingProcessAccountUpn", ""))
+            | where RemoteIPType =~ "Public" or isnotempty(RemoteUrl)
+            | summarize
+                Connections = count(),
+                FirstSeen = min(Timestamp),
+                LastSeen = max(Timestamp),
+                DistinctDevices = dcount(DeviceName),
+                DistinctUsers = dcount(UserUpn)
+              by RemoteIP, RemoteUrl, Proc, ProcCmd
+            | order by Connections desc, LastSeen desc
+            | limit 300
+
+      - Name: GetCriticalVulnerabilityExposureSnapshot
+        DisplayName: Get Critical Vulnerability Exposure Snapshot
+        Description: Returns high and critical CVE exposure across devices to prioritize threat-driven remediation.
+        Settings:
+          Target: Defender
+          Template: |-
+            let since = ago(30d);
+            DeviceTvmSoftwareVulnerabilities
+            | where Timestamp > since
+            | extend
+                CveId = tostring(column_ifexists("CveId", "")),
+                Severity = tostring(column_ifexists("VulnerabilitySeverityLevel", "Unknown")),
+                Product = tostring(column_ifexists("SoftwareName", "")),
+                Version = tostring(column_ifexists("SoftwareVersion", ""))
+            | where isnotempty(CveId)
+            | where Severity in ("High", "Critical")
+            | summarize
+                ExposedDevices = dcount(DeviceId),
+                LastSeen = max(Timestamp),
+                Products = make_set(Product, 15),
+                Versions = make_set(Version, 15)
+              by CveId, Severity
+            | order by ExposedDevices desc, LastSeen desc
+            | limit 250

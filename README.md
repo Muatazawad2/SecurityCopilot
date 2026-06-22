@@ -49,6 +49,7 @@ Security Copilot content for Microsoft Defender Threat Intelligence, including a
 
 ### Threat Intelligence Module
 
+- **[Threat Intelligence Plugins](Threat%20Intelligence%20Module/Plugins/README.md)**
 - **[Threat Intelligence Sample Prompts](Threat%20Intelligence%20Module/Sample%20Prompts/Threat%20Intelligence%20Sample%20Prompts.md)**
 - **[Threat Actor Investigation Promptbook](Threat%20Intelligence%20Module/Promptbook/Threat%20Actor%20Investigation%20Promptbook.md)**
 - **[IOC and Infrastructure Analysis Promptbook](Threat%20Intelligence%20Module/Promptbook/IOC%20and%20Infrastructure%20Analysis%20Promptbook.md)**
