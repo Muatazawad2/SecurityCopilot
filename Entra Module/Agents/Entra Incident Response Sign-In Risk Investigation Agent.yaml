@@ -1,0 +1,274 @@
+# Developer: Dr Muataz Awad
+
+Descriptor:
+  Name: DrMuataz.EntraIncidentResponse.SignInRiskAgent-20260623
+  DisplayName: Entra Incident Response Sign-In Risk Agent
+  Description: Custom Security Copilot agent for Entra incident investigations focused on risky sign-ins, user sign-in behavior, and suspicious user activity.
+
+SkillGroups:
+  - Format: KQL
+    Skills:
+      - Name: GetRecentRiskyUsersForInvestigation
+        DisplayName: Get Recent Risky Users For Investigation
+        Description: Returns recently observed risky users based on risky sign-in indicators in Entra sign-in logs.
+        Settings:
+          Target: Defender
+          Template: |-
+            let since = ago(1h);
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > since
+            | extend
+                RiskLevel = toint(column_ifexists("RiskLevelAggregated", 0)),
+                RiskStateValue = toint(column_ifexists("RiskState", 0)),
+                UPN = tostring(column_ifexists("AccountUpn", ""))
+            | where isnotempty(UPN)
+            | where RiskLevel in (10, 50, 100) or RiskStateValue in (4, 5)
+            | summarize
+                LastSeen = max(Timestamp),
+                RiskLevels = make_set(RiskLevel, 5),
+                RiskStates = make_set(RiskStateValue, 5),
+                EventCount = count()
+              by AccountUpn = UPN
+            | order by LastSeen desc
+            | limit 50
+
+      - Name: GetRiskySignInsForUser
+        DisplayName: Get Risky Sign-Ins For User
+        Description: Returns risky sign-ins for a specific user in the last 30 days with context for risk and authentication details.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to investigate.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            let upn = '{{UserPrincipalName}}';
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > ago(30d)
+            | where tostring(column_ifexists("AccountUpn", "")) =~ upn
+            | extend
+                RiskLevel = toint(column_ifexists("RiskLevelAggregated", 0)),
+                RiskStateValue = toint(column_ifexists("RiskState", 0)),
+                RiskDetailValue = tostring(column_ifexists("RiskDetails", "")),
+                ClientApp = tostring(column_ifexists("ClientAppUsed", "")),
+                AppName = tostring(column_ifexists("Application", "")),
+                IpAddress = tostring(column_ifexists("IPAddress", "")),
+                Device = coalesce(tostring(column_ifexists("DeviceName", "")), tostring(column_ifexists("EntraIdDeviceId", ""))),
+                Location = strcat(tostring(column_ifexists("Country", "")), "/", tostring(column_ifexists("State", "")), "/", tostring(column_ifexists("City", ""))),
+                AuthRequirement = tostring(column_ifexists("AuthenticationRequirement", "")),
+                StatusText = tostring(column_ifexists("ErrorCode", "0"))
+            | where RiskLevel in (10, 50, 100) or RiskStateValue in (4, 5)
+            | project
+                Timestamp,
+                UserPrincipalName = AccountUpn,
+                AppName,
+                ClientApp,
+                IpAddress,
+                Location,
+                Device,
+                RiskLevel,
+                RiskState = RiskStateValue,
+                RiskDetail = RiskDetailValue,
+                AuthRequirement,
+                StatusText
+            | order by Timestamp desc
+            | limit 50
+
+      - Name: GetUserSignInActivityTimeline
+        DisplayName: Get User Sign-In Activity Timeline
+        Description: Returns user sign-in timeline for the last 14 days with app, device, location, and authentication outcomes.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to investigate.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            let upn = '{{UserPrincipalName}}';
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > ago(14d)
+            | where tostring(column_ifexists("AccountUpn", "")) =~ upn
+            | extend
+                AppName = tostring(column_ifexists("Application", "")),
+                ClientApp = tostring(column_ifexists("ClientAppUsed", "")),
+                IpAddress = tostring(column_ifexists("IPAddress", "")),
+                Location = strcat(tostring(column_ifexists("Country", "")), "/", tostring(column_ifexists("State", "")), "/", tostring(column_ifexists("City", ""))),
+                Device = coalesce(tostring(column_ifexists("DeviceName", "")), tostring(column_ifexists("EntraIdDeviceId", ""))),
+                ResultType = tostring(column_ifexists("ErrorCode", "0")),
+                RiskLevel = tostring(column_ifexists("RiskLevelAggregated", "0")),
+                AuthRequirement = tostring(column_ifexists("AuthenticationRequirement", ""))
+            | project
+                Timestamp,
+                UserPrincipalName = AccountUpn,
+                AppName,
+                ClientApp,
+                IpAddress,
+                Location,
+                Device,
+                ResultType,
+                AuthRequirement,
+                RiskLevel
+            | order by Timestamp desc
+            | limit 200
+
+      - Name: GetSuspiciousAuditEventsForUser
+        DisplayName: Get Suspicious Audit Events For User
+        Description: Returns potentially suspicious audit events related to role, group, and policy changes associated with the user in the last 7 days.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to investigate.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            let upn = tolower('{{UserPrincipalName}}');
+            IdentityDirectoryEvents
+            | where Timestamp > ago(7d)
+            | extend
+                Activity = tostring(column_ifexists("ActionType", "")),
+                Category = tostring(column_ifexists("Application", "")),
+                InitiatedByText = tolower(tostring(column_ifexists("AccountUpn", ""))),
+                TargetResourcesText = tolower(tostring(column_ifexists("TargetAccountUpn", ""))),
+                ResultText = "N/A"
+            | where InitiatedByText has upn or TargetResourcesText has upn
+            | where Activity has_any (
+                "Role",
+                "Group",
+                "Policy",
+                "Admin",
+                "Privileged",
+                "UPN",
+                "Password"
+              )
+            | project
+                Timestamp,
+                Activity,
+                Category,
+                ResultText,
+                InitiatedBy = AccountUpn,
+                TargetResources = TargetAccountUpn,
+                AdditionalDetails = AdditionalFields
+            | order by Timestamp desc
+            | limit 100
+
+      - Name: GetRiskyApplicationAccessForUser
+        DisplayName: Get Risky Application Access For User
+        Description: Returns applications the user accessed recently and highlights risk-relevant sign-in signals.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to investigate.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            let upn = '{{UserPrincipalName}}';
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > ago(30d)
+            | where tostring(column_ifexists("AccountUpn", "")) =~ upn
+            | extend
+                AppName = tostring(column_ifexists("Application", "")),
+                RiskLevel = toint(column_ifexists("RiskLevelAggregated", 0)),
+                RiskStateValue = toint(column_ifexists("RiskState", 0)),
+                ScopeText = tostring(column_ifexists("AuthenticationProcessingDetails", ""))
+            | summarize
+                LastSeen = max(Timestamp),
+                SignInCount = count(),
+                RiskySignInCount = countif(RiskLevel in (10, 50, 100) or RiskStateValue in (4, 5)),
+                RiskLevels = make_set(RiskLevel, 5),
+                ScopeHints = make_set(ScopeText, 5)
+              by AppName
+            | order by RiskySignInCount desc, LastSeen desc
+            | limit 30
+
+      - Name: GetDeviceAndLocationContextForUser
+        DisplayName: Get Device And Location Context For User
+        Description: Returns device and location context, including unusual patterns, for user sign-ins in the last 30 days.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to investigate.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            let upn = '{{UserPrincipalName}}';
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > ago(30d)
+            | where tostring(column_ifexists("AccountUpn", "")) =~ upn
+            | extend
+                IpAddress = tostring(column_ifexists("IPAddress", "")),
+                Location = strcat(tostring(column_ifexists("Country", "")), "/", tostring(column_ifexists("State", "")), "/", tostring(column_ifexists("City", ""))),
+                Device = coalesce(tostring(column_ifexists("DeviceName", "")), tostring(column_ifexists("EntraIdDeviceId", ""))),
+                IsCompliant = tostring(column_ifexists("IsCompliant", "")),
+                IsManaged = tostring(column_ifexists("IsManaged", "")),
+                RiskLevel = toint(column_ifexists("RiskLevelAggregated", 0))
+            | summarize
+                FirstSeen = min(Timestamp),
+                LastSeen = max(Timestamp),
+                SignInCount = count(),
+                RiskyEvents = countif(RiskLevel in (10, 50, 100)),
+                ComplianceFlags = make_set(IsCompliant, 3),
+                ManagedFlags = make_set(IsManaged, 3)
+              by IpAddress, Location, Device
+            | order by RiskyEvents desc, SignInCount desc, LastSeen desc
+            | limit 100
+
+  - Format: AGENT
+    Skills:
+      - Name: EntraIncidentResponseInvestigationEntryPoint
+        DisplayName: Entra Incident Response Investigation Entry Point
+        Description: Investigates Entra identity incidents using risky sign-ins, user sign-in timelines, audit events, app access, and device/location context.
+        Interfaces:
+          - Agent
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name of the account under investigation.
+            Required: true
+        Settings:
+          Instructions: |
+            You are an Entra incident response investigation agent.
+
+            Primary objective:
+            Investigate identity incidents focused on risky sign-ins and user sign-in activity for the provided user principal name.
+
+            Required investigation workflow:
+            1) Call GetRiskySignInsForUser for the provided UserPrincipalName.
+            2) Call GetUserSignInActivityTimeline.
+            3) Call GetSuspiciousAuditEventsForUser.
+            4) Call GetRiskyApplicationAccessForUser.
+            5) Call GetDeviceAndLocationContextForUser.
+            6) Correlate evidence by timestamp, application, IP, and location.
+
+            Output requirements:
+            - Start with Incident Verdict: Low, Medium, High, or Critical.
+            - Include concise justification based on observed evidence.
+            - Provide a timeline of suspicious activity in UTC.
+            - List top risky sign-in indicators and anomalous user sign-in patterns.
+            - Summarize affected apps, roles/policy related changes, and likely blast radius.
+            - Provide immediate containment and follow-up investigation actions.
+            - If evidence is weak or incomplete, explicitly state what data is missing.
+
+            Guardrails:
+            - Do not fabricate data.
+            - If a tool returns no results, report that fact and continue remaining steps.
+            - Keep recommendations actionable and SOC-friendly.
+        ChildSkills:
+          - GetRiskySignInsForUser
+          - GetUserSignInActivityTimeline
+          - GetSuspiciousAuditEventsForUser
+          - GetRiskyApplicationAccessForUser
+          - GetDeviceAndLocationContextForUser
+
+AgentDefinitions:
+  - Name: EntraIncidentResponseSignInRiskAgent
+    DisplayName: Entra Incident Response Sign-In Risk Investigation Agent
+    Description: Agent for Entra incident response investigations centered on risky sign-ins and user sign-in behavior.
+    Publisher: Dr Muataz Awad
+    Product: EntraIdentitySecurity
+    RequiredSkillsets:
+      - DrMuataz.EntraIncidentResponse.SignInRiskAgent-20260623
+    AgentSingleInstanceConstraint: Workspace
+    Triggers:
+      - Name: SignInRiskSweep
+        DefaultPeriodSeconds: 0
+        FetchSkill: DrMuataz.EntraIncidentResponse.SignInRiskAgent-20260623.GetRecentRiskyUsersForInvestigation
+        ProcessSkill: DrMuataz.EntraIncidentResponse.SignInRiskAgent-20260623.EntraIncidentResponseInvestigationEntryPoint
