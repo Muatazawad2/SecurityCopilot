@@ -9,7 +9,7 @@
   },
   "api": {
     "type": "openapi",
-    "url": "https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/openapi.yaml"
+    "url": "https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/cdd8e6b71b2afe6f0ed0e7a49e4db2d2773ee91c/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/openapi.yaml"
   },
   "logo_url": "https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/logo.png",
   "contact_email": "admin@muatazawad.com",
