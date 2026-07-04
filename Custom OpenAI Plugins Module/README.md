@@ -17,7 +17,7 @@ Each plugin consists of:
 
 | Plugin | Description | API Source |
 |---|---|---|
-| [CVE Lookup Plugin](CVE%20Lookup%20Plugin/) | Look up CVE vulnerability details from NIST NVD — severity, CVSS score, affected products, description | Public — no API key required |
+| [CVE Lookup Plugin](CVE%20Lookup%20Plugin/) | Look up CVE vulnerability details from CIRCL CVE Search (mirrors MITRE and NVD) — CVSS score, severity, affected products, description | Public — no API key required |
 | [Internal Security API Template](Internal%20Security%20API%20Template/) | Template for wrapping an internal security tool (SIEM, CMDB, incident database) as an OpenAI plugin | Template — adapt for your own API |
 
 ## Available Promptbooks
