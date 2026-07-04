@@ -121,7 +121,7 @@ To add the API key to the plugin:
 | Plugin not invoked | Prompt doesn't mention a CVE or vulnerability keyword | Be explicit: "Look up CVE-..." or "Using CVE Lookup, find..." |
 | 403 rate limit error | Too many requests in 30 seconds | Wait 30 seconds and retry, or add an NVD API key |
 | No results returned | CVE ID format incorrect | Ensure format is `CVE-YYYY-NNNNN` (e.g. `CVE-2024-21413`) |
-| Manifest upload fails | `openapi.yaml` URL not accessible | Verify the raw GitHub URL is reachable from a browser |
+| Manifest upload fails with cached content error | GitHub CDN serving old version of manifest | Use the commit-hash URL instead of the `main` branch URL: `https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/{COMMIT_HASH}/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/manifest.json` — get the full hash by running `git rev-parse HEAD` |
 | Outdated data | NVD data has a processing delay | New CVEs may take 1–2 days to appear with full CVSS analysis |
 
 ---
