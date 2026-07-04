@@ -1,0 +1,261 @@
+openapi: 3.0.1
+info:
+  title: NIST NVD CVE Lookup API
+  description: >
+    Query the NIST National Vulnerability Database (NVD) to retrieve CVE vulnerability details
+    including descriptions, CVSS v3 scores, severity ratings, affected products, and reference links.
+    No API key is required for basic queries (rate limited to 5 requests per 30 seconds).
+    For higher throughput, an NVD API key can be added via the apiKey header.
+  version: 2.0.0
+  contact:
+    name: NIST NVD
+    url: https://nvd.nist.gov/
+
+servers:
+  - url: https://services.nvd.nist.gov
+    description: NIST National Vulnerability Database API v2
+
+paths:
+  /rest/json/cves/2.0:
+    get:
+      operationId: lookupCve
+      summary: Look up CVEs by ID, keyword, or severity
+      description: >
+        Retrieve vulnerability details from the NIST NVD. Use cveId to look up a specific CVE
+        (e.g. CVE-2024-21413). Use keywordSearch to search by product name or vulnerability type.
+        Use cvssV3Severity to filter by severity. Returns CVE ID, description, CVSS base score,
+        severity, published date, and reference links.
+      parameters:
+        - name: cveId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: CVE-2024-21413
+          description: >
+            The exact CVE identifier to retrieve (e.g. CVE-2024-21413, CVE-2021-44228).
+            Use this when the user provides a specific CVE ID.
+
+        - name: keywordSearch
+          in: query
+          required: false
+          schema:
+            type: string
+            example: Microsoft Exchange remote code execution
+          description: >
+            Keyword to search across CVE descriptions and titles.
+            Examples: "Microsoft Exchange", "remote code execution", "Log4j", "Apache".
+            Use this when the user wants to find CVEs related to a product or attack type.
+
+        - name: keywordExactMatch
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+          description: >
+            When true, returns only CVEs where the keyword appears as an exact phrase.
+            Default is false (partial match).
+
+        - name: cvssV3Severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [CRITICAL, HIGH, MEDIUM, LOW]
+          description: >
+            Filter results by CVSS v3 severity level.
+            Use CRITICAL or HIGH when the user asks about the most dangerous vulnerabilities.
+
+        - name: resultsPerPage
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+            maximum: 20
+          description: >
+            Number of CVE results to return. Default is 5. Maximum is 20.
+            Keep low (5-10) for focused queries to avoid overwhelming the response.
+
+        - name: pubStartDate
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "2024-01-01T00:00:00.000 UTC+00:00"
+          description: >
+            Return CVEs published on or after this date.
+            Format: YYYY-MM-DDTHH:MM:SS.000 UTC+00:00
+            Example: 2024-01-01T00:00:00.000 UTC+00:00
+
+        - name: pubEndDate
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "2024-12-31T23:59:59.000 UTC+00:00"
+          description: >
+            Return CVEs published on or before this date.
+            Must be used together with pubStartDate.
+            Format: YYYY-MM-DDTHH:MM:SS.000 UTC+00:00
+
+      responses:
+        '200':
+          description: CVE data returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resultsPerPage:
+                    type: integer
+                    description: Number of results returned in this response
+                  startIndex:
+                    type: integer
+                    description: Pagination start index
+                  totalResults:
+                    type: integer
+                    description: Total number of matching CVEs in the database
+                  format:
+                    type: string
+                  version:
+                    type: string
+                  timestamp:
+                    type: string
+                  vulnerabilities:
+                    type: array
+                    description: List of matching CVE records
+                    items:
+                      type: object
+                      properties:
+                        cve:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: The CVE identifier (e.g. CVE-2024-21413)
+                            sourceIdentifier:
+                              type: string
+                              description: Source organization that reported the CVE
+                            published:
+                              type: string
+                              description: Date and time the CVE was published to NVD
+                            lastModified:
+                              type: string
+                              description: Date and time the CVE record was last updated
+                            vulnStatus:
+                              type: string
+                              description: >
+                                Current NVD analysis status.
+                                Values include: Analyzed, Modified, Awaiting Analysis, Undergoing Analysis,
+                                Rejected, Deferred.
+                            descriptions:
+                              type: array
+                              description: Human-readable descriptions of the vulnerability
+                              items:
+                                type: object
+                                properties:
+                                  lang:
+                                    type: string
+                                    description: Language code (en = English)
+                                  value:
+                                    type: string
+                                    description: Full text description of the vulnerability
+                            metrics:
+                              type: object
+                              description: CVSS scoring metrics
+                              properties:
+                                cvssMetricV31:
+                                  type: array
+                                  description: CVSS v3.1 metrics (most common)
+                                  items:
+                                    type: object
+                                    properties:
+                                      source:
+                                        type: string
+                                      type:
+                                        type: string
+                                      cvssData:
+                                        type: object
+                                        properties:
+                                          version:
+                                            type: string
+                                          vectorString:
+                                            type: string
+                                            description: CVSS vector string (e.g. CVSS:3.1/AV:N/AC:L/...)
+                                          attackVector:
+                                            type: string
+                                            description: "Network, Adjacent, Local, or Physical"
+                                          attackComplexity:
+                                            type: string
+                                            description: "Low or High"
+                                          privilegesRequired:
+                                            type: string
+                                          userInteraction:
+                                            type: string
+                                          scope:
+                                            type: string
+                                          confidentialityImpact:
+                                            type: string
+                                          integrityImpact:
+                                            type: string
+                                          availabilityImpact:
+                                            type: string
+                                          baseScore:
+                                            type: number
+                                            description: CVSS base score (0.0 - 10.0)
+                                          baseSeverity:
+                                            type: string
+                                            description: "CRITICAL, HIGH, MEDIUM, or LOW"
+                                      exploitabilityScore:
+                                        type: number
+                                      impactScore:
+                                        type: number
+                                cvssMetricV2:
+                                  type: array
+                                  description: CVSS v2 metrics (legacy, present on older CVEs)
+                            weaknesses:
+                              type: array
+                              description: CWE (Common Weakness Enumeration) entries associated with this CVE
+                              items:
+                                type: object
+                                properties:
+                                  source:
+                                    type: string
+                                  type:
+                                    type: string
+                                  description:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        lang:
+                                          type: string
+                                        value:
+                                          type: string
+                                          description: CWE identifier (e.g. CWE-79, CWE-89)
+                            configurations:
+                              type: array
+                              description: Affected product configurations (CPE entries)
+                            references:
+                              type: array
+                              description: External reference links for this CVE
+                              items:
+                                type: object
+                                properties:
+                                  url:
+                                    type: string
+                                    description: Reference URL (vendor advisories, patches, PoC code)
+                                  source:
+                                    type: string
+                                  tags:
+                                    type: array
+                                    items:
+                                      type: string
+
+        '403':
+          description: Rate limit exceeded. Wait 30 seconds before retrying, or provide an NVD API key.
+        '404':
+          description: No CVEs found matching the specified criteria.

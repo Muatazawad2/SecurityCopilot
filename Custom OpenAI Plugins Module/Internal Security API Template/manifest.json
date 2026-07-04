@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Contoso Security Operations",
+  "name_for_model": "contoso_security_ops",
+  "description_for_human": "Query your organization's internal security operations platform — retrieve incidents, risky users, asset inventory, and alerts directly from Security Copilot.",
+  "description_for_model": "Use this plugin to query the organization's internal security operations platform. Invoke this plugin when the user asks about: open or active security incidents, specific incident details by ID or ticket number, users flagged as risky or compromised in the internal system, asset inventory or device ownership information, active security alerts from the internal platform, or incident assignment and status. This plugin connects to the organization's own REST API and returns live operational data.",
+  "auth": {
+    "type": "user_http",
+    "authorization_type": "bearer"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://YOUR-API-HOST/openapi.yaml"
+  },
+  "logo_url": "https://YOUR-API-HOST/logo.png",
+  "contact_email": "security-ops@yourcompany.com",
+  "legal_info_url": "https://YOUR-API-HOST/terms"
+}
