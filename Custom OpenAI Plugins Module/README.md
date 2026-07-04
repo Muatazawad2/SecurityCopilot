@@ -32,8 +32,8 @@ Each plugin consists of:
 2. Select **Custom** → click **Add a plugin**.
 3. Set **Who can use this plugin** → **Just me** or **Everyone**.
 4. Select **OpenAI plugin** as the upload format.
-5. Upload the `manifest.json` file.
-6. Security Copilot fetches the OpenAPI spec from the URL in the manifest and registers the plugin.
+5. In the **Add link to OpenAI plugin** field, paste the raw GitHub URL of the `manifest.json`.
+6. Click **Add** — Security Copilot fetches the manifest, retrieves the OpenAPI spec from the URL inside it, and registers the plugin.
 
 ## OpenAI Plugin vs Security Copilot Plugin
 
