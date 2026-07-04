@@ -11,7 +11,7 @@
     "type": "openapi",
     "url": "https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/openapi.yaml"
   },
-  "logo_url": "https://img.shields.io/badge/CVE-Lookup-red?style=flat-square",
+  "logo_url": "https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/logo.png",
   "contact_email": "admin@muatazawad.com",
   "legal_info_url": "https://nvd.nist.gov/"
 }
