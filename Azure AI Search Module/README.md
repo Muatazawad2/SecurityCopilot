@@ -8,7 +8,15 @@ Comprehensive guides and resources for integrating Azure AI Search with Microsof
 
 Azure AI Search is a built-in Microsoft plugin for Security Copilot that connects a configured Azure AI Search index to your Copilot workspace. Once connected, analysts can reference organizational knowledge directly in their Copilot sessions using natural language, enabling faster triage, more relevant investigations, and policy-aware responses.
 
+### Architecture — The Why
+*What each component is and why it exists*
+
 ![Architecture — The Why](Images/architecture.png)
+
+### How It Works — Step by Step
+*What actually happens when you set it up and when an analyst asks a question*
+
+![How It Works — Step by Step](Images/how-it-works.png)
 
 ## Key Resources
 
