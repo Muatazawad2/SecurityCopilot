@@ -44,7 +44,7 @@ If the repository is private, host the `openapi.yaml` on any publicly accessible
 
 ---
 
-## Step 2 — Upload the Plugin to Security Copilot
+## Step 2 — Add the Plugin to Security Copilot
 
 1. Open **Microsoft Security Copilot**.
 2. Click the **Sources** icon in the prompt bar.
@@ -53,8 +53,15 @@ If the repository is private, host the `openapi.yaml` on any publicly accessible
    - **Just me** — plugin applies to your account only
    - **Everyone** — plugin applies to all users in the workspace (requires admin)
 5. Under **Select an upload format**, select **OpenAI plugin**.
-6. Click **Add** and select the [`manifest.json`](manifest.json) file from this folder.
-7. Security Copilot will fetch the OpenAPI spec from the URL in the manifest and register the plugin.
+6. In the **Add link to OpenAI plugin** field, paste this URL:
+
+   ```
+   https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/manifest.json
+   ```
+
+7. Click **Add**.
+
+Security Copilot fetches the manifest from the URL, then automatically retrieves the OpenAPI spec from the URL inside the manifest, and registers the plugin.
 
 ---
 
