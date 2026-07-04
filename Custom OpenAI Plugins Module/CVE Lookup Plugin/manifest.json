@@ -2,8 +2,8 @@
   "schema_version": "v1",
   "name_for_human": "CVE Lookup",
   "name_for_model": "cve_lookup",
-  "description_for_human": "Look up CVE vulnerability details from the NIST National Vulnerability Database (NVD). Retrieve severity scores, CVSS ratings, affected products, and descriptions for any CVE identifier.",
-  "description_for_model": "Use this plugin to retrieve detailed vulnerability information from the NIST National Vulnerability Database (NVD). Invoke this plugin when the user asks about: a specific CVE identifier (e.g. CVE-2024-21413, CVE-2021-44228), the severity or CVSS score of a vulnerability, vulnerabilities affecting a specific product or vendor, recent critical or high severity CVEs, or whether a specific vulnerability has been patched or is actively exploited. The plugin can look up a CVE by exact ID, search CVEs by keyword such as product name or vulnerability type, and filter by severity level (CRITICAL, HIGH, MEDIUM, LOW).",
+  "description_for_human": "Look up CVE vulnerability details from the CIRCL CVE Search database (mirrors NIST NVD and MITRE). Retrieve CVSS scores, severity ratings, affected products, and descriptions for any CVE identifier.",
+  "description_for_model": "Use this plugin to retrieve detailed vulnerability information from CIRCL CVE Search. Invoke this plugin when the user asks about: a specific CVE identifier (e.g. CVE-2024-21413, CVE-2021-44228), the severity or CVSS score of a vulnerability, what products are affected by a CVE, or a description of what a CVE does. Call the getCveById operation with the cveId path parameter set to the exact CVE identifier (e.g. CVE-2024-21413). The CVSS v3.1 base score and severity are in containers.adp[].metrics[].cvssV3_1.baseScore and baseSeverity. The vulnerability description is in containers.cna.descriptions[0].value. The affected vendor and product are in containers.cna.affected[0].vendor and .product.",
   "auth": {
     "type": "none"
   },
@@ -13,5 +13,5 @@
   },
   "logo_url": "https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/logo.png",
   "contact_email": "admin@muatazawad.com",
-  "legal_info_url": "https://nvd.nist.gov/"
+  "legal_info_url": "https://cve.circl.lu"
 }
