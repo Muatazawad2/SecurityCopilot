@@ -2,49 +2,37 @@
 
 **Developer**: Dr Muataz Awad
 
-This guide walks you through uploading and configuring the CVE Lookup OpenAI plugin in Microsoft Security Copilot. Once installed, analysts can look up any CVE directly from Copilot during an investigation — retrieving severity scores, CVSS ratings, affected products, and descriptions from the NIST National Vulnerability Database (NVD).
+This guide walks you through configuring the CVE Lookup OpenAI plugin in Microsoft Security Copilot. Once installed, analysts can look up any CVE directly from Copilot during an investigation — retrieving CVSS scores, severity ratings, affected products, and descriptions from CIRCL CVE Search.
 
 ---
 
 ## What This Plugin Does
 
-Connects Security Copilot to the **NIST National Vulnerability Database (NVD) REST API v2**. When an analyst mentions a CVE identifier or asks about a vulnerability, Copilot invokes this plugin to retrieve:
+Connects Security Copilot to the **CIRCL CVE Search API** (cve.circl.lu). CIRCL (Computer Incident Response Center Luxembourg) mirrors CVE records from MITRE and NVD, providing a free, unauthenticated REST API with no Cloudflare or bot detection restrictions.
+
+When an analyst mentions a CVE identifier, Copilot invokes this plugin to retrieve:
 
 - CVE description
-- CVSS v3 base score and severity (CRITICAL / HIGH / MEDIUM / LOW)
-- Attack vector, complexity, and impact details
+- CVSS v3.1 base score and severity (CRITICAL / HIGH / MEDIUM / LOW)
+- Attack vector, complexity, privileges required, and user interaction required
 - Published date and current status
 - Reference links (vendor advisories, patch notices, PoC)
-- Associated CWE weaknesses
+- Affected vendor and product names
 
-**No backend to deploy** — the plugin calls the public NVD API directly.
+**No backend to deploy, no API key required** — the plugin calls the public CIRCL API directly.
+
+> **Important**: This plugin supports **CVE ID lookup only** (e.g. `CVE-2024-21413`). It does not support keyword search or product-based CVE discovery. Use [nvd.nist.gov/vuln/search](https://nvd.nist.gov/vuln/search) to find CVE IDs, then look them up in Security Copilot.
 
 ---
 
 ## Prerequisites
 
 - Access to **Microsoft Security Copilot** with permission to manage plugins.
-- The plugin files from this folder:
-  - [`manifest.json`](manifest.json)
-  - [`openapi.yaml`](openapi.yaml) — must be publicly accessible via the URL in `manifest.json`
-
-> **Note**: The `openapi.yaml` is referenced by URL in `manifest.json`. The URL points to the raw GitHub file in this repository. If the repository is public, no additional hosting is required.
+- The repository must be public so Security Copilot can fetch the `openapi.yaml` by URL.
 
 ---
 
-## Step 1 — Verify the OpenAPI Spec URL
-
-Before uploading, confirm the `openapi.yaml` is publicly accessible. Open this URL in a browser — it should display the YAML content:
-
-```
-https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/openapi.yaml
-```
-
-If the repository is private, host the `openapi.yaml` on any publicly accessible URL and update the `api.url` field in `manifest.json` accordingly.
-
----
-
-## Step 2 — Add the Plugin to Security Copilot
+## Step 1 — Add the Plugin to Security Copilot
 
 1. Open **Microsoft Security Copilot**.
 2. Click the **Sources** icon in the prompt bar.
@@ -53,19 +41,27 @@ If the repository is private, host the `openapi.yaml` on any publicly accessible
    - **Just me** — plugin applies to your account only
    - **Everyone** — plugin applies to all users in the workspace (requires admin)
 5. Under **Select an upload format**, select **OpenAI plugin**.
-6. In the **Add link to OpenAI plugin** field, paste this URL:
+6. In the **Add link to OpenAI plugin** field, paste the manifest URL.
 
+   > **GitHub CDN Caching Note**: GitHub's raw CDN caches files for several minutes after a push.
+   > If you see a "Plugin not added" error after pasting the `main` branch URL, use a commit-hash URL instead to bypass the cache.
+
+   **Option A — Standard URL** (use first, works once CDN propagates):
    ```
    https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/manifest.json
    ```
 
-7. Click **Add**.
+   **Option B — Commit hash URL** (bypasses CDN cache, use if Option A fails):
+   ```
+   https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/f5eb5d80d066d23a2ceb7c03572d4447502d65bf/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/manifest.json
+   ```
+   To get the latest commit hash, run `git rev-parse HEAD` in the repository.
 
-Security Copilot fetches the manifest from the URL, then automatically retrieves the OpenAPI spec from the URL inside the manifest, and registers the plugin.
+7. Click **Add**.
 
 ---
 
-## Step 3 — Verify the Plugin is Active
+## Step 2 — Verify the Plugin is Active
 
 1. In the Sources panel, find **CVE Lookup** under Custom plugins.
 2. Confirm it shows as **Enabled**.
@@ -73,44 +69,25 @@ Security Copilot fetches the manifest from the URL, then automatically retrieves
 
 ---
 
-## Step 4 — Test the Plugin
+## Step 3 — Test the Plugin
 
 Run these prompts in a new Copilot session to verify the plugin is working:
 
 ```
-Look up CVE-2024-21413 and tell me the severity and what products are affected.
+Look up CVE-2021-44228 and tell me the CVSS score and attack vector.
 ```
 
 ```
-What is the CVSS score and attack vector for CVE-2021-44228?
+What is the severity and affected product for CVE-2024-21413?
 ```
 
-```
-Search for critical CVEs related to Microsoft Exchange published in 2024.
-```
-
-A successful response will include the CVE description, CVSS base score, severity rating, and reference links sourced from the NVD.
+A successful response returns the CVE description, CVSS v3.1 base score, severity, attack vector, and affected product — sourced from CIRCL CVE Search.
 
 ---
 
-## Optional — Add an NVD API Key for Higher Rate Limits
+## Rate Limits
 
-The NVD API allows **5 requests per 30 seconds** without an API key. For higher throughput (**50 requests per 30 seconds**), request a free API key at [https://nvd.nist.gov/developers/request-an-api-key](https://nvd.nist.gov/developers/request-an-api-key).
-
-To add the API key to the plugin:
-
-1. Update `manifest.json` to use `api_key` authentication:
-
-```json
-"auth": {
-  "type": "user_http",
-  "authorization_type": "bearer"
-}
-```
-
-2. Add the `apiKey` header parameter to the `openapi.yaml` operation.
-3. Re-upload the updated `manifest.json`.
-4. When prompted, enter your NVD API key.
+CIRCL CVE Search allows **20 requests per minute** per IP address. This is sufficient for individual analyst usage. If rate limited, Security Copilot will return a "couldn't complete your request" error — wait 60 seconds and retry.
 
 ---
 
@@ -118,11 +95,11 @@ To add the API key to the plugin:
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Plugin not invoked | Prompt doesn't mention a CVE or vulnerability keyword | Be explicit: "Look up CVE-..." or "Using CVE Lookup, find..." |
-| 403 rate limit error | Too many requests in 30 seconds | Wait 30 seconds and retry, or add an NVD API key |
-| No results returned | CVE ID format incorrect | Ensure format is `CVE-YYYY-NNNNN` (e.g. `CVE-2024-21413`) |
-| Manifest upload fails with cached content error | GitHub CDN serving old version of manifest | Use the commit-hash URL instead of the `main` branch URL: `https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/{COMMIT_HASH}/Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/manifest.json` — get the full hash by running `git rev-parse HEAD` |
-| Outdated data | NVD data has a processing delay | New CVEs may take 1–2 days to appear with full CVSS analysis |
+| Plugin not invoked | Prompt does not mention a CVE ID | Be explicit: "Look up CVE-2024-21413..." |
+| "Couldn't complete your request" | CIRCL rate limit hit (20/min) | Wait 60 seconds and retry |
+| No results / empty response | CVE ID format incorrect or CVE not in CIRCL database | Ensure format is `CVE-YYYY-NNNNN` — verify the CVE exists at [cve.circl.lu](https://cve.circl.lu) |
+| "Plugin not added" on registration | GitHub CDN serving cached old manifest | Use the commit-hash URL (Option B above) |
+| CVSS score missing | Some newer CVEs have not yet received NVD scoring | Check back after a few days when NVD publishes the CVSS analysis |
 
 ---
 
@@ -130,8 +107,9 @@ To add the API key to the plugin:
 
 | Resource | Link |
 |---|---|
-| NIST NVD API documentation | [https://nvd.nist.gov/developers/vulnerabilities](https://nvd.nist.gov/developers/vulnerabilities) |
-| Request NVD API key | [https://nvd.nist.gov/developers/request-an-api-key](https://nvd.nist.gov/developers/request-an-api-key) |
-| CVE database search | [https://nvd.nist.gov/vuln/search](https://nvd.nist.gov/vuln/search) |
+| CIRCL CVE Search | [https://cve.circl.lu](https://cve.circl.lu) |
+| CIRCL API documentation | [https://cve.circl.lu/api/](https://cve.circl.lu/api/) |
+| CVE ID search (NIST) | [https://nvd.nist.gov/vuln/search](https://nvd.nist.gov/vuln/search) |
+| CVE ID search (MITRE) | [https://cve.mitre.org/cgi-bin/cvekey.cgi](https://cve.mitre.org/cgi-bin/cvekey.cgi) |
 
 <!-- Repository maintenance marker -->
