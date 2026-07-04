@@ -1,0 +1,429 @@
+openapi: 3.0.1
+info:
+  title: Internal Security Operations API
+  description: >
+    Template OpenAPI specification for connecting an internal security operations platform to
+    Microsoft Security Copilot via the OpenAI plugin format.
+
+    INSTRUCTIONS FOR ADAPTATION:
+    1. Replace "YOUR-API-HOST" with your actual API base URL throughout this file.
+    2. Update the securitySchemes section with your authentication method.
+    3. Keep or remove endpoints based on what your API actually exposes.
+    4. Update the parameter names, response field names, and descriptions to match your API schema.
+    5. The description fields are read by the LLM — make them specific and accurate.
+    6. Update manifest.json with your hosted openapi.yaml URL before uploading to Security Copilot.
+  version: 1.0.0
+  contact:
+    name: Security Operations Team
+    email: security-ops@yourcompany.com
+
+servers:
+  - url: https://YOUR-API-HOST
+    description: Internal Security Operations Platform
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        Bearer token authentication. The token is obtained from your identity provider
+        (e.g. Azure AD, Okta) and passed in the Authorization header.
+        Security Copilot will prompt the user to provide this token when the plugin is first invoked.
+
+paths:
+
+  /api/incidents:
+    get:
+      operationId: listIncidents
+      summary: List security incidents
+      description: >
+        Retrieve a list of security incidents from the internal platform. Filter by status,
+        severity, or assignment. Returns incident ID, title, severity, status, assigned analyst,
+        creation date, and affected assets.
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [open, in-progress, resolved, closed]
+          description: Filter incidents by current status. Use "open" to find active incidents.
+
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [critical, high, medium, low]
+          description: Filter incidents by severity level.
+
+        - name: assignedTo
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter incidents assigned to a specific analyst (use UPN or display name).
+
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+          description: Maximum number of incidents to return.
+
+      responses:
+        '200':
+          description: List of incidents returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: Total number of matching incidents
+                  incidents:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Unique incident identifier (e.g. INC-2024-00847)
+                        title:
+                          type: string
+                          description: Short description of the incident
+                        severity:
+                          type: string
+                          description: Severity level (critical, high, medium, low)
+                        status:
+                          type: string
+                          description: Current status (open, in-progress, resolved, closed)
+                        assignedTo:
+                          type: string
+                          description: Display name of the assigned analyst
+                        createdAt:
+                          type: string
+                          description: ISO 8601 timestamp when the incident was created
+                        affectedAssets:
+                          type: array
+                          items:
+                            type: string
+                          description: List of hostnames or asset IDs affected by this incident
+
+  /api/incidents/{incidentId}:
+    get:
+      operationId: getIncidentById
+      summary: Get full details of a specific incident
+      description: >
+        Retrieve the complete details for a single incident including timeline, notes,
+        affected users, affected assets, and current investigation status.
+      parameters:
+        - name: incidentId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: INC-2024-00847
+          description: The unique incident ID to retrieve (e.g. INC-2024-00847)
+
+      responses:
+        '200':
+          description: Incident details returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  title:
+                    type: string
+                  description:
+                    type: string
+                    description: Detailed description of the incident
+                  severity:
+                    type: string
+                  status:
+                    type: string
+                  priority:
+                    type: integer
+                    description: Numeric priority (1 = highest)
+                  assignedTo:
+                    type: string
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  resolvedAt:
+                    type: string
+                  affectedUsers:
+                    type: array
+                    items:
+                      type: string
+                    description: UPNs or display names of users involved in the incident
+                  affectedAssets:
+                    type: array
+                    items:
+                      type: string
+                  notes:
+                    type: array
+                    description: Investigation notes added by analysts
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                        author:
+                          type: string
+                        content:
+                          type: string
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                    description: Labels applied to this incident (e.g. ransomware, phishing)
+        '404':
+          description: Incident not found
+
+  /api/risky-users:
+    get:
+      operationId: listRiskyUsers
+      summary: List users flagged as risky in the internal platform
+      description: >
+        Retrieve users that have been flagged as risky or compromised in the internal security platform.
+        Returns user identity, risk level, risk reason, and any associated incidents.
+      parameters:
+        - name: riskLevel
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [critical, high, medium, low]
+          description: Filter by risk level.
+
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [active, remediated, dismissed]
+          description: Filter by risk status. Use "active" to see current unresolved risks.
+
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+          description: Maximum number of users to return.
+
+      responses:
+        '200':
+          description: Risky users returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userPrincipalName:
+                          type: string
+                          description: User's UPN (e.g. john.doe@company.com)
+                        displayName:
+                          type: string
+                        department:
+                          type: string
+                        riskLevel:
+                          type: string
+                          description: Risk level (critical, high, medium, low)
+                        riskReason:
+                          type: string
+                          description: Summary of why this user is flagged as risky
+                        flaggedAt:
+                          type: string
+                          description: Timestamp when the risk was first detected
+                        status:
+                          type: string
+                          description: Current risk status (active, remediated, dismissed)
+                        relatedIncidents:
+                          type: array
+                          items:
+                            type: string
+                          description: Incident IDs associated with this user's risk
+
+  /api/assets:
+    get:
+      operationId: listAssets
+      summary: Search the asset inventory
+      description: >
+        Query the organization's asset inventory to find devices, servers, and workstations.
+        Returns asset name, owner, type, operating system, IP address, and compliance status.
+      parameters:
+        - name: hostname
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search by hostname or partial hostname match.
+
+        - name: owner
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by asset owner (UPN or display name).
+
+        - name: assetType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [workstation, server, network-device, mobile, virtual-machine]
+          description: Filter by asset type.
+
+        - name: complianceStatus
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [compliant, non-compliant, unknown]
+          description: Filter by device compliance status.
+
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+
+      responses:
+        '200':
+          description: Asset inventory results returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  assets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        assetId:
+                          type: string
+                        hostname:
+                          type: string
+                        owner:
+                          type: string
+                          description: UPN of the primary user or owner of this asset
+                        department:
+                          type: string
+                        assetType:
+                          type: string
+                        operatingSystem:
+                          type: string
+                        ipAddress:
+                          type: string
+                        lastSeen:
+                          type: string
+                          description: Timestamp when the asset was last seen active on the network
+                        complianceStatus:
+                          type: string
+                        tags:
+                          type: array
+                          items:
+                            type: string
+
+  /api/alerts:
+    get:
+      operationId: listAlerts
+      summary: List active security alerts
+      description: >
+        Retrieve active security alerts from the internal platform.
+        Returns alert name, severity, affected entity, detection source, and current status.
+      parameters:
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [critical, high, medium, low, informational]
+          description: Filter by alert severity.
+
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [new, in-progress, resolved, false-positive]
+          description: Filter by alert status.
+
+        - name: entity
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by affected entity (hostname, UPN, or IP address).
+
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+
+      responses:
+        '200':
+          description: Alert list returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                  alerts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        alertId:
+                          type: string
+                        title:
+                          type: string
+                        severity:
+                          type: string
+                        status:
+                          type: string
+                        detectionSource:
+                          type: string
+                          description: The security tool that generated this alert
+                        affectedEntity:
+                          type: string
+                          description: Hostname, UPN, or IP address of the affected entity
+                        detectedAt:
+                          type: string
+                        description:
+                          type: string
+                          description: Brief description of what was detected
+                        relatedIncidentId:
+                          type: string
+                          description: Incident ID if this alert has been linked to an incident
