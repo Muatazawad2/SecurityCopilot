@@ -13,6 +13,16 @@ Each plugin consists of:
 - **`openapi.yaml`** — Defines the REST API endpoints, parameters, and response schemas
 - **The REST API** — The actual backend (public service or internal tool) that performs the work
 
+### Architecture — The Why
+*What each component is and why it exists*
+
+![Architecture — CVE Lookup OpenAI Plugin for Security Copilot](Images/Architecture.png)
+
+### How It Works — Step by Step
+*What happens when you set up the plugin and when an analyst asks about a CVE*
+
+![How It Works — CVE Lookup Plugin Step by Step](Images/how-it-works.png)
+
 ## Available Plugins
 
 | Plugin | Description | API Source |
