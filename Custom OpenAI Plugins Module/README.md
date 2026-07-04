@@ -20,6 +20,12 @@ Each plugin consists of:
 | [CVE Lookup Plugin](CVE%20Lookup%20Plugin/) | Look up CVE vulnerability details from NIST NVD — severity, CVSS score, affected products, description | Public — no API key required |
 | [Internal Security API Template](Internal%20Security%20API%20Template/) | Template for wrapping an internal security tool (SIEM, CMDB, incident database) as an OpenAI plugin | Template — adapt for your own API |
 
+## Available Promptbooks
+
+| Promptbook | Plugin Required | Description |
+|---|---|---|
+| [CVE Vulnerability Triage and Patch Priority Assessment](Promptbook/CVE%20Vulnerability%20Triage%20and%20Patch%20Priority%20Assessment%20Promptbook.md) | CVE Lookup Plugin | 7-step workflow: CVE lookup → exploitability assessment → affected asset identification → patch availability → environmental exposure → threat intelligence → structured patch priority recommendation |
+
 ## How to Upload a Plugin to Security Copilot
 
 1. In Security Copilot, click the **Sources** icon in the prompt bar.
