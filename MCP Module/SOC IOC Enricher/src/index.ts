@@ -18,6 +18,8 @@
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import http from "node:http";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -446,11 +448,71 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
-// Start server
+// Start server — supports both stdio (local) and HTTP/SSE (remote/Docker)
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("SOC IOC Enricher MCP server running on stdio");
+  const port = process.env.PORT ? parseInt(process.env.PORT) : null;
+
+  if (port) {
+    // ── HTTP/SSE mode — used when deployed to Azure Container Apps or Docker ──
+    const transports = new Map<string, SSEServerTransport>();
+
+    const httpServer = http.createServer(async (req, res) => {
+      // CORS headers — required for web-based MCP clients
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+      if (req.method === "OPTIONS") {
+        res.writeHead(204).end();
+        return;
+      }
+
+      // SSE connection endpoint — client connects here to receive server events
+      if (req.method === "GET" && req.url === "/sse") {
+        const transport = new SSEServerTransport("/messages", res);
+        transports.set(transport.sessionId, transport);
+        transport.onclose = () => transports.delete(transport.sessionId);
+        await server.connect(transport);
+        return;
+      }
+
+      // Message endpoint — client POSTs requests here
+      if (req.method === "POST" && req.url?.startsWith("/messages")) {
+        const url = new URL(req.url, `http://localhost:${port}`);
+        const sessionId = url.searchParams.get("sessionId");
+        const transport = sessionId ? transports.get(sessionId) : undefined;
+
+        if (!transport) {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Session not found. Connect to /sse first." }));
+          return;
+        }
+
+        await transport.handlePostMessage(req, res);
+        return;
+      }
+
+      // Health check — used by Azure Container Apps liveness probe
+      if (req.url === "/health") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "ok", server: "soc-ioc-enricher", version: "1.0.0" }));
+        return;
+      }
+
+      res.writeHead(404).end("Not found");
+    });
+
+    httpServer.listen(port, () => {
+      console.error(`SOC IOC Enricher MCP server running on HTTP port ${port}`);
+      console.error(`  SSE endpoint:    http://localhost:${port}/sse`);
+      console.error(`  Health check:    http://localhost:${port}/health`);
+    });
+  } else {
+    // ── stdio mode — used for local MCP clients (Claude Desktop, VS Code) ──
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    console.error("SOC IOC Enricher MCP server running on stdio");
+  }
 }
 
 main().catch((err) => {
