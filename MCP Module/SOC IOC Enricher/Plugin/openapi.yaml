@@ -1,0 +1,227 @@
+openapi: 3.0.1
+info:
+  title: SOC IOC Enricher
+  description: >
+    Multi-source IOC enrichment server. Auto-detects the type of an IOC
+    (IPv4 address, file hash, or domain name) and queries multiple free
+    threat intelligence sources simultaneously — IPinfo.io, AbuseIPDB,
+    MalwareBazaar, Google Public DNS, and URLScan.io — returning a single
+    correlated verdict, confidence score, and recommended SOC action.
+  version: 1.0.0
+  contact:
+    name: Dr Muataz Awad
+
+servers:
+  - url: https://YOUR-APP.YOUR-ENV.eastus.azurecontainerapps.io
+    description: Azure Container Apps deployment
+
+paths:
+
+  /enrich:
+    get:
+      operationId: enrichIoc
+      summary: Auto-detect IOC type and enrich from multiple threat intelligence sources
+      description: >
+        The primary enrichment endpoint. Accepts any IOC — IPv4 address,
+        MD5/SHA1/SHA256 file hash, or domain name — automatically detects
+        the type, queries all relevant threat intelligence APIs in parallel,
+        and returns a single correlated verdict with confidence score and
+        recommended action. Use this endpoint first; only use the specific
+        endpoints below if the user explicitly requests a particular IOC type.
+      parameters:
+        - name: ioc
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >
+            The indicator of compromise to investigate. Examples:
+            45.33.32.156 (IP), d41d8cd98f00b204e9800998ecf8427e (MD5 hash),
+            malicious-domain.com (domain).
+      responses:
+        '200':
+          description: Enrichment result with verdict and recommended action
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentResult'
+        '400':
+          description: Missing or invalid ioc parameter
+
+  /enrich/ip:
+    get:
+      operationId: enrichIp
+      summary: Enrich an IP address using IPinfo.io and AbuseIPDB
+      description: >
+        Look up an IPv4 address for geolocation (country, city, region),
+        ASN, and organization via IPinfo.io. If the ABUSEIPDB_API_KEY
+        environment variable is set on the server, also returns abuse
+        confidence score, total abuse reports, and ISP from AbuseIPDB.
+        Returns a verdict of MALICIOUS (score ≥ 80), SUSPICIOUS (score 25–79),
+        LIKELY CLEAN (score 0–24), or UNKNOWN (no AbuseIPDB key).
+      parameters:
+        - name: ip
+          in: query
+          required: true
+          schema:
+            type: string
+          description: IPv4 address to investigate. Example: 45.33.32.156
+      responses:
+        '200':
+          description: IP enrichment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentResult'
+        '400':
+          description: Missing or invalid ip parameter
+
+  /enrich/hash:
+    get:
+      operationId: enrichHash
+      summary: Look up a file hash in MalwareBazaar
+      description: >
+        Query MalwareBazaar (abuse.ch) to determine if a file hash is
+        associated with known malware. Accepts MD5 (32 hex chars),
+        SHA1 (40 hex chars), or SHA256 (64 hex chars). Returns malware
+        name, family tags, file type, first and last seen dates, and
+        origin country if found. Returns NOT FOUND if the hash is not
+        in the database — this does not confirm the file is clean.
+      parameters:
+        - name: hash
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >
+            File hash to look up. Accepts MD5, SHA1, or SHA256 hex strings.
+            Example: 44d88612fea8a8f36de82e1278abb02f (MD5 of EICAR test file).
+      responses:
+        '200':
+          description: Hash enrichment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentResult'
+        '400':
+          description: Missing or invalid hash parameter
+
+  /enrich/domain:
+    get:
+      operationId: enrichDomain
+      summary: Investigate a domain via Google DNS and URLScan.io
+      description: >
+        Check DNS resolution for a domain using Google Public DNS (returns
+        A records, CNAME records, and NXDOMAIN status), and search
+        URLScan.io for scan history and malicious verdicts. Returns a
+        verdict of MALICIOUS if any URLScan.io verdicts are malicious,
+        LIKELY CLEAN if scans exist but are clean, or UNKNOWN if no
+        scan history is available.
+      parameters:
+        - name: domain
+          in: query
+          required: true
+          schema:
+            type: string
+          description: >
+            Domain name to investigate. Do not include http:// or paths.
+            Example: malicious-domain.com
+      responses:
+        '200':
+          description: Domain enrichment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichmentResult'
+        '400':
+          description: Missing or invalid domain parameter
+
+components:
+  schemas:
+    EnrichmentResult:
+      type: object
+      properties:
+        ioc:
+          type: string
+          description: The IOC that was investigated
+        type:
+          type: string
+          description: Detected IOC type (IP Address, File Hash, Domain)
+        sources_queried:
+          type: array
+          items:
+            type: string
+          description: List of threat intelligence sources that were queried
+        verdict:
+          type: string
+          description: >
+            Final verdict: MALICIOUS, SUSPICIOUS, LIKELY CLEAN, UNKNOWN,
+            NOT FOUND IN MALWARE DATABASE, or LOOKUP FAILED
+        confidence_pct:
+          type: integer
+          description: Confidence percentage (0–100) for the verdict
+        recommended_action:
+          type: string
+          description: Recommended SOC action based on the verdict
+        geolocation:
+          type: object
+          description: IP geolocation data from IPinfo.io (IP enrichment only)
+          properties:
+            country:
+              type: string
+            region:
+              type: string
+            city:
+              type: string
+            organization:
+              type: string
+            asn:
+              type: string
+        abuse_intelligence:
+          type: object
+          description: Abuse data from AbuseIPDB (IP enrichment only, requires API key)
+          properties:
+            abuse_confidence_score:
+              type: integer
+            total_reports:
+              type: integer
+            isp:
+              type: string
+            is_tor:
+              type: boolean
+        malware_intelligence:
+          type: object
+          description: Malware data from MalwareBazaar (hash enrichment only)
+          properties:
+            malware_name:
+              type: string
+            tags:
+              type: string
+            file_type:
+              type: string
+            first_seen:
+              type: string
+            last_seen:
+              type: string
+        dns_resolution:
+          type: object
+          description: DNS data from Google Public DNS (domain enrichment only)
+          properties:
+            resolves:
+              type: boolean
+            status:
+              type: string
+            a_records:
+              type: array
+              items:
+                type: string
+        urlscan_intelligence:
+          type: object
+          description: Scan history from URLScan.io (domain enrichment only)
+          properties:
+            total_scans:
+              type: integer
+            malicious_verdicts:
+              type: integer
+            last_scan_date:
+              type: string

@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "SOC IOC Enricher",
+  "name_for_model": "soc_ioc_enricher",
+  "description_for_human": "Multi-source IOC enrichment — auto-detects IP, file hash, or domain and queries IPinfo.io, AbuseIPDB, MalwareBazaar, Google DNS, and URLScan.io simultaneously. Returns a single correlated verdict, confidence score, and recommended action.",
+  "description_for_model": "Use this plugin to enrich any indicator of compromise (IOC). Invoke enrichIoc when the user provides any IOC and you need to determine if it is malicious — it auto-detects the type (IP, hash, or domain) and returns a verdict with confidence score and recommended action. Use enrichIp for explicit IP address lookups (returns geolocation, ASN, and abuse score), enrichHash for file hash lookups (MD5/SHA1/SHA256 against MalwareBazaar), and enrichDomain for domain lookups (DNS resolution and URLScan.io history). Always prefer enrichIoc unless the user explicitly requests a specific IOC type.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://YOUR-APP.YOUR-ENV.eastus.azurecontainerapps.io/openapi.yaml"
+  },
+  "logo_url": "https://YOUR-APP.YOUR-ENV.eastus.azurecontainerapps.io/logo.png",
+  "contact_email": "your-email@example.com",
+  "legal_info_url": "https://YOUR-APP.YOUR-ENV.eastus.azurecontainerapps.io/health"
+}
