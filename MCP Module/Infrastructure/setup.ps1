@@ -8,10 +8,10 @@
 # After this runs once, deploy individual servers using their own deploy.ps1 scripts.
 
 param(
-    [string]$SubscriptionId  = "74d1feca-4d92-4bf5-a17a-c9c92b5c49fc",
+    [string]$SubscriptionId  = "",              # Your Azure subscription ID
     [string]$ResourceGroup   = "SecurityCopilot",
     [string]$Location        = "eastus",
-    [string]$AcrName         = "maseccopilotacr",       # Must be globally unique, lowercase, 5-50 chars
+    [string]$AcrName         = "",              # Must be globally unique, lowercase, 5-50 chars
     [string]$EnvironmentName = "soc-mcp-environment"    # Container Apps environment name
 )
 

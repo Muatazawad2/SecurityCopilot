@@ -8,12 +8,15 @@
 # Prerequisites: Run Infrastructure/setup.ps1 ONCE first to create the shared environment.
 
 param(
-    [string]$SubscriptionId  = "74d1feca-4d92-4bf5-a17a-c9c92b5c49fc",
+    [string]$SubscriptionId  = "",              # Your Azure subscription ID
     [string]$ResourceGroup   = "SecurityCopilot",
-    [string]$AcrName         = "maseccopilotacr",
+    [string]$AcrName         = "",              # Must be globally unique, lowercase, 5-50 chars
     [string]$AppName         = "soc-ioc-enricher",
     [string]$EnvironmentName = "soc-mcp-environment",
-    [string]$AbuseIpdbKey    = ""       # Optional: your free AbuseIPDB API key
+    [string]$AbuseIpdbKey    = "",        # Free key: https://www.abuseipdb.com/register
+    [string]$VirusTotalKey   = "",        # Free key: https://www.virustotal.com/gui/sign-in
+    [string]$OtxApiKey       = "",        # Free key: https://otx.alienvault.com/api
+    [string]$UrlscanApiKey   = ""         # Free key: https://urlscan.io/user/signup
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,15 +26,15 @@ Write-Host "=== SOC IOC Enricher — Deploy to Azure Container Apps ===" -Foregr
 # Set subscription
 az account set --subscription $SubscriptionId
 
-# ── Step 1: Build Docker image ───────────────────────────────────────────────
+# ── Step 1 & 2: Build and push image directly in Azure (no local Docker needed) ──
 $imageTag = "$AcrName.azurecr.io/$AppName`:latest"
-Write-Host "`n[1/4] Building Docker image: $imageTag" -ForegroundColor Yellow
-docker build -t $imageTag .
-
-# ── Step 2: Push to Azure Container Registry ────────────────────────────────
-Write-Host "`n[2/4] Pushing image to Azure Container Registry..." -ForegroundColor Yellow
-az acr login --name $AcrName
-docker push $imageTag
+Write-Host "`n[1/4] Building image in Azure Container Registry: $imageTag" -ForegroundColor Yellow
+Write-Host "  (Using ACR Tasks — no local Docker required)" -ForegroundColor Gray
+az acr build `
+    --registry $AcrName `
+    --image "$AppName`:latest" `
+    --platform linux/amd64 `
+    .
 
 # ── Step 3: Get ACR credentials ─────────────────────────────────────────────
 $acrUser = az acr credential show --name $AcrName --query "username" -o tsv
@@ -42,9 +45,10 @@ Write-Host "`n[3/4] Deploying Container App: $AppName..." -ForegroundColor Yello
 
 # Build environment variable string
 $envVars = @("PORT=3000")
-if ($AbuseIpdbKey) {
-    $envVars += "ABUSEIPDB_API_KEY=$AbuseIpdbKey"
-}
+if ($AbuseIpdbKey)      { $envVars += "ABUSEIPDB_API_KEY=$AbuseIpdbKey" }
+if ($VirusTotalKey)     { $envVars += "VIRUSTOTAL_API_KEY=$VirusTotalKey" }
+if ($OtxApiKey)         { $envVars += "OTX_API_KEY=$OtxApiKey" }
+if ($UrlscanApiKey)     { $envVars += "URLSCAN_API_KEY=$UrlscanApiKey" }
 
 # Check if app already exists
 $exists = az containerapp show --name $AppName --resource-group $ResourceGroup --query "name" -o tsv 2>$null
