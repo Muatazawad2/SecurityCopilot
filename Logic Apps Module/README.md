@@ -118,7 +118,42 @@ Follow the step-by-step guide below.
 
 #### Step 3 — Grant Microsoft Graph Permissions
 
-Run this PowerShell to grant the 3 required Graph API permissions to the Managed Identity:
+You must grant 3 Graph API permissions to the Managed Identity. Choose one method:
+
+---
+
+##### Option A — Graph Explorer (browser, no setup required)
+
+1. Go to [https://developer.microsoft.com/en-us/graph/graph-explorer](https://developer.microsoft.com/en-us/graph/graph-explorer)
+2. Sign in with your **Global Administrator** account
+3. First, get the Microsoft Graph service principal ID — run this GET request:
+   ```
+   GET https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '00000003-0000-0000-c000-000000000000'&$select=id,appRoles
+   ```
+   Note the `id` value — this is your **graphSpId**
+
+4. Then get the app role IDs for each permission by looking through the `appRoles` array in the response for entries where `value` equals `IdentityRiskyUser.Read.All`, `User.Read.All`, and `Mail.Send`. Note each `id`.
+
+5. For each of the 3 permissions, run this POST request (replacing the placeholder values):
+   ```
+   POST https://graph.microsoft.com/v1.0/servicePrincipals/{graphSpId}/appRoleAssignedTo
+   ```
+   **Request body:**
+   ```json
+   {
+     "principalId": "YOUR-MANAGED-IDENTITY-OBJECT-ID",
+     "resourceId": "GRAPH-SP-ID",
+     "appRoleId": "APP-ROLE-ID-FOR-PERMISSION"
+   }
+   ```
+   Repeat for all 3 permissions.
+
+---
+
+##### Option B — Azure Cloud Shell (browser-based PowerShell, no local install needed)
+
+1. Go to [https://shell.azure.com](https://shell.azure.com) and select **PowerShell**
+2. Paste and run:
 
 ```powershell
 $token = (az account get-access-token --resource https://graph.microsoft.com --query accessToken -o tsv)
@@ -129,7 +164,6 @@ $graphSpId = $graphSp.value[0].id
 $principalId = "YOUR-MANAGED-IDENTITY-OBJECT-ID"  # from Step 2
 
 $permissionNames = @("IdentityRiskyUser.Read.All", "User.Read.All", "Mail.Send")
-
 $appRoles = $graphSp.value[0].appRoles
 $uri = "https://graph.microsoft.com/v1.0/servicePrincipals/$graphSpId/appRoleAssignedTo"
 
@@ -145,7 +179,15 @@ foreach ($name in $permissionNames) {
 }
 ```
 
-**Verify in the portal:** Entra ID → Enterprise Applications → search `daily-risky-user-digest` → Security → Permissions
+---
+
+##### Option C — Local PowerShell
+
+Same script as Option B, but run from your local machine after running `az login`.
+
+---
+
+**Verify in the portal:** Entra ID → Enterprise Applications → search `daily-risky-user-digest` → Security → Permissions — you should see all 3 permissions listed under **Admin consent**.
 
 ![Graph Permissions](Images/21.png)
 
