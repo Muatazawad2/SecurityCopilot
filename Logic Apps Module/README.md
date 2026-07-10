@@ -65,11 +65,20 @@ Send Email Report (Graph API sendMail via Managed Identity)
 
 ### Deployment
 
-#### Option A — Manual Portal Setup (recommended for learning)
+#### Option A — Deploy to Azure (one-click)
 
-Follow the step-by-step guide below.
+Click the button below to deploy the Logic App directly to your Azure subscription:
 
-#### Option B — ARM Template (automated)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMuatazawad2%2FSecurityCopilot%2Fmain%2FLogic%2520Apps%2520Module%2FRisky%2520User%2520Management%2FDaily%2520Risky%2520User%2520Digest%2Fazuredeploy.json)
+
+You will be prompted to enter:
+- **Resource Group**
+- **Sender Email** (the mailbox that sends the digest)
+- **Recipient Email** (who receives the digest)
+
+> After deployment, complete [Step 3](#step-3--grant-microsoft-graph-permissions) to grant Graph API permissions to the Managed Identity.
+
+#### Option B — PowerShell Script
 
 ```powershell
 cd "Logic Apps Module/Risky User Management/Daily Risky User Digest"
@@ -78,6 +87,10 @@ cd "Logic Apps Module/Risky User Management/Daily Risky User Digest"
              -SubscriptionId "your-subscription-id" `
              -ResourceGroup "your-resource-group"
 ```
+
+#### Option C — Manual Portal Setup (recommended for learning)
+
+Follow the step-by-step guide below.
 
 ---
 
