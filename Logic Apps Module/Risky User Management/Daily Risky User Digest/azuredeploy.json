@@ -1,0 +1,295 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Daily digest of HIGH and MEDIUM risk users from Entra Identity Protection. Sends an email every morning with user risk summary and last sign-in details.",
+    "author": "Dr Muataz Awad"
+  },
+  "parameters": {
+    "logicAppName": {
+      "type": "string",
+      "defaultValue": "daily-risky-user-digest",
+      "metadata": { "description": "Name of the Logic App." }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": { "description": "Azure region for the Logic App." }
+    },
+    "senderEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "UPN of the mailbox to send FROM (e.g. security-alerts@company.com). Must be a valid mailbox in your tenant."
+      }
+    },
+    "recipientEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "Email address to send the daily digest TO. Can be a distribution list or individual mailbox."
+      }
+    },
+    "scheduleHour": {
+      "type": "int",
+      "defaultValue": 8,
+      "minValue": 0,
+      "maxValue": 23,
+      "metadata": { "description": "Hour (UTC) to send the daily digest. Default: 8 = 8:00 AM UTC." }
+    },
+    "riskLevelFilter": {
+      "type": "string",
+      "defaultValue": "high,medium",
+      "allowedValues": ["high", "high,medium"],
+      "metadata": { "description": "Risk levels to include. 'high' = HIGH only. 'high,medium' = both." }
+    }
+  },
+  "variables": {
+    "riskFilterHigh": "riskState eq 'atRisk' and riskLevel eq 'high'",
+    "riskFilterBoth": "riskState eq 'atRisk' and (riskLevel eq 'high' or riskLevel eq 'medium')",
+    "graphFilter": "[if(equals(parameters('riskLevelFilter'), 'high'), variables('riskFilterHigh'), variables('riskFilterBoth'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('logicAppName')]",
+      "location": "[parameters('location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "senderEmail": {
+              "type": "string"
+            },
+            "recipientEmail": {
+              "type": "string"
+            },
+            "graphFilter": {
+              "type": "string"
+            }
+          },
+          "triggers": {
+            "Daily_Schedule": {
+              "type": "Recurrence",
+              "recurrence": {
+                "frequency": "Day",
+                "interval": 1,
+                "schedule": {
+                  "hours": ["[string(parameters('scheduleHour'))]"],
+                  "minutes": [0]
+                },
+                "timeZone": "UTC"
+              }
+            }
+          },
+          "actions": {
+            "Initialize_UserReport": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "UserReport",
+                    "type": "array",
+                    "value": []
+                  }
+                ]
+              },
+              "runAfter": {}
+            },
+            "Get_Risky_Users": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://graph.microsoft.com/v1.0/identityProtection/riskyUsers?$filter=@{parameters('graphFilter')}&$select=id,userDisplayName,userPrincipalName,riskLevel,riskState,riskDetail,riskLastUpdatedDateTime&$orderby=riskLevel desc&$top=50",
+                "authentication": {
+                  "type": "ManagedServiceIdentity",
+                  "audience": "https://graph.microsoft.com"
+                }
+              },
+              "runAfter": {
+                "Initialize_UserReport": ["Succeeded"]
+              }
+            },
+            "Parse_Risky_Users": {
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@body('Get_Risky_Users')",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "userDisplayName": { "type": "string" },
+                          "userPrincipalName": { "type": "string" },
+                          "riskLevel": { "type": "string" },
+                          "riskState": { "type": "string" },
+                          "riskDetail": { "type": "string" },
+                          "riskLastUpdatedDateTime": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Risky_Users": ["Succeeded"]
+              }
+            },
+            "Check_Risky_Users_Exist": {
+              "type": "If",
+              "expression": {
+                "greater": [
+                  "@length(body('Parse_Risky_Users')?['value'])",
+                  0
+                ]
+              },
+              "actions": {
+                "For_Each_Risky_User": {
+                  "type": "Foreach",
+                  "foreach": "@body('Parse_Risky_Users')?['value']",
+                  "actions": {
+                    "Get_SignIn_Activity": {
+                      "type": "Http",
+                      "inputs": {
+                        "method": "GET",
+                        "uri": "https://graph.microsoft.com/beta/users/@{items('For_Each_Risky_User')?['id']}/authentication/signInActivity",
+                        "authentication": {
+                          "type": "ManagedServiceIdentity",
+                          "audience": "https://graph.microsoft.com"
+                        }
+                      },
+                      "runAfter": {}
+                    },
+                    "Compute_Days_Since_SignIn": {
+                      "type": "Compose",
+                      "inputs": "@if(equals(body('Get_SignIn_Activity')?['lastSignInDateTime'], null), 'Never', concat(string(div(sub(ticks(utcNow()), ticks(body('Get_SignIn_Activity')?['lastSignInDateTime'])), 864000000000)), ' days ago'))",
+                      "runAfter": {
+                        "Get_SignIn_Activity": ["Succeeded", "Failed"]
+                      }
+                    },
+                    "Append_User_To_Report": {
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "UserReport",
+                        "value": {
+                          "name": "@items('For_Each_Risky_User')?['userDisplayName']",
+                          "upn": "@items('For_Each_Risky_User')?['userPrincipalName']",
+                          "riskLevel": "@toUpper(items('For_Each_Risky_User')?['riskLevel'])",
+                          "riskDetail": "@replace(replace(coalesce(items('For_Each_Risky_User')?['riskDetail'], 'none'), 'adminConfirmedUserCompromised', 'Admin confirmed compromise'), 'none', 'No specific reason')",
+                          "riskUpdated": "@formatDateTime(items('For_Each_Risky_User')?['riskLastUpdatedDateTime'], 'yyyy-MM-dd HH:mm UTC')",
+                          "lastSignIn": "@outputs('Compute_Days_Since_SignIn')"
+                        }
+                      },
+                      "runAfter": {
+                        "Compute_Days_Since_SignIn": ["Succeeded"]
+                      }
+                    }
+                  },
+                  "runAfter": {}
+                },
+                "Compose_Email_Body": {
+                  "type": "Compose",
+                  "inputs": "<html><body style='font-family:Segoe UI,Arial,sans-serif;color:#333;max-width:700px;margin:auto'><div style='background:#C41E3A;padding:20px;border-radius:6px 6px 0 0'><h2 style='color:white;margin:0'>Daily Security Risk Report</h2><p style='color:#f9c4c4;margin:4px 0 0'>@{formatDateTime(utcNow(), 'dddd, MMMM dd yyyy')} &bull; @{length(variables('UserReport'))} risky user(s) require attention</p></div><div style='background:#fff;padding:20px;border:1px solid #ddd;border-top:none;border-radius:0 0 6px 6px'><table style='width:100%;border-collapse:collapse;font-size:14px'><thead><tr style='background:#f4f4f4'><th style='padding:10px;text-align:left;border-bottom:2px solid #ddd'>User</th><th style='padding:10px;text-align:left;border-bottom:2px solid #ddd'>Risk Level</th><th style='padding:10px;text-align:left;border-bottom:2px solid #ddd'>Risk Reason</th><th style='padding:10px;text-align:left;border-bottom:2px solid #ddd'>Last Sign-in</th></tr></thead><tbody>@{join(variables('UserReport'), '')}</tbody></table><br/><div style='background:#fff8e1;padding:14px;border-left:4px solid #FFA000;border-radius:4px;margin-top:16px'><strong>Recommended Actions:</strong><ul style='margin:8px 0 0;padding-left:20px'><li><strong>HIGH risk</strong>: Investigate immediately. Disable account if compromise is confirmed.</li><li><strong>MEDIUM risk</strong>: Review sign-in activity and verify with the user or manager.</li><li>Use Microsoft Security Copilot: Investigate risky user [upn] for detailed analysis.</li></ul></div><br/><p><a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade/~/RiskyUsers'>Open Entra Identity Protection</a> &nbsp;|&nbsp; <a href='https://securitycopilot.microsoft.com'>Open Security Copilot</a></p></div></body></html>",
+                  "runAfter": {
+                    "For_Each_Risky_User": ["Succeeded"]
+                  }
+                },
+                "Send_Email": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "POST",
+                    "uri": "https://graph.microsoft.com/v1.0/users/@{parameters('senderEmail')}/sendMail",
+                    "headers": { "Content-Type": "application/json" },
+                    "body": {
+                      "message": {
+                        "subject": "[SECURITY] Daily Risk Report — @{length(variables('UserReport'))} risky user(s) — @{formatDateTime(utcNow(), 'yyyy-MM-dd')}",
+                        "importance": "High",
+                        "body": {
+                          "contentType": "HTML",
+                          "content": "@{outputs('Compose_Email_Body')}"
+                        },
+                        "toRecipients": [{ "emailAddress": { "address": "@{parameters('recipientEmail')}" } }]
+                      },
+                      "saveToSentItems": false
+                    },
+                    "authentication": {
+                      "type": "ManagedServiceIdentity",
+                      "audience": "https://graph.microsoft.com"
+                    }
+                  },
+                  "runAfter": { "Compose_Email_Body": ["Succeeded"] }
+                }
+              },
+              "else": {
+                "actions": {
+                  "No_Risky_Users_Email": {
+                    "type": "Http",
+                    "inputs": {
+                      "method": "POST",
+                      "uri": "https://graph.microsoft.com/v1.0/users/@{parameters('senderEmail')}/sendMail",
+                      "headers": {
+                        "Content-Type": "application/json"
+                      },
+                      "body": {
+                        "message": {
+                          "subject": "[SECURITY] Daily Risk Report — All Clear — @{formatDateTime(utcNow(), 'yyyy-MM-dd')}",
+                          "importance": "Normal",
+                          "body": {
+                            "contentType": "HTML",
+                            "content": "<html><body style='font-family:Segoe UI,Arial;color:#333'><div style='background:#107C10;padding:20px;border-radius:6px'><h2 style='color:white;margin:0'>Daily Security Risk Report — All Clear</h2><p style='color:#c8f0c8;margin:4px 0 0'>@{formatDateTime(utcNow(), 'dddd, MMMM dd yyyy')}</p></div><p style='padding:16px'>No HIGH or MEDIUM risk users detected. Entra ID Identity Protection reports all users as safe.</p></body></html>"
+                          },
+                          "toRecipients": [{ "emailAddress": { "address": "@{parameters('recipientEmail')}" } }]
+                        },
+                        "saveToSentItems": false
+                      },
+                      "authentication": {
+                        "type": "ManagedServiceIdentity",
+                        "audience": "https://graph.microsoft.com"
+                      }
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Parse_Risky_Users": ["Succeeded"]
+              }
+            }
+          }
+        },
+        "parameters": {
+          "senderEmail": {
+            "value": "[parameters('senderEmail')]"
+          },
+          "recipientEmail": {
+            "value": "[parameters('recipientEmail')]"
+          },
+          "graphFilter": {
+            "value": "[variables('graphFilter')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "logicAppId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Logic/workflows', parameters('logicAppName'))]"
+    },
+    "managedIdentityPrincipalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')), '2019-05-01', 'Full').identity.principalId]"
+    },
+    "logicAppName": {
+      "type": "string",
+      "value": "[parameters('logicAppName')]"
+    }
+  }
+}
