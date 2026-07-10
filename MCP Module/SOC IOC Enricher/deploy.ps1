@@ -26,7 +26,7 @@ Write-Host "=== SOC IOC Enricher — Deploy to Azure Container Apps ===" -Foregr
 # Set subscription
 az account set --subscription $SubscriptionId
 
-# ── Step 1 & 2: Build and push image directly in Azure (no local Docker needed) ──
+# ── Step 1 & 2: Build and push image directly in Azure 
 $imageTag = "$AcrName.azurecr.io/$AppName`:latest"
 Write-Host "`n[1/4] Building image in Azure Container Registry: $imageTag" -ForegroundColor Yellow
 Write-Host "  (Using ACR Tasks — no local Docker required)" -ForegroundColor Gray

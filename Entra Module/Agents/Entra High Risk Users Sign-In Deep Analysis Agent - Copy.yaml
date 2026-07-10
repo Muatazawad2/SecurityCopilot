@@ -1,0 +1,237 @@
+# Developer: Dr Muataz Awad
+
+Descriptor:
+  Name: DrMuataz.EntraHighRiskUsers.SignInDeepAnalysisAgent-20260623
+  DisplayName: High Risk Users and Sign-In Deep Analysis Agent
+  Description: Custom Security Copilot agent for finding latest high-risk users and performing deep sign-in analysis with actionable recommendations.
+
+SkillGroups:
+  - Format: KQL
+    Skills:
+      - Name: GetLatestHighRiskUsers
+        DisplayName: Get Latest High Risk Users
+        Description: Returns latest users in the last 24 hours with either high sign-in risk indicators or unusually high sign-in volume.
+        Settings:
+          Target: Defender
+          Template: |-
+            let since = ago(24h);
+            let highSignInVolumeThreshold = 25;
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > since
+            | extend
+                UserPrincipalName = tostring(column_ifexists("AccountUpn", "")),
+                RiskLevel = toint(column_ifexists("RiskLevelAggregated", 0)),
+                RiskState = toint(column_ifexists("RiskState", 0))
+            | where isnotempty(UserPrincipalName)
+            | summarize
+                LastSeen = max(Timestamp),
+                FirstSeen = min(Timestamp),
+                TotalSignIns = count(),
+                HighRiskEvents = countif(RiskLevel == 100 or RiskState == 5),
+                RiskStates = make_set(RiskState, 5)
+              by UserPrincipalName
+            | where HighRiskEvents > 0 or TotalSignIns >= highSignInVolumeThreshold
+            | order by HighRiskEvents desc, TotalSignIns desc, LastSeen desc
+            | limit 100
+
+      - Name: GetDeepSignInAnalysisForUser
+        DisplayName: Get Deep Sign-In Analysis For User
+        Description: Returns detailed sign-in evidence for a user, including app, client, location, device, risk, and conditional access context.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to analyze.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            let upn = '{{UserPrincipalName}}';
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > ago(24h)
+            | where tostring(column_ifexists("AccountUpn", "")) =~ upn
+            | extend
+                AppName = tostring(column_ifexists("Application", "")),
+                AppId = tostring(column_ifexists("ApplicationId", "")),
+                ResourceName = tostring(column_ifexists("ResourceDisplayName", "")),
+                ClientApp = tostring(column_ifexists("ClientAppUsed", "")),
+                UserAgent = tostring(column_ifexists("UserAgent", "")),
+                Browser = tostring(column_ifexists("Browser", "")),
+                IPAddress = tostring(column_ifexists("IPAddress", "")),
+                Country = tostring(column_ifexists("Country", "")),
+                State = tostring(column_ifexists("State", "")),
+                City = tostring(column_ifexists("City", "")),
+                DeviceName = tostring(column_ifexists("DeviceName", "")),
+                EntraIdDeviceId = tostring(column_ifexists("EntraIdDeviceId", "")),
+                OSPlatform = tostring(column_ifexists("OSPlatform", "")),
+                DeviceTrustType = tostring(column_ifexists("DeviceTrustType", "")),
+                IsManaged = toint(column_ifexists("IsManaged", -1)),
+                IsCompliant = toint(column_ifexists("IsCompliant", -1)),
+                AuthRequirement = tostring(column_ifexists("AuthenticationRequirement", "")),
+                AuthProcessing = tostring(column_ifexists("AuthenticationProcessingDetails", "")),
+                ConditionalAccessPolicies = tostring(column_ifexists("ConditionalAccessPolicies", "")),
+                ConditionalAccessStatus = tostring(column_ifexists("ConditionalAccessStatus", "")),
+                RiskLevelAggregated = toint(column_ifexists("RiskLevelAggregated", 0)),
+                RiskState = toint(column_ifexists("RiskState", 0)),
+                RiskDetails = tostring(column_ifexists("RiskDetails", "")),
+                ErrorCode = toint(column_ifexists("ErrorCode", 0)),
+                CorrelationId = tostring(column_ifexists("CorrelationId", "")),
+                SessionId = tostring(column_ifexists("SessionId", "")),
+                ReportId = tostring(column_ifexists("ReportId", ""))
+            | project
+                Timestamp,
+                UserPrincipalName = AccountUpn,
+                AppName,
+                AppId,
+                ResourceName,
+                ClientApp,
+                UserAgent,
+                Browser,
+                IPAddress,
+                Country,
+                State,
+                City,
+                DeviceName,
+                EntraIdDeviceId,
+                OSPlatform,
+                DeviceTrustType,
+                IsManaged,
+                IsCompliant,
+                AuthRequirement,
+                AuthProcessing,
+                ConditionalAccessPolicies,
+                ConditionalAccessStatus,
+                RiskLevelAggregated,
+                RiskState,
+                RiskDetails,
+                ErrorCode,
+                CorrelationId,
+                SessionId,
+                ReportId
+            | order by Timestamp desc
+            | limit 500
+
+      - Name: GetRiskTrendForUser
+        DisplayName: Get Risk Trend For User
+        Description: Returns day-by-day trend for risk events and failures to assess escalation.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to analyze.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            let upn = '{{UserPrincipalName}}';
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > ago(24h)
+            | where tostring(column_ifexists("AccountUpn", "")) =~ upn
+            | extend
+                RiskLevel = toint(column_ifexists("RiskLevelAggregated", 0)),
+                RiskState = toint(column_ifexists("RiskState", 0)),
+                ErrorCode = toint(column_ifexists("ErrorCode", 0))
+            | summarize
+                SignIns = count(),
+                HighRiskEvents = countif(RiskLevel == 100 or RiskState == 5),
+                MediumRiskEvents = countif(RiskLevel == 50),
+                LowRiskEvents = countif(RiskLevel == 10),
+                FailedSignIns = countif(ErrorCode != 0),
+                SuccessSignIns = countif(ErrorCode == 0)
+              by Day = startofday(Timestamp)
+            | order by Day desc
+
+      - Name: GetGeoAndDeviceAnomaliesForUser
+        DisplayName: Get Geo And Device Anomalies For User
+        Description: Highlights unusual country and device patterns for the user in the last 30 days.
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to analyze.
+            Required: true
+        Settings:
+          Target: Defender
+          Template: |-
+            let upn = '{{UserPrincipalName}}';
+            union isfuzzy=true EntraIdSignInEvents, AADSignInEventsBeta
+            | where Timestamp > ago(24h)
+            | where tostring(column_ifexists("AccountUpn", "")) =~ upn
+            | extend
+                Country = tostring(column_ifexists("Country", "")),
+                City = tostring(column_ifexists("City", "")),
+                DeviceName = tostring(column_ifexists("DeviceName", "")),
+                OSPlatform = tostring(column_ifexists("OSPlatform", "")),
+                IsManaged = toint(column_ifexists("IsManaged", -1)),
+                IsCompliant = toint(column_ifexists("IsCompliant", -1)),
+                RiskLevel = toint(column_ifexists("RiskLevelAggregated", 0)),
+                RiskState = toint(column_ifexists("RiskState", 0))
+            | summarize
+                SignIns = count(),
+                RiskyEvents = countif(RiskLevel in (50, 100) or RiskState in (4, 5)),
+                LastSeen = max(Timestamp)
+              by Country, City, DeviceName, OSPlatform, IsManaged, IsCompliant
+            | order by RiskyEvents desc, SignIns desc, LastSeen desc
+            | limit 200
+
+  - Format: AGENT
+    Skills:
+      - Name: HighRiskUsersDeepAnalysisEntrypoint
+        DisplayName: High Risk Users Deep Analysis Entrypoint
+        Description: Performs automated end-to-end analysis for high-risk and high sign-in-volume users and provides containment recommendations.
+        Interfaces:
+          - Agent
+        Inputs:
+          - Name: UserPrincipalName
+            Description: User principal name to investigate.
+            Required: true
+        Settings:
+          Instructions: |
+            You are an Entra high-risk and high sign-in-volume user investigation agent.
+
+            Objective:
+            For each user returned by the trigger from the last 24 hours, deeply analyze all relevant sign-in evidence and provide practical, prioritized recommendations.
+
+            Automation behavior:
+            - Do not ask the analyst to choose a user when running from trigger data.
+            - Use the provided UserPrincipalName from the trigger payload and proceed automatically.
+
+            Required workflow:
+            1) Call GetDeepSignInAnalysisForUser.
+            2) Call GetRiskTrendForUser.
+            3) Call GetGeoAndDeviceAnomaliesForUser.
+            4) Correlate by timestamp, application, IP, location, device, and risk indicators.
+
+            Analysis requirements:
+            - Identify likely attack patterns such as impossible travel, suspicious client app usage, repeated failures followed by success, unmanaged/non-compliant device access, and unusual geolocations.
+            - Highlight conditional access and authentication requirement clues where present.
+            - Distinguish confirmed evidence from weak indicators.
+
+            Output format:
+            - Executive verdict: Low, Medium, High, or Critical.
+            - What happened: concise narrative.
+            - Key evidence: highest-impact findings only.
+            - Affected assets and likely blast radius.
+            - Recommended actions in three tiers:
+              1. Immediate containment (first 0-4 hours)
+              2. Short-term hardening (first 24-72 hours)
+              3. Long-term prevention
+            - Add a confidence score (0-100) with a short explanation.
+
+            Guardrails:
+            - Never invent telemetry.
+            - If data is missing, state exactly what is missing and how to obtain it.
+            - Keep guidance concrete and operational for SOC analysts.
+        ChildSkills:
+          - GetDeepSignInAnalysisForUser
+          - GetRiskTrendForUser
+          - GetGeoAndDeviceAnomaliesForUser
+
+AgentDefinitions:
+  - Name: EntraHighRiskUsersSignInDeepAnalysisAgent
+    DisplayName: Entra High Risk Users Sign-In Deep Analysis Agent
+    Description: Automatically finds latest high-risk users and high sign-in-volume users in the last 24 hours, then performs deep sign-in analysis with actionable response recommendations.
+    Publisher: Dr Muataz Awad
+    Product: EntraIdentitySecurity
+    RequiredSkillsets:
+      - DrMuataz.EntraHighRiskUsers.SignInDeepAnalysisAgent-20260623
+    AgentSingleInstanceConstraint: Workspace
+    Triggers:
+      - Name: LatestHighRiskUsersSweep
+        DefaultPeriodSeconds: 3600
+        FetchSkill: DrMuataz.EntraHighRiskUsers.SignInDeepAnalysisAgent-20260623.GetLatestHighRiskUsers
+        ProcessSkill: DrMuataz.EntraHighRiskUsers.SignInDeepAnalysisAgent-20260623.HighRiskUsersDeepAnalysisEntrypoint
