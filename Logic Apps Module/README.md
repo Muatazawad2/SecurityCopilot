@@ -28,29 +28,13 @@ A Logic App that runs every day and emails a formatted HTML report of all risky 
 
 ### Architecture
 
-```
-Recurrence (Daily)
-    │
-    ▼
-Initialize Variable (UserReport: Array)
-    │
-    ▼
-HTTP GET → Graph API riskyUsers
-    │
-    ▼
-Parse JSON (extract value array)
-    │
-    ▼
-For Each risky user
-    │   └── Append to array variable (HTML table row)
-    │
-    ▼
-Send Email Report (Graph API sendMail via Managed Identity)
-```
+![Architecture](Images/architecture.png)
 
-**Complete workflow:**
+---
 
-![Complete Workflow](Images/19.png)
+### How It Works
+
+![How It Works](Images/how-it-works.png)
 
 ---
 
