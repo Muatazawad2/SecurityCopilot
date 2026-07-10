@@ -23,7 +23,8 @@ param(
     [string]$RecipientEmail,                            # Email address to send TO (user or DL)
 
     [string]$SubscriptionId  = "",                      # Your Azure subscription ID
-    [string]$ResourceGroup   = "SecurityCopilot",       # Resource group name
+    [Parameter(Mandatory = $true)]
+    [string]$ResourceGroup,                             # Resource group name (must exist)
     [string]$Location        = "eastus",                # Azure region
     [string]$LogicAppName    = "daily-risky-user-digest",
     [int]$ScheduleHour       = 8,                       # Hour (UTC) to send digest. 8 = 8:00 AM UTC
