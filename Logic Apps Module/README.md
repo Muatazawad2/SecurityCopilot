@@ -124,18 +124,18 @@ Run this PowerShell to grant the 3 required Graph API permissions to the Managed
 $token = (az account get-access-token --resource https://graph.microsoft.com --query accessToken -o tsv)
 $headers = @{ Authorization = "Bearer $token"; "Content-Type" = "application/json" }
 
-$graphSpId = (az ad sp show --id "00000003-0000-0000-c000-000000000000" --query "id" -o tsv)
+$graphSp   = Invoke-RestMethod -Method GET -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=appId eq '00000003-0000-0000-c000-000000000000'" -Headers $headers
+$graphSpId = $graphSp.value[0].id
 $principalId = "YOUR-MANAGED-IDENTITY-OBJECT-ID"  # from Step 2
+
+$permissionNames = @("IdentityRiskyUser.Read.All", "User.Read.All", "Mail.Send")
+
+$appRoles = $graphSp.value[0].appRoles
 $uri = "https://graph.microsoft.com/v1.0/servicePrincipals/$graphSpId/appRoleAssignedTo"
 
-$perms = @{
-    "IdentityRiskyUser.Read.All" = "dc5007c0-2d7d-4c42-879c-2dab87571379"
-    "User.Read.All"              = "df021288-bdef-4463-88db-98f22de89214"
-    "Mail.Send"                  = "b633e1c5-b582-4048-a93e-9f11b44c7e96"
-}
-
-foreach ($name in $perms.Keys) {
-    $body = @{ principalId = $principalId; resourceId = $graphSpId; appRoleId = $perms[$name] } | ConvertTo-Json
+foreach ($name in $permissionNames) {
+    $appRoleId = ($appRoles | Where-Object { $_.value -eq $name }).id
+    $body = @{ principalId = $principalId; resourceId = $graphSpId; appRoleId = $appRoleId } | ConvertTo-Json
     try {
         $null = Invoke-RestMethod -Method POST -Uri $uri -Headers $headers -Body $body
         Write-Host "GRANTED: $name" -ForegroundColor Green
