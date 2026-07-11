@@ -1,6 +1,8 @@
 # Security Copilot Workshop
 
-Comprehensive workshop materials for Microsoft Security Copilot across Microsoft Purview, Microsoft Entra, Microsoft Defender Threat Intelligence, Azure AI Search, and Custom OpenAI Plugins. This repository provides prompt engineering best practices, investigation workflows, agent setup guides, knowledge base integration, and practical SOC-focused playbooks.
+Comprehensive workshop materials for Microsoft Security Copilot across Microsoft Purview, Microsoft Entra, Microsoft Defender Threat Intelligence, Azure AI Search, Custom OpenAI Plugins, Azure Logic Apps automation, and MCP server integration. This repository provides prompt engineering best practices, investigation workflows, agent setup guides, knowledge base integration, security automation Logic Apps, and practical SOC-focused playbooks.
+
+**Developer**: Dr Muataz Awad
 
 ## Overview
 
@@ -14,6 +16,8 @@ This repository contains curated content designed to help security analysts and 
 - Agent-driven automation and embedded investigation experiences
 - Organizational knowledge base integration via Azure AI Search
 - Custom OpenAI plugins connecting Security Copilot to external and internal REST APIs
+- Automated security workflows via Azure Logic Apps (no-code, Managed Identity)
+- Threat intelligence enrichment via MCP server deployed on Azure Container Apps
 
 ## Modules
 
@@ -36,6 +40,14 @@ End-to-end setup and resources for connecting an organizational knowledge base t
 ### [Custom OpenAI Plugins Module](Custom%20OpenAI%20Plugins%20Module/README.md)
 
 OpenAI-format plugins for extending Security Copilot with external REST APIs. Includes a working CVE Lookup plugin (queries CIRCL CVE Search — no auth required), an internal security API template for wrapping SIEM/CMDB/incident management tools, and a CVE triage promptbook.
+
+### [Logic Apps Module](Logic%20Apps%20Module/README.md)
+
+No-code security automation workflows built on Azure Logic Apps using System-Assigned Managed Identity — no stored credentials or OAuth connectors required. Includes the **Daily Risky User Digest**: a Logic App that queries Entra ID Protection daily and emails a formatted HTML report of all high/medium risk users. Comes with a one-click Deploy to Azure button, ARM template, PowerShell deployment script, and a 21-screenshot step-by-step setup guide.
+
+### [MCP Module](MCP%20Module/README.md)
+
+Model Context Protocol (MCP) server for Security Copilot threat intelligence enrichment. Includes the **SOC IOC Enricher**: a TypeScript/Node.js MCP server deployed on Azure Container Apps that enriches IPs, domains, URLs, and file hashes across 9 threat intelligence sources (VirusTotal, AlienVault OTX, AbuseIPDB, URLhaus, MalwareBazaar, URLScan.io, IPinfo, Google DNS, RDAP). Features batch enrichment, 5-minute caching, and professional SOC-ready report output.
 
 ## Quick Navigation
 
@@ -89,3 +101,14 @@ OpenAI-format plugins for extending Security Copilot with external REST APIs. In
 - **[CVE Lookup Sample Prompts](Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/CVE%20Lookup%20Sample%20Prompts.md)**
 - **[CVE Vulnerability Triage and Patch Priority Assessment Promptbook](Custom%20OpenAI%20Plugins%20Module/Promptbook/CVE%20Vulnerability%20Triage%20and%20Patch%20Priority%20Assessment%20Promptbook.md)**
 - **[Internal Security API Template](Custom%20OpenAI%20Plugins%20Module/Internal%20Security%20API%20Template/README.md)**
+
+### Logic Apps Module
+
+- **[Daily Risky User Digest — Setup Guide](Logic%20Apps%20Module/README.md)** — Step-by-step guide with 21 screenshots, Deploy to Azure button, ARM template, and PowerShell script
+- **[ARM Template](Logic%20Apps%20Module/Risky%20User%20Management/Daily%20Risky%20User%20Digest/azuredeploy.json)** — One-click deployable Logic App
+- **[Deploy Script](Logic%20Apps%20Module/Risky%20User%20Management/Daily%20Risky%20User%20Digest/deploy.ps1)** — Automated deployment with permission grant
+
+### MCP Module
+
+- **[SOC IOC Enricher — Setup Guide](MCP%20Module/README.md)** — Full deployment guide for the MCP server on Azure Container Apps
+- **[SOC IOC Enricher Source](MCP%20Module/SOC%20IOC%20Enricher/)** — TypeScript source, Dockerfile, deploy script, and Security Copilot plugin manifest
