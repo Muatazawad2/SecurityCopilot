@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<!-- Email preview — Password Spray Auto-Alert Logic App
+     Developer: Dr Muataz Awad
+     Open in any browser to see how the alert email will look.
+     Sample data is used in place of live Logic Apps expressions. -->
+<html lang='en'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Email Preview — Password Spray Auto-Alert</title>
+  <style>
+    body { background:#e8e8e8; padding:30px; font-family:Segoe UI,Arial,sans-serif; }
+    .preview-label {
+      font-family:Consolas,monospace; font-size:12px; color:#888;
+      background:#fff; border:1px dashed #ccc; padding:8px 14px;
+      border-radius:4px; margin-bottom:16px; max-width:780px;
+    }
+    .envelope {
+      max-width:780px; border:1px solid #bbb; border-radius:8px;
+      background:#fff; box-shadow:0 4px 20px rgba(0,0,0,.12);
+      overflow:hidden; margin-bottom:24px;
+    }
+    .envelope-meta {
+      background:#f4f4f4; padding:12px 20px; border-bottom:1px solid #ddd;
+      font-size:13px; color:#555;
+    }
+    .envelope-meta strong { color:#333; }
+  </style>
+</head>
+<body>
+
+<div class='preview-label'>
+  &#128274; PREVIEW — Password Spray Auto-Alert &nbsp;|&nbsp; 
+  Open this file in a browser to see the rendered email &nbsp;|&nbsp;
+  Sample data used in place of live Logic Apps expressions
+</div>
+
+<!-- Email envelope chrome -->
+<div class='envelope'>
+  <div class='envelope-meta'>
+    <div><strong>From:</strong> security-alerts@contoso.com</div>
+    <div><strong>To:</strong> soc-team@contoso.com</div>
+    <div><strong>Subject:</strong> <span style='color:#C41E3A;font-weight:600'>[CRITICAL] Password Spray Detected — 3 account(s) targeted — 2026-07-13 09:30 UTC</span></div>
+    <div><strong>Importance:</strong> High</div>
+  </div>
+
+  <!-- ═══ EMAIL BODY (exact replica of Logic App output) ═══ -->
+  <div style='padding:0'>
+    <div style='font-family:Segoe UI,Arial,sans-serif;color:#333;max-width:780px;margin:auto'>
+
+      <!-- Header -->
+      <div style='background:#7B0A14;padding:22px 26px;border-radius:0'>
+        <h2 style='color:white;margin:0;font-size:20px'>&#9888; Password Spray Attack Detected</h2>
+        <p style='color:#f5c0c5;margin:7px 0 0;font-size:14px'>3 detection(s) in the last 30 minutes &bull; Sunday, July 13 2026 09:30 UTC</p>
+      </div>
+
+      <!-- Body -->
+      <div style='background:#fff;padding:22px 26px;border:1px solid #ddd;border-top:none'>
+
+        <p style='color:#555;font-size:13px;margin-top:0'>Microsoft Entra ID Protection detected <strong>password spray activity</strong> targeting accounts in your tenant. Review the affected accounts immediately and initiate containment steps.</p>
+
+        <!-- Detection table -->
+        <div style='overflow-x:auto'>
+        <table style='width:100%;border-collapse:collapse;font-size:14px;min-width:600px'>
+          <thead>
+            <tr style='background:#f8f8f8'>
+              <th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Account</th>
+              <th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Source / Location</th>
+              <th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Risk</th>
+              <th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Detected At</th>
+              <th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style='border-bottom:1px solid #f0f0f0'>
+              <td style='padding:8px 10px'><div style='font-weight:500;font-size:13px;color:#1a1a1a'>John Smith</div><div style='font-size:12px;color:#777;margin-top:2px'>john.smith@contoso.com</div></td>
+              <td style='padding:8px 10px'><div style='font-family:Consolas,monospace;font-size:12px;color:#333'>185.220.101.45</div><div style='font-size:12px;color:#777;margin-top:2px'>Moscow, RU</div></td>
+              <td style='padding:10px 14px;font-weight:bold;color:#C41E3A'>HIGH</td>
+              <td style='padding:10px 14px;font-size:12px;color:#888'>2026-07-13 09:15 UTC</td>
+              <td style='padding:10px 14px;white-space:nowrap;font-size:12px'>
+                <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/UserDetailsMenuBlade/~/Overview/userId/aaaaaaaa-0000-0000-0000-000000000001' style='color:#0078d4;text-decoration:none;font-weight:500'>User Profile</a>&nbsp;&nbsp;
+                <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/UserDetailsMenuBlade/~/SignIns/userId/aaaaaaaa-0000-0000-0000-000000000001' style='color:#0078d4;text-decoration:none;font-weight:500'>Sign-in Logs</a>
+              </td>
+            </tr>
+            <tr style='border-bottom:1px solid #f0f0f0'>
+              <td style='padding:8px 10px'><div style='font-weight:500;font-size:13px;color:#1a1a1a'>Sarah Johnson</div><div style='font-size:12px;color:#777;margin-top:2px'>sarah.johnson@contoso.com</div></td>
+              <td style='padding:8px 10px'><div style='font-family:Consolas,monospace;font-size:12px;color:#333'>185.220.101.45</div><div style='font-size:12px;color:#777;margin-top:2px'>Moscow, RU</div></td>
+              <td style='padding:10px 14px;font-weight:bold;color:#E65100'>MEDIUM</td>
+              <td style='padding:10px 14px;font-size:12px;color:#888'>2026-07-13 09:17 UTC</td>
+              <td style='padding:10px 14px;white-space:nowrap;font-size:12px'>
+                <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/UserDetailsMenuBlade/~/Overview/userId/aaaaaaaa-0000-0000-0000-000000000002' style='color:#0078d4;text-decoration:none;font-weight:500'>User Profile</a>&nbsp;&nbsp;
+                <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/UserDetailsMenuBlade/~/SignIns/userId/aaaaaaaa-0000-0000-0000-000000000002' style='color:#0078d4;text-decoration:none;font-weight:500'>Sign-in Logs</a>
+              </td>
+            </tr>
+            <tr style='border-bottom:1px solid #f0f0f0'>
+              <td style='padding:8px 10px'><div style='font-weight:500;font-size:13px;color:#1a1a1a'>Mike Chen</div><div style='font-size:12px;color:#777;margin-top:2px'>mike.chen@contoso.com</div></td>
+              <td style='padding:8px 10px'><div style='font-family:Consolas,monospace;font-size:12px;color:#333'>185.220.101.45</div><div style='font-size:12px;color:#777;margin-top:2px'>Moscow, RU</div></td>
+              <td style='padding:10px 14px;font-weight:bold;color:#C41E3A'>HIGH</td>
+              <td style='padding:10px 14px;font-size:12px;color:#888'>2026-07-13 09:18 UTC</td>
+              <td style='padding:10px 14px;white-space:nowrap;font-size:12px'>
+                <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/UserDetailsMenuBlade/~/Overview/userId/aaaaaaaa-0000-0000-0000-000000000003' style='color:#0078d4;text-decoration:none;font-weight:500'>User Profile</a>&nbsp;&nbsp;
+                <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/UserDetailsMenuBlade/~/SignIns/userId/aaaaaaaa-0000-0000-0000-000000000003' style='color:#0078d4;text-decoration:none;font-weight:500'>Sign-in Logs</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style='margin-top:16px;background:#fff8f0;border:2px solid #E65100;border-radius:6px;padding:14px 18px'>
+          <div style='font-weight:700;font-size:13px;color:#E65100;margin-bottom:8px'>&#9889; Quick Actions &mdash; Do these first</div>
+          <ol style='margin:0;padding-left:20px;font-size:13px;line-height:2.1;color:#333'>
+            <li>Click <strong>Sign-in Logs</strong> for each user above &rarr; filter Status = Success near the detection time. Any success after a burst of failures = compromised account &rarr; click <strong>User Profile &rarr; Revoke sessions</strong> immediately.</li>
+            <li>Block source IP in Entra: Security &rarr; Conditional Access &rarr; Named Locations &rarr; add as blocked IP range. Also block at firewall for instant effect before CA policy propagates.</li>
+            <li>For each compromised account check: inbox rules (Outlook Settings), new OAuth consents (Entra &rarr; Enterprise Apps), new MFA methods (Entra &rarr; Users &rarr; Authentication methods). Anything added after the detection time is an attacker backdoor.</li>
+          </ol>
+        </div>
+        <div style='margin-top:12px;font-size:12px;color:#bbb;text-align:center;border-top:1px dashed #e0e0e0;padding-top:10px'>&#9660; &nbsp; Detailed step-by-step response guide below &nbsp; &#9660;</div>
+
+        <!-- ── Analyst Response Guide ── -->
+        <div style='margin-top:20px;border:1px solid #ddd;border-radius:6px;overflow:hidden'>
+          <div style='background:#7B0A14;padding:11px 18px'>
+            <strong style='color:white;font-size:14px'>&#128270; Analyst Response Guide &mdash; Password Spray</strong>
+          </div>
+          <div style='padding:4px 6px 8px'>
+
+            <!-- Phase 1 -->
+            <div style='background:#fff8f0;border-left:4px solid #C41E3A;padding:12px 16px;margin:6px 2px 0'>
+              <div style='font-size:11px;font-weight:bold;color:#C41E3A;letter-spacing:0.6px;text-transform:uppercase'>Phase 1 &mdash; Immediate &nbsp;&#9201; 0&ndash;15 min</div>
+
+              <div style='margin-top:10px'>
+                <div style='font-weight:600;font-size:13px'>Step 1 &mdash; Verify the spray is real</div>
+                <div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> Confirm before taking disruptive action. A spray is defined by many accounts targeted from the same source IP in a short window &mdash; not a single failed login.</div>
+                <ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'>
+                  <li>Check the Source IP column above &mdash; one IP hitting multiple accounts is the key spray indicator.</li>
+                  <li>Check IP reputation at <a href='https://www.virustotal.com'>VirusTotal</a> or <a href='https://www.abuseipdb.com'>AbuseIPDB</a> &mdash; known Tor/VPN exit nodes confirm a spray campaign.</li>
+                  <li>Open <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade/~/RiskDetections'>Entra Risk Detections</a> to check whether additional accounts beyond this alert were also targeted.</li>
+                </ul>
+              </div>
+
+              <div style='margin-top:12px;border-top:1px solid #ffd0b0;padding-top:10px'>
+                <div style='font-weight:600;font-size:13px'>Step 2 &mdash; Revoke sessions on confirmed compromises</div>
+                <div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> An account that had a <strong>successful sign-in after failed attempts</strong> is likely compromised. The attacker has an active session right now and must be cut off immediately.</div>
+                <ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'>
+                  <li>Click <strong>Sign-in Logs</strong> for each user above &rarr; filter by Status = Success near the detection timestamp.</li>
+                  <li>For any confirmed post-spray successful login: click <strong>User Profile</strong> &rarr; <strong>Revoke sessions</strong> button. This kills all refresh tokens within 1 minute.</li>
+                  <li>Reset the account password before the user re-authenticates to prevent re-entry with the compromised credential.</li>
+                  <li><strong>Sign-in log scoping query:</strong> In Entra sign-in logs filter userId = [affected user], Status = Success, time range = last 24 hours. A successful login from a <em>different IP</em> immediately after a burst of failures is the definitive compromise indicator &mdash; this is how you distinguish a breached account from one that was merely targeted.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Phase 2 -->
+            <div style='background:#fffdf0;border-left:4px solid #E65100;padding:12px 16px;margin:8px 2px 0'>
+              <div style='font-size:11px;font-weight:bold;color:#E65100;letter-spacing:0.6px;text-transform:uppercase'>Phase 2 &mdash; Containment &nbsp;&#9201; 15&ndash;60 min</div>
+
+              <div style='margin-top:10px'>
+                <div style='font-weight:600;font-size:13px'>Step 3 &mdash; Block the attacking IP(s)</div>
+                <div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> Without blocking the source, the attacker rotates target accounts and continues spraying. The same IP is often used for hours or days across multiple tenants.</div>
+                <ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'>
+                  <li>Entra ID &rarr; Security &rarr; Conditional Access &rarr; Named Locations &rarr; + IP ranges &rarr; add source IP as a blocked location.</li>
+                  <li>Also block at the network/firewall layer for immediate effect &mdash; CA policy propagation can take a few minutes.</li>
+                  <li>If the IP belongs to a VPN/proxy ASN (check AbuseIPDB), consider blocking the full ASN range in CA.</li>
+                  <li><strong>Block by user agent:</strong> In Entra sign-in logs, filter for the spray source IP and note the <em>User-Agent</em> string &mdash; automated spray tools use distinctive values (e.g. python-requests/2.x, Go-http-client/1.1). Add the user agent as a filter in CA or block it at your WAF/network perimeter to neutralise the same tool even when the attacker rotates IPs.</li>
+                </ul>
+              </div>
+
+              <div style='margin-top:12px;border-top:1px solid #ffe0c0;padding-top:10px'>
+                <div style='font-weight:600;font-size:13px'>Step 4 &mdash; Enforce MFA on all targeted accounts</div>
+                <div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> Even if the password was not successfully guessed, the targeted accounts remain vulnerable to a second spray or credential stuffing from leaked databases.</div>
+                <ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'>
+                  <li>Confirm all targeted accounts are covered by a CA policy requiring MFA at sign-in.</li>
+                  <li>Prefer phishing-resistant MFA (FIDO2 key, Windows Hello, Certificate-Based Auth) over SMS/voice, which can be bypassed with SIM-swapping or real-time phishing proxies.</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Phase 3 -->
+            <div style='background:#f9fff9;border-left:4px solid #2E7D32;padding:12px 16px;margin:8px 2px 0'>
+              <div style='font-size:11px;font-weight:bold;color:#2E7D32;letter-spacing:0.6px;text-transform:uppercase'>Phase 3 &mdash; Post-Compromise Investigation &nbsp;&#9201; 1&ndash;4 hrs</div>
+
+              <div style='margin-top:10px'>
+                <div style='font-weight:600;font-size:13px'>Step 5 &mdash; Hunt for attacker activity on breached accounts</div>
+                <div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> Once inside, attackers set up persistence <strong>before</strong> any alert fires. They may have already exfiltrated data, created forwarding rules, or consented to a malicious OAuth app.</div>
+                <ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'>
+                  <li><strong>Inbox rules:</strong> Outlook &rarr; Settings &rarr; Rules &mdash; look for rules that forward, redirect, or delete emails.</li>
+                  <li><strong>OAuth consents:</strong> Entra &rarr; Enterprise Applications &rarr; filter by user &mdash; any app consented to after the detection time is suspicious.</li>
+                  <li><strong>New registered devices:</strong> Entra &rarr; Users &rarr; [user] &rarr; Devices &mdash; an attacker-registered device can obtain a PRT and survive a password reset.</li>
+                  <li><strong>MFA method changes:</strong> Entra &rarr; Users &rarr; [user] &rarr; Authentication methods &mdash; any new method added after the detection timestamp is an attacker backdoor.</li>
+                </ul>
+              </div>
+
+              <div style='margin-top:12px;border-top:1px solid #c8e6c9;padding-top:10px'>
+                <div style='font-weight:600;font-size:13px'>Step 6 &mdash; Harden against recurrence</div>
+                <div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> Password sprays succeed because many environments lack MFA, use weak lockout policies, or allow commonly sprayed passwords.</div>
+                <ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'>
+                  <li>Entra &rarr; Security &rarr; Authentication methods &rarr; Password protection &mdash; enable Smart Lockout (threshold: 5 failures, duration: 60 sec).</li>
+                  <li>Deploy Microsoft Entra Password Protection to block commonly sprayed weak passwords.</li>
+                  <li>Enforce MFA via Conditional Access for all users &mdash; not just privileged accounts.</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Security Copilot suggestion -->
+        <br/>
+        <div style='background:#f5f5f5;padding:12px 16px;border-radius:4px;font-size:13px;color:#555'>
+          <strong>Suggested Security Copilot Investigation:</strong><br/>
+          Investigate password spray attack from IP [185.220.101.45] &mdash; identify all targeted accounts, confirm which were compromised, review post-compromise activity, and provide containment and hardening steps.
+        </div>
+
+        <!-- Footer links -->
+        <br/>
+        <p style='font-size:13px'>
+          <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade/~/RiskDetections'>Entra Risk Detections</a> &nbsp;|&nbsp;
+          <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade/~/RiskyUsers'>Risky Users</a> &nbsp;|&nbsp;
+          <a href='https://securitycopilot.microsoft.com'>Security Copilot</a>
+        </p>
+        <p style='font-size:11px;color:#aaa;border-top:1px solid #eee;padding-top:10px;margin-top:4px'>
+          Generated by Password Spray Auto-Alert Logic App &bull; Dr Muataz Awad
+        </p>
+
+      </div>
+    </div>
+  </div>
+  <!-- ═══ END EMAIL BODY ═══ -->
+
+</div>
+
+</body>
+</html>
