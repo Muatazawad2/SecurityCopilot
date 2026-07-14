@@ -1,0 +1,237 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Event-driven token theft detection Logic App. Polls Entra ID Protection every N minutes for anomalousToken and tokenIssuerAnomaly risk detections and immediately alerts the SOC team with affected accounts, detection context, and token revocation guidance. Uses System-Assigned Managed Identity — no stored credentials or OAuth connectors.",
+    "author": "Dr Muataz Awad"
+  },
+  "parameters": {
+    "logicAppName": {
+      "type": "string",
+      "defaultValue": "token-theft-response-alert",
+      "metadata": { "description": "Name of the Logic App." }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": { "description": "Azure region for the Logic App." }
+    },
+    "senderEmail": {
+      "type": "string",
+      "metadata": { "description": "UPN of the mailbox to send alerts FROM (e.g. security-alerts@company.com). Must be a valid mailbox in your tenant." }
+    },
+    "recipientEmail": {
+      "type": "string",
+      "metadata": { "description": "Email address to send alerts TO. Can be a distribution list or individual mailbox." }
+    },
+    "pollingIntervalMinutes": {
+      "type": "int",
+      "defaultValue": 15,
+      "minValue": 5,
+      "maxValue": 60,
+      "metadata": { "description": "How often (minutes) to poll Entra ID Protection for new token theft detections. Default: 15 minutes." }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[parameters('logicAppName')]",
+      "location": "[parameters('location')]",
+      "identity": { "type": "SystemAssigned" },
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "senderEmail":            { "type": "string" },
+            "recipientEmail":         { "type": "string" },
+            "pollingIntervalMinutes": { "type": "int" }
+          },
+          "triggers": {
+            "Polling_Schedule": {
+              "type": "Recurrence",
+              "recurrence": {
+                "frequency": "Minute",
+                "interval": "[parameters('pollingIntervalMinutes')]"
+              }
+            }
+          },
+          "actions": {
+
+            "Compute_TimeWindow_Start": {
+              "type": "Compose",
+              "inputs": "@{formatDateTime(addMinutes(utcNow(), sub(0, parameters('pollingIntervalMinutes'))), 'yyyy-MM-ddTHH:mm:ssZ')}",
+              "runAfter": {}
+            },
+
+            "Get_TokenTheft_Detections": {
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "https://graph.microsoft.com/v1.0/identityProtection/riskDetections",
+                "queries": {
+                  "$filter": "(riskEventType eq 'anomalousToken' or riskEventType eq 'tokenIssuerAnomaly') and createdDateTime ge @{outputs('Compute_TimeWindow_Start')}",
+                  "$select": "id,userId,userDisplayName,userPrincipalName,riskLevel,riskState,riskEventType,ipAddress,detectedDateTime,location",
+                  "$orderby": "detectedDateTime desc",
+                  "$top": "50"
+                },
+                "authentication": {
+                  "type": "ManagedServiceIdentity",
+                  "audience": "https://graph.microsoft.com"
+                }
+              },
+              "runAfter": { "Compute_TimeWindow_Start": ["Succeeded"] }
+            },
+
+            "Parse_TokenTheft_Detections": {
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@body('Get_TokenTheft_Detections')",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id":                { "type": "string" },
+                          "userId":            { "type": "string" },
+                          "userDisplayName":   { "type": "string" },
+                          "userPrincipalName": { "type": "string" },
+                          "riskLevel":         { "type": "string" },
+                          "riskState":         { "type": "string" },
+                          "riskEventType":     { "type": "string" },
+                          "ipAddress":         { "type": "string" },
+                          "detectedDateTime":  { "type": "string" },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "city":            { "type": "string" },
+                              "state":           { "type": "string" },
+                              "countryOrRegion": { "type": "string" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "runAfter": { "Get_TokenTheft_Detections": ["Succeeded"] }
+            },
+
+            "Check_Detections_Exist": {
+              "type": "If",
+              "expression": {
+                "greater": [
+                  "@length(body('Parse_TokenTheft_Detections')?['value'])",
+                  0
+                ]
+              },
+              "actions": {
+
+                "Initialize_TokenReport": {
+                  "type": "InitializeVariable",
+                  "inputs": {
+                    "variables": [
+                      { "name": "TokenReport", "type": "array", "value": [] }
+                    ]
+                  },
+                  "runAfter": {}
+                },
+
+                "For_Each_Detection": {
+                  "type": "Foreach",
+                  "foreach": "@body('Parse_TokenTheft_Detections')?['value']",
+                  "actions": {
+
+                    "Format_Detection_Type": {
+                      "type": "Compose",
+                      "inputs": "@{replace(replace(coalesce(items('For_Each_Detection')?['riskEventType'], 'unknown'), 'anomalousToken', 'Anomalous Token'), 'tokenIssuerAnomaly', 'Token Issuer Anomaly')}",
+                      "runAfter": {}
+                    },
+
+                    "Format_Detection_Row": {
+                      "type": "Compose",
+                      "inputs": "<tr style='border-bottom:1px solid #f0f0f0'><td style='padding:8px 10px'><div style='font-weight:500;font-size:13px;color:#1a1a1a'>@{coalesce(items('For_Each_Detection')?['userDisplayName'], 'Unknown')}</div><div style='font-size:12px;color:#777;margin-top:2px'>@{coalesce(items('For_Each_Detection')?['userPrincipalName'], '-')}</div></td><td style='padding:8px 10px;font-size:13px;color:#4A0E6E;font-weight:500'>@{outputs('Format_Detection_Type')}</td><td style='padding:8px 10px'><div style='font-family:Consolas,monospace;font-size:12px;color:#333'>@{coalesce(items('For_Each_Detection')?['ipAddress'], 'Unknown')}</div><div style='font-size:12px;color:#777;margin-top:2px'>@{coalesce(items('For_Each_Detection')?['location']?['city'], '')} @{coalesce(items('For_Each_Detection')?['location']?['countryOrRegion'], '-')}</div></td><td style='padding:10px 14px;font-weight:bold;color:@{if(equals(toUpper(coalesce(items(''For_Each_Detection'')?[''riskLevel''], ''none'')), ''HIGH''), ''#C41E3A'', if(equals(toUpper(coalesce(items(''For_Each_Detection'')?[''riskLevel''], ''none'')), ''MEDIUM''), ''#E65100'', ''#F9A825''))}'>@{toUpper(coalesce(items('For_Each_Detection')?['riskLevel'], 'NONE'))}</td><td style='padding:10px 14px;font-size:12px;color:#888'>@{formatDateTime(items('For_Each_Detection')?['detectedDateTime'], 'yyyy-MM-dd HH:mm')} UTC</td><td style='padding:10px 14px;white-space:nowrap;font-size:12px'><a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/UserDetailsMenuBlade/~/Overview/userId/@{items('For_Each_Detection')?['userId']}' style='color:#0078d4;text-decoration:none;font-weight:500'>User Profile</a>&nbsp;&nbsp;<a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/UserDetailsMenuBlade/~/SignIns/userId/@{items('For_Each_Detection')?['userId']}' style='color:#0078d4;text-decoration:none;font-weight:500'>Sign-in Logs</a></td></tr>",
+                      "runAfter": { "Format_Detection_Type": ["Succeeded"] }
+                    },
+
+                    "Append_Row_To_TokenReport": {
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "TokenReport",
+                        "value": "@{outputs('Format_Detection_Row')}"
+                      },
+                      "runAfter": { "Format_Detection_Row": ["Succeeded"] }
+                    }
+
+                  },
+                  "runAfter": { "Initialize_TokenReport": ["Succeeded"] }
+                },
+
+                "Compose_Email_Body": {
+                  "type": "Compose",
+                  "inputs": "<html><body style='font-family:Segoe UI,Arial,sans-serif;color:#333;max-width:780px;margin:auto'><div style='background:#4A0E6E;padding:22px 26px;border-radius:6px 6px 0 0'><h2 style='color:white;margin:0;font-size:20px'>&#128274; Token Theft Alert — Anomalous Token Activity</h2><p style='color:#d9bff0;margin:7px 0 0;font-size:14px'>@{length(body('Parse_TokenTheft_Detections')?['value'])} detection(s) in the last @{parameters('pollingIntervalMinutes')} minutes &bull; @{formatDateTime(utcNow(), 'dddd, MMMM dd yyyy HH:mm')} UTC</p></div><div style='background:#fff;padding:22px 26px;border:1px solid #ddd;border-top:none;border-radius:0 0 6px 6px'><p style='color:#555;font-size:13px;margin-top:0'>Microsoft Entra ID Protection detected <strong>anomalous token activity</strong> in your tenant. This may indicate token theft via AiTM phishing, pass-the-cookie attacks, or malware. Immediate token revocation and session termination is required.</p><table style='width:100%;border-collapse:collapse;font-size:14px'><thead><tr style='background:#f8f8f8'><th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Account</th><th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Detection</th><th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Source / Location</th><th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Risk</th><th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Detected At</th><th style='padding:8px 10px;text-align:left;border-bottom:2px solid #e0e0e0'>Actions</th></tr></thead><tbody>@{join(variables('TokenReport'), '')}</tbody></table><div style='margin-top:16px;background:#fdf5ff;border:2px solid #7B1FA2;border-radius:6px;padding:14px 18px'><div style='font-weight:700;font-size:13px;color:#7B1FA2;margin-bottom:8px'>&#9889; Quick Actions &mdash; Do these first</div><ol style='margin:0;padding-left:20px;font-size:13px;line-height:2.1;color:#333'><li>Click <strong>User Profile</strong> for each user above &rarr; <strong>Revoke sessions</strong>. The attacker has an active session right now &mdash; every minute of delay is more data they can access.</li><li>Click <strong>Sign-in Logs</strong> &rarr; identify every app accessed and every IP used between the detection time and when you revoked the session. This defines your blast radius and determines whether a data breach notification is required.</li><li>Check for attacker persistence: Entra Auth methods (new MFA method added?), Enterprise Apps (new consent?), Outlook inbox rules (new forwarding rule?). Anything added after the detection timestamp is an attacker backdoor.</li></ol></div><div style='margin-top:12px;font-size:12px;color:#bbb;text-align:center;border-top:1px dashed #e0e0e0;padding-top:10px'>&#9660; &nbsp; Detailed step-by-step response guide below &nbsp; &#9660;</div><br/><div style='margin-top:20px;border:1px solid #ddd;border-radius:6px;overflow:hidden'><div style='background:#4A0E6E;padding:11px 18px'><strong style='color:white;font-size:14px'>&#128274; Analyst Response Guide &mdash; Token Theft</strong></div><div style='padding:4px 6px 8px'><div style='background:#fdf5ff;border-left:4px solid #C41E3A;padding:12px 16px;margin:6px 2px 0'><div style='font-size:11px;font-weight:bold;color:#C41E3A;letter-spacing:0.6px;text-transform:uppercase'>Phase 1 &mdash; Immediate &nbsp;&#9201; 0&ndash;15 min</div><div style='margin-top:10px'><div style='font-weight:600;font-size:13px'>Step 1 &mdash; Understand what was detected</div><div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> The two detection types indicate different attack vectors with different root causes. Knowing which one fired determines how you investigate and what you block.</div><ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'><li><strong>anomalousToken:</strong> A token was presented from a device or IP inconsistent with where it was issued. The attacker captured a browser session cookie after MFA was completed (pass-the-cookie attack) and is replaying it from a different machine.</li><li><strong>tokenIssuerAnomaly:</strong> The token metadata does not match expected issuer claims. This is the primary signal of an <strong>AiTM (Adversary-in-the-Middle) phishing proxy</strong> such as Evilginx or Modlishka &mdash; the proxy sat between the user and the login page, intercepted the token post-MFA, and passed a re-signed version to the attacker.</li><li>Check the Detection Type column above to confirm which type fired and plan your response accordingly.</li></ul><div style='margin-top:10px;background:#f0e8ff;padding:10px 14px;border-radius:4px'><strong style='font-size:12px;color:#4A0E6E'>&#128273; Also determine: What type of token was stolen?</strong><div style='font-size:12px;color:#555;margin-top:5px'><em>Why:</em> Token type determines remediation depth. A stolen PRT survives a password reset and requires device-level action. A stolen access token expires in ~1 hour on its own but must still be cut immediately.</div><ul style='font-size:12px;margin:6px 0 0;padding-left:18px;line-height:2;color:#444'><li><strong>Access token:</strong> Short-lived (~1 hr). Expires on its own, but revoke the session immediately to end the active attacker session now rather than waiting.</li><li><strong>Refresh token:</strong> Long-lived with no automatic expiry. This is what <em>Revoke sessions</em> in Entra cancels. Without revocation the attacker silently obtains fresh access tokens indefinitely in the background.</li><li><strong>Primary Refresh Token (PRT):</strong> Device-bound and the most persistent. Survives password reset entirely. Requires <strong>disabling or wiping the device in Entra</strong> to invalidate. Key signal: the attacker session shows the same deviceId as the legitimate user but originates from a different IP address.</li></ul></div></div><div style='margin-top:12px;border-top:1px solid #e8ccff;padding-top:10px'><div style='font-weight:600;font-size:13px'>Step 2 &mdash; Revoke the stolen token immediately</div><div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> This is the <strong>single most urgent action</strong>. The attacker has a valid token and an active session right now. Every minute of delay is more data they can access.</div><ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'><li>Click <strong>User Profile</strong> for the affected user above &rarr; click <strong>Revoke sessions</strong>. This invalidates all refresh tokens within 1 minute.</li><li>To also invalidate the Primary Refresh Token (PRT): in Entra &rarr; Devices, mark the affected device as non-compliant or disable it. A PRT is bound to the device, so disabling the device revokes it.</li><li>After revocation, the attacker session will fail on the next token refresh attempt (typically within 1 hour for access tokens).</li></ul></div></div><div style='background:#faf0ff;border-left:4px solid #7B1FA2;padding:12px 16px;margin:8px 2px 0'><div style='font-size:11px;font-weight:bold;color:#7B1FA2;letter-spacing:0.6px;text-transform:uppercase'>Phase 2 &mdash; Blast Radius Assessment &nbsp;&#9201; 15&ndash;60 min</div><div style='margin-top:10px'><div style='font-weight:600;font-size:13px'>Step 3 &mdash; Identify what the attacker accessed during the stolen session</div><div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> With a valid token, the attacker had access to every app and resource the user can access &mdash; email, Teams, SharePoint, OneDrive, and any other Microsoft 365 service. Knowing what was accessed determines whether a data breach notification is required.</div><ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'><li>Click <strong>Sign-in Logs</strong> for the affected user &rarr; look at the time window between the detection timestamp and when you revoked the session.</li><li>Note every application accessed and every IP the token was used from &mdash; the attacker IP will differ from the user&apos;s normal IP.</li><li>Check Exchange/Teams/SharePoint audit logs for file downloads, email reads, message access, or any API calls made during the attacker session.</li></ul></div><div style='margin-top:12px;border-top:1px solid #e0c8f0;padding-top:10px'><div style='font-weight:600;font-size:13px'>Step 4 &mdash; Force clean re-authentication for the real user</div><div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> After revocation the legitimate user needs to re-authenticate. Ensure they do so from a known-good, compliant device &mdash; not the potentially compromised one.</div><ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'><li>Apply a Conditional Access policy requiring a compliant or Hybrid Azure AD-joined device for re-authentication.</li><li>Set Conditional Access sign-in frequency to 1 hour for the affected user during the investigation period.</li><li>Require phishing-resistant MFA (FIDO2 or Windows Hello) for re-authentication &mdash; standard OTP/SMS is bypassable by the same AiTM proxy that was used.</li></ul></div></div><div style='background:#f9fff9;border-left:4px solid #2E7D32;padding:12px 16px;margin:8px 2px 0'><div style='font-size:11px;font-weight:bold;color:#2E7D32;letter-spacing:0.6px;text-transform:uppercase'>Phase 3 &mdash; Persistence Check &nbsp;&#9201; 1&ndash;4 hrs</div><div style='margin-top:10px'><div style='font-weight:600;font-size:13px'>Step 5 &mdash; Hunt for attacker persistence mechanisms</div><div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> A sophisticated attacker will use the stolen token to create persistent access <strong>before</strong> it is revoked. Even after revocation, they may still be inside via a different path.</div><ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'><li><strong>New MFA methods:</strong> Entra &rarr; Users &rarr; [user] &rarr; Authentication methods &mdash; any new phone number, authenticator app, or FIDO key registered after the detection time is an attacker backdoor. Remove it immediately.</li><li><strong>OAuth app consents:</strong> Entra &rarr; Enterprise Applications &rarr; filter by user &mdash; attacker may have consented to a malicious app with Mail.Read or Files.ReadWrite permissions to maintain persistent data access without needing the user&apos;s token again.</li><li><strong>Inbox forwarding rules:</strong> Exchange Admin &rarr; Mailboxes &rarr; [user] &rarr; Mailbox Features &mdash; look for rules that silently forward all mail to an external address.</li><li><strong>New registered devices:</strong> Entra &rarr; Devices &mdash; a device registered during the attacker session can obtain its own PRT, surviving a password reset.</li></ul></div><div style='margin-top:12px;border-top:1px solid #c8e6c9;padding-top:10px'><div style='font-weight:600;font-size:13px'>Step 6 &mdash; If tokenIssuerAnomaly: investigate the phishing campaign</div><div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> An AiTM attack requires the user to visit a phishing proxy. Other users in your tenant may have received the same phishing email and been compromised without triggering a detection.</div><ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'><li>Check the affected user&apos;s inbox for the phishing link they clicked &mdash; usually a spoofed Microsoft login or document share link received shortly before the detection.</li><li>Extract the phishing URL and submit to Defender for Office 365 for tenant-wide blocking.</li><li>Search email audit logs for anyone else who received the same email to identify other potentially compromised accounts.</li></ul></div><div style='margin-top:12px;border-top:1px solid #c8e6c9;padding-top:10px'><div style='font-weight:600;font-size:13px'>Step 7 &mdash; Harden token security to prevent recurrence</div><div style='font-size:12px;color:#666;margin:3px 0 5px'><em>Why:</em> Standard MFA does not protect against AiTM or pass-the-cookie attacks. Token protection and phishing-resistant MFA do.</div><ul style='font-size:12px;margin:0;padding-left:18px;line-height:2;color:#444'><li><strong>Enable Token Protection:</strong> Conditional Access &rarr; Session &rarr; Token protection (preview) &mdash; binds tokens to the specific device they were issued to, making pass-the-cookie attacks fail.</li><li><strong>Enforce phishing-resistant MFA:</strong> Require FIDO2 keys or Certificate-Based Auth via CA policy. These authentication methods cannot be proxied by AiTM tools.</li><li><strong>Reduce token lifetimes:</strong> Conditional Access &rarr; Session controls &rarr; Sign-in frequency: 1 hour &mdash; limits how long a stolen access token is valid.</li></ul></div></div></div></div><br/><div style='background:#f5f5f5;padding:12px 16px;border-radius:4px;font-size:13px;color:#555'><strong>Suggested Security Copilot Investigation:</strong><br/>Investigate token theft for user [@{coalesce(body('Parse_TokenTheft_Detections')?['value']?[0]?['userPrincipalName'], 'affected user')}] — identify the token type stolen, attacker session activity, data accessed, persistence mechanisms, and provide token revocation and hardening steps.</div><br/><p style='font-size:13px'><a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade/~/RiskDetections'>Entra Risk Detections</a> &nbsp;|&nbsp; <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/IdentityProtectionMenuBlade/~/RiskyUsers'>Risky Users</a> &nbsp;|&nbsp; <a href='https://entra.microsoft.com/#view/Microsoft_AAD_IAM/SignInEventsV3'>Sign-In Logs</a> &nbsp;|&nbsp; <a href='https://securitycopilot.microsoft.com'>Security Copilot</a></p><p style='font-size:11px;color:#aaa;border-top:1px solid #eee;padding-top:10px;margin-top:4px'>Generated by Token Theft Response Alert Logic App &bull; Dr Muataz Awad</p></div></body></html>",
+                  "runAfter": { "For_Each_Detection": ["Succeeded"] }
+                },
+
+                "Send_Alert_Email": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "POST",
+                    "uri": "https://graph.microsoft.com/v1.0/users/@{parameters('senderEmail')}/sendMail",
+                    "headers": { "Content-Type": "application/json" },
+                    "body": {
+                      "message": {
+                        "subject": "[CRITICAL] Token Theft Detected — @{length(body('Parse_TokenTheft_Detections')?['value'])} account(s) affected — @{formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm')} UTC",
+                        "importance": "High",
+                        "body": {
+                          "contentType": "HTML",
+                          "content": "@{outputs('Compose_Email_Body')}"
+                        },
+                        "toRecipients": [{ "emailAddress": { "address": "@{parameters('recipientEmail')}" } }]
+                      },
+                      "saveToSentItems": false
+                    },
+                    "authentication": {
+                      "type": "ManagedServiceIdentity",
+                      "audience": "https://graph.microsoft.com"
+                    }
+                  },
+                  "runAfter": { "Compose_Email_Body": ["Succeeded"] }
+                }
+
+              },
+              "else": { "actions": {} },
+              "runAfter": { "Parse_TokenTheft_Detections": ["Succeeded"] }
+            }
+
+          }
+        },
+        "parameters": {
+          "senderEmail":            { "value": "[parameters('senderEmail')]" },
+          "recipientEmail":         { "value": "[parameters('recipientEmail')]" },
+          "pollingIntervalMinutes": { "value": "[parameters('pollingIntervalMinutes')]" }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "logicAppId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Logic/workflows', parameters('logicAppName'))]"
+    },
+    "managedIdentityPrincipalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Logic/workflows', parameters('logicAppName')), '2019-05-01', 'Full').identity.principalId]"
+    },
+    "logicAppName": {
+      "type": "string",
+      "value": "[parameters('logicAppName')]"
+    }
+  }
+}
