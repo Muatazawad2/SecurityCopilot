@@ -84,7 +84,7 @@ $graphSpId = az ad sp show --id "00000003-0000-0000-c000-000000000000" --query "
 #   AuditLog.Read.All           — read sign-in logs for investigation context
 #   Mail.Send                   — send alert emails via Microsoft Graph
 $requiredPermissions = @(
-    @{ Name = "IdentityRiskEvent.Read.All"; Id = "9e4862a5-b68f-479e-848a-4e07e25c9916" },
+    @{ Name = "IdentityRiskEvent.Read.All"; Id = "6e472fd1-ad78-48da-a0f0-97ab2c6b769e" },
     @{ Name = "AuditLog.Read.All";          Id = "b0afded3-3588-46d8-8b3d-9842eff778da" },
     @{ Name = "Mail.Send";                  Id = "b633e1c5-b582-4048-a93e-9f11b44c7e96" }
 )
