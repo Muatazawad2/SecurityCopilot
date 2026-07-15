@@ -8,6 +8,12 @@ A Logic App that runs daily and emails a formatted HTML digest of at-risk users 
 
 ---
 
+## Architecture
+
+![Daily Risky User Digest Architecture](../../Images/architecture.png)
+
+---
+
 ## Overview
 
 This workflow queries Entra ID risky users and sends a SOC-ready email summary.
@@ -16,6 +22,10 @@ This workflow queries Entra ID risky users and sends a SOC-ready email summary.
 - Source API: Microsoft Graph `identityProtection/riskyUsers`
 - Auth: System-assigned managed identity (no stored credentials)
 - Output: one daily HTML digest email
+
+## Workflow Execution Flow
+
+![Daily Risky User Digest Workflow](../../Images/how-it-works.png)
 
 ---
 
