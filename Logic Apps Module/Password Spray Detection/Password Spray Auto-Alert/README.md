@@ -395,5 +395,4 @@ Expected sample email render:
 |------|-------------|
 | [azuredeploy.json](azuredeploy.json) | ARM template — one-click deployment |
 | [deploy.ps1](deploy.ps1) | PowerShell deployment + auto permission grant |
-| [email-preview.html](email-preview.html) | Browser-viewable preview of the alert email |
 | [../Images](../Images) | Step-by-step portal screenshots used in this guide |
