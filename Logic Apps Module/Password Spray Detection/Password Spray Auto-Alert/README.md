@@ -12,8 +12,6 @@ A Logic App that polls Entra ID Protection every 30 minutes for `passwordSpray` 
 
 ---
 
-## How It Works
-
 ## Architecture
 
 ![Password Spray Auto-Alert Architecture](Images/PasswordSprayArchitecture.png)
