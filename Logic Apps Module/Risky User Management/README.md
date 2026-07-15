@@ -4,6 +4,8 @@
 
 Logic Apps in this folder focus on Microsoft Entra ID risky user monitoring and response automation.
 
+This file is a folder-level index. Detailed deployment steps and screenshots are in each scenario README.
+
 **Developer**: Dr Muataz Awad
 
 ---
