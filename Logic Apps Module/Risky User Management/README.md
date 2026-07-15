@@ -10,5 +10,5 @@ Logic Apps in this folder focus on Microsoft Entra ID risky user monitoring and 
 
 ## Available Logic Apps
 
-- [Daily Risky User Digest](Daily Risky User Digest/README.md)
+- [Daily Risky User Digest](Daily%20Risky%20User%20Digest/README.md)
 
