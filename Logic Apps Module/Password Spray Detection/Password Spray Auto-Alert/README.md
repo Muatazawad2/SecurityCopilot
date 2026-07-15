@@ -14,6 +14,10 @@ A Logic App that polls Entra ID Protection every 30 minutes for `passwordSpray` 
 
 ## How It Works
 
+## Architecture
+
+![Password Spray Auto-Alert Architecture](Images/PasswordSprayArchitecture.png)
+
 ```
 Every 30 minutes
     │
@@ -23,7 +27,7 @@ Compute time window start  →  utcNow() - 30 min  →  "2026-07-13T09:00:00Z"
     ▼
 GET /identityProtection/riskDetections
     $filter: riskEventType eq 'passwordSpray'
-             and createdDateTime ge {timeWindowStart}
+       and detectedDateTime ge {timeWindowStart}
     │
     ├─ No detections  →  Exit silently (no email)
     │
@@ -83,7 +87,7 @@ The script deploys the ARM template and automatically grants all required Graph 
 
 | Permission | App Role ID | Purpose |
 |------------|-------------|---------|
-| `IdentityRiskEvent.Read.All` | `9e4862a5-b68f-479e-848a-4e07e25c9916` | Read password spray risk detections |
+| `IdentityRiskEvent.Read.All` | `6e472fd1-ad78-48da-a0f0-97ab2c6b769e` | Read password spray risk detections |
 | `AuditLog.Read.All` | `b0afded3-3588-46d8-8b3d-9842eff778da` | Read sign-in logs for investigation context |
 | `Mail.Send` | `b633e1c5-b582-4048-a93e-9f11b44c7e96` | Send alert emails via Microsoft Graph |
 
@@ -97,6 +101,8 @@ The script deploys the ARM template and automatically grants all required Graph 
 2. Select your **Resource Group**, enter name `password-spray-auto-alert`, choose **Consumption** plan, select your region
 3. Click **Review + Create** → **Create**
 
+![Step 1 - Create Logic App](../Images/1.png)
+
 ---
 
 ### Step 2 — Enable System-Assigned Managed Identity
@@ -104,6 +110,8 @@ The script deploys the ARM template and automatically grants all required Graph 
 1. Open the Logic App → left menu → **Settings** → **Identity**
 2. Under **System assigned**, toggle **Status** to **On**
 3. Click **Save** → note the **Object (principal) ID** — you will need it for Step 3
+
+![Step 2 - Enable Managed Identity](../Images/2.png)
 
 ---
 
@@ -123,7 +131,7 @@ $graphSpId = $graphSp.value[0].id
 $principalId = "YOUR-MANAGED-IDENTITY-OBJECT-ID"   # from Step 2
 
 $permissions = @(
-    @{ Name = "IdentityRiskEvent.Read.All"; Id = "9e4862a5-b68f-479e-848a-4e07e25c9916" },
+  @{ Name = "IdentityRiskEvent.Read.All"; Id = "6e472fd1-ad78-48da-a0f0-97ab2c6b769e" },
     @{ Name = "AuditLog.Read.All";          Id = "b0afded3-3588-46d8-8b3d-9842eff778da" },
     @{ Name = "Mail.Send";                  Id = "b633e1c5-b582-4048-a93e-9f11b44c7e96" }
 )
@@ -176,6 +184,8 @@ foreach ($perm in $permissions) {
    - **Interval**: `30`
    - **Frequency**: `Minute`
 
+![Step 5 - Recurrence](../Images/3.png)
+
 ---
 
 ### Step 6 — Add Compose Action (Compute Time Window)
@@ -187,6 +197,8 @@ foreach ($perm in $permissions) {
    formatDateTime(addMinutes(utcNow(), -30), 'yyyy-MM-ddTHH:mm:ssZ')
    ```
    > Produces a timestamp 30 minutes in the past used to filter only new detections each run.
+
+![Step 6 - Compute Time Window](../Images/4.png)
 
 ---
 
@@ -201,12 +213,14 @@ foreach ($perm in $permissions) {
 
 | Key | Value |
 |-----|-------|
-| `$filter` | `riskEventType eq 'passwordSpray' and createdDateTime ge @{outputs('Compute_TimeWindow_Start')}` |
+| `$filter` | `riskEventType eq 'passwordSpray' and detectedDateTime ge @{outputs('Compute_TimeWindow_Start')}` |
 | `$select` | `id,userId,userDisplayName,userPrincipalName,riskLevel,riskState,ipAddress,detectedDateTime,location` |
 | `$orderby` | `detectedDateTime desc` |
 | `$top` | `50` |
 
 4. **Authentication**: Managed identity / audience `https://graph.microsoft.com`
+
+![Step 7 - HTTP Get Detections](../Images/5.png)
 
 ---
 
@@ -215,6 +229,8 @@ foreach ($perm in $permissions) {
 1. Click **+** → **Add an action** → search `Parse JSON`
 2. **Content**: Body from the HTTP step
 3. **Schema**: Use sample payload → paste the sample below → Done
+
+![Step 8 - Parse JSON](../Images/6.png)
 
 ```json
 {
@@ -242,6 +258,10 @@ foreach ($perm in $permissions) {
 1. **Add an action** → **Condition**
 2. Expression: `length(body('Parse_JSON')?['value'])` **is greater than** `0`
 
+![Step 9 - Condition](../Images/7.png)
+
+> If you hit `InvalidTemplate` with `greater` type mismatch (`String` vs `Integer`), update the left side to `int(length(body('Parse_JSON')?['value']))`.
+
 All remaining steps go inside the **True** branch.
 
 ---
@@ -251,12 +271,16 @@ All remaining steps go inside the **True** branch.
 1. **Add an action** → **Initialize variable**
 2. **Name**: `SprayReport` | **Type**: `Array` | **Value**: empty
 
+![Step 10 - Initialize Array Variable](../Images/8.png)
+
 ---
 
 ### Step 11 — Add For Each Loop
 
 1. **Add an action** → **For each**
 2. Output: `body('Parse_JSON')?['value']`
+
+![Step 11 - For Each](../Images/9.png)
 
 ---
 
@@ -283,12 +307,16 @@ All remaining steps go inside the **True** branch.
    )
    ```
 
+![Step 12 - Format Detection Row](../Images/10.png)
+
 ---
 
 ### Step 13 — Inside For Each: Append Row to Array
 
 1. **Add an action** → **Append to array variable**
 2. **Name**: `SprayReport` | **Value**: `@{outputs('Format_Detection_Row')}`
+
+![Step 13 - Append to Array](../Images/11.png)
 
 ---
 
@@ -297,6 +325,8 @@ All remaining steps go inside the **True** branch.
 1. Outside the For Each → **Add an action** → **Compose** → rename `Compose_Email_Body`
 2. Build the full HTML email. Use the [azuredeploy.json](azuredeploy.json) ARM template as the reference for the complete HTML (see the `Compose_Email_Body` action inputs).
 
+![Step 14 - Compose Email Body](../Images/12.png)
+
 ---
 
 ### Step 15 — Send Alert Email
@@ -304,7 +334,7 @@ All remaining steps go inside the **True** branch.
 1. **Add an action** → **HTTP** → rename `Send_Alert_Email`
 2. **Method**: `POST` | **URI**: `https://graph.microsoft.com/v1.0/users/SENDER@yourtenant.com/sendMail`
 3. **Headers**: `Content-Type` = `application/json`
-4. **Body**:
+4. **Body** (paste valid JSON only; do not prefix with extra text like `Body:`):
    ```json
    {
      "message": {
@@ -318,6 +348,8 @@ All remaining steps go inside the **True** branch.
    ```
 5. **Authentication**: Managed identity / `https://graph.microsoft.com`
 
+![Step 15 - Send Alert Email](../Images/13.png)
+
 ---
 
 ### Step 16 — Save and Test
@@ -327,6 +359,10 @@ All remaining steps go inside the **True** branch.
 3. Check **Run history** to monitor execution
 4. If no detections exist, the run completes silently — this is correct behaviour
 5. To generate a test detection: Entra ID → Identity Protection → Simulate risk events
+
+Expected sample email render:
+
+![Step 16 - Email Render](../Images/14.png)
 
 ---
 
@@ -338,7 +374,9 @@ All remaining steps go inside the **True** branch.
 | `Forbidden (403)` on sendMail | `Mail.Send` not granted or sender mailbox doesn't exist | Verify sender UPN is a real mailbox in your tenant |
 | No email but run succeeds | No `passwordSpray` detections in the polling window | Correct — Logic App is silent when no detections found |
 | `InvalidTemplate` on Parse JSON | Schema mismatch | Regenerate schema using "Use sample payload" |
-| `BadRequest` on HTTP GET | OData filter syntax error | Ensure single quotes around `passwordSpray` and ISO 8601 time format |
+| `BadRequest` on HTTP GET (`could not find property createdDateTime`) | Filter references unsupported field | Use `detectedDateTime` in `$filter` |
+| `InvalidTemplate` on Condition (`greater` String/Integer mismatch) | Left and right values are different types | Use `int(length(body('Parse_JSON')?['value']))` on left and numeric `0` on right |
+| `ActionConditionFailed` on `Compose_Email_Body` after forced tests | `For_each` was skipped and `runAfter` only allowed `Succeeded` | In `Compose_Email_Body` settings, allow `runAfter` on `For_each` = `Succeeded` and `Skipped` when doing forced test runs |
 
 ---
 
@@ -358,3 +396,4 @@ All remaining steps go inside the **True** branch.
 | [azuredeploy.json](azuredeploy.json) | ARM template — one-click deployment |
 | [deploy.ps1](deploy.ps1) | PowerShell deployment + auto permission grant |
 | [email-preview.html](email-preview.html) | Browser-viewable preview of the alert email |
+| [../Images](../Images) | Step-by-step portal screenshots used in this guide |

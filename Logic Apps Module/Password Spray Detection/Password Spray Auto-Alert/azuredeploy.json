@@ -72,7 +72,7 @@
                 "method": "GET",
                 "uri": "https://graph.microsoft.com/v1.0/identityProtection/riskDetections",
                 "queries": {
-                  "$filter": "riskEventType eq 'passwordSpray' and createdDateTime ge @{outputs('Compute_TimeWindow_Start')}",
+                  "$filter": "riskEventType eq 'passwordSpray' and detectedDateTime ge @{outputs('Compute_TimeWindow_Start')}",
                   "$select": "id,userId,userDisplayName,userPrincipalName,riskLevel,riskState,ipAddress,detectedDateTime,location",
                   "$orderby": "detectedDateTime desc",
                   "$top": "50"
