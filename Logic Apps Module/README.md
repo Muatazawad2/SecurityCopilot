@@ -10,7 +10,7 @@ Automated security workflows built with Azure Logic Apps that integrate with Mic
 
 | Logic App | Trigger | Description |
 |-----------|---------|-------------|
-| [Daily Risky User Digest](#daily-risky-user-digest) | Daily schedule | Sends a daily HTML email digest of all at-risk users from Entra ID Protection |
+| [Daily Risky User Digest](Risky User Management/Daily Risky User Digest/README.md) | Daily schedule | Sends a daily HTML email digest of all at-risk users from Entra ID Protection |
 | [Password Spray Auto-Alert](#password-spray-auto-alert) | Polling every 30 min | Detects `passwordSpray` risk events in Entra ID Protection and immediately emails SOC with affected accounts, source IPs, and response actions |
 | [Token Theft Response Alert](#token-theft-response-alert) | Polling every 15 min | Detects `anomalousToken` and `tokenIssuerAnomaly` risk events and immediately emails SOC with affected accounts, detection type, and token revocation guidance |
 
