@@ -1,6 +1,6 @@
 # Password Spray Auto-Alert
 
-[← Logic Apps Module](../../README.md)
+[← Logic Apps Module](../README.md)
 
 A Logic App that polls Entra ID Protection every 30 minutes for `passwordSpray` risk detections and immediately sends a critical HTML alert email when spray activity is detected. Includes affected accounts, source IPs, geographic locations, risk levels, Quick Actions, a 3-phase analyst response guide aligned to the Microsoft Password Spray playbook, and an embedded Security Copilot investigation prompt.
 
@@ -59,7 +59,7 @@ GET /identityProtection/riskDetections
 
 Click the button below to deploy directly to your Azure subscription:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMuatazawad2%2FSecurityCopilot%2Fmain%2FLogic%2520Apps%2520Module%2FPassword%2520Spray%2520Detection%2FPassword%2520Spray%2520Auto-Alert%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FMuatazawad2%2FSecurityCopilot%2Fmain%2FLogic%2520Apps%2520Module%2FPassword%2520Spray%2520Detection%2Fazuredeploy.json)
 
 You will be prompted to enter:
 - **Resource Group** — existing resource group in your subscription
@@ -99,7 +99,7 @@ The script deploys the ARM template and automatically grants all required Graph 
 2. Select your **Resource Group**, enter name `password-spray-auto-alert`, choose **Consumption** plan, select your region
 3. Click **Review + Create** → **Create**
 
-![Step 1 - Create Logic App](../Images/1.png)
+![Step 1 - Create Logic App](Images/1.png)
 
 ---
 
@@ -109,7 +109,7 @@ The script deploys the ARM template and automatically grants all required Graph 
 2. Under **System assigned**, toggle **Status** to **On**
 3. Click **Save** → note the **Object (principal) ID** — you will need it for Step 3
 
-![Step 2 - Enable Managed Identity](../Images/2.png)
+![Step 2 - Enable Managed Identity](Images/2.png)
 
 ---
 
@@ -182,7 +182,7 @@ foreach ($perm in $permissions) {
    - **Interval**: `30`
    - **Frequency**: `Minute`
 
-![Step 5 - Recurrence](../Images/3.png)
+![Step 5 - Recurrence](Images/3.png)
 
 ---
 
@@ -196,7 +196,7 @@ foreach ($perm in $permissions) {
    ```
    > Produces a timestamp 30 minutes in the past used to filter only new detections each run.
 
-![Step 6 - Compute Time Window](../Images/4.png)
+![Step 6 - Compute Time Window](Images/4.png)
 
 ---
 
@@ -218,7 +218,7 @@ foreach ($perm in $permissions) {
 
 4. **Authentication**: Managed identity / audience `https://graph.microsoft.com`
 
-![Step 7 - HTTP Get Detections](../Images/5.png)
+![Step 7 - HTTP Get Detections](Images/5.png)
 
 ---
 
@@ -228,7 +228,7 @@ foreach ($perm in $permissions) {
 2. **Content**: Body from the HTTP step
 3. **Schema**: Use sample payload → paste the sample below → Done
 
-![Step 8 - Parse JSON](../Images/6.png)
+![Step 8 - Parse JSON](Images/6.png)
 
 ```json
 {
@@ -256,7 +256,7 @@ foreach ($perm in $permissions) {
 1. **Add an action** → **Condition**
 2. Expression: `length(body('Parse_JSON')?['value'])` **is greater than** `0`
 
-![Step 9 - Condition](../Images/7.png)
+![Step 9 - Condition](Images/7.png)
 
 > If you hit `InvalidTemplate` with `greater` type mismatch (`String` vs `Integer`), update the left side to `int(length(body('Parse_JSON')?['value']))`.
 
@@ -269,7 +269,7 @@ All remaining steps go inside the **True** branch.
 1. **Add an action** → **Initialize variable**
 2. **Name**: `SprayReport` | **Type**: `Array` | **Value**: empty
 
-![Step 10 - Initialize Array Variable](../Images/8.png)
+![Step 10 - Initialize Array Variable](Images/8.png)
 
 ---
 
@@ -278,7 +278,7 @@ All remaining steps go inside the **True** branch.
 1. **Add an action** → **For each**
 2. Output: `body('Parse_JSON')?['value']`
 
-![Step 11 - For Each](../Images/9.png)
+![Step 11 - For Each](Images/9.png)
 
 ---
 
@@ -305,7 +305,7 @@ All remaining steps go inside the **True** branch.
    )
    ```
 
-![Step 12 - Format Detection Row](../Images/10.png)
+![Step 12 - Format Detection Row](Images/10.png)
 
 ---
 
@@ -314,7 +314,7 @@ All remaining steps go inside the **True** branch.
 1. **Add an action** → **Append to array variable**
 2. **Name**: `SprayReport` | **Value**: `@{outputs('Format_Detection_Row')}`
 
-![Step 13 - Append to Array](../Images/11.png)
+![Step 13 - Append to Array](Images/11.png)
 
 ---
 
@@ -323,7 +323,7 @@ All remaining steps go inside the **True** branch.
 1. Outside the For Each → **Add an action** → **Compose** → rename `Compose_Email_Body`
 2. Build the full HTML email. Use the [azuredeploy.json](azuredeploy.json) ARM template as the reference for the complete HTML (see the `Compose_Email_Body` action inputs).
 
-![Step 14 - Compose Email Body](../Images/12.png)
+![Step 14 - Compose Email Body](Images/12.png)
 
 ---
 
@@ -346,7 +346,7 @@ All remaining steps go inside the **True** branch.
    ```
 5. **Authentication**: Managed identity / `https://graph.microsoft.com`
 
-![Step 15 - Send Alert Email](../Images/13.png)
+![Step 15 - Send Alert Email](Images/13.png)
 
 ---
 
@@ -360,7 +360,7 @@ All remaining steps go inside the **True** branch.
 
 Expected sample email render:
 
-![Step 16 - Email Render](../Images/14.png)
+![Step 16 - Email Render](Images/14.png)
 
 ---
 
@@ -393,4 +393,5 @@ Expected sample email render:
 |------|-------------|
 | [azuredeploy.json](azuredeploy.json) | ARM template — one-click deployment |
 | [deploy.ps1](deploy.ps1) | PowerShell deployment + auto permission grant |
-| [../Images](../Images) | Step-by-step portal screenshots used in this guide |
+| [Images](Images) | Step-by-step portal screenshots used in this guide |
+
