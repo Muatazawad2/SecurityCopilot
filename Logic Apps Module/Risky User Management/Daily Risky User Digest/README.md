@@ -1,6 +1,6 @@
 # Daily Risky User Digest
 
-[<- Risky User Management](../README.md)
+[<- Logic Apps Module](../../README.md)
 
 A Logic App that runs daily and emails a formatted HTML digest of at-risk users from Microsoft Entra ID Protection.
 

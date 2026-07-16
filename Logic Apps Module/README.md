@@ -20,7 +20,7 @@ All workflows in this module are designed to use System-Assigned Managed Identit
 
 ## Solution Areas
 
-- [Risky User Management/README.md](Risky%20User%20Management/README.md)
+- [Risky User Management/Daily Risky User Digest/README.md](Risky%20User%20Management/Daily%20Risky%20User%20Digest/README.md)
 - [Password Spray Detection/Password Spray Auto-Alert/README.md](Password%20Spray%20Detection/Password%20Spray%20Auto-Alert/README.md)
 - [Token Theft Detection/Token Theft Response Alert/README.md](Token%20Theft%20Detection/Token%20Theft%20Response%20Alert/README.md)
 
