@@ -1,0 +1,7 @@
+# Generated reports & dashboards — contain real SCU usage + cost data. Do not commit.
+scu-output/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.tmp
