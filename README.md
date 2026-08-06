@@ -1,6 +1,6 @@
 # Security Copilot Workshop
 
-Comprehensive workshop materials for Microsoft Security Copilot across Microsoft Purview, Microsoft Entra, Microsoft Defender Threat Intelligence, Azure AI Search, Custom OpenAI Plugins, Azure Logic Apps automation, and MCP server integration. This repository provides prompt engineering best practices, investigation workflows, agent setup guides, knowledge base integration, security automation Logic Apps, and practical SOC-focused playbooks.
+Comprehensive workshop materials for Microsoft Security Copilot across Microsoft Purview, Microsoft Entra, Microsoft Intune, Microsoft Defender Threat Intelligence, Azure AI Search, Custom OpenAI Plugins, Azure Logic Apps automation, and MCP server integration. This repository provides prompt engineering best practices, investigation workflows, agent setup guides, knowledge base integration, security automation Logic Apps, and practical SOC-focused playbooks.
 
 **Developer**: Dr Muataz Awad
 
@@ -24,6 +24,10 @@ This repository contains curated content designed to help security analysts and 
 ### [Entra Module](Entra%20Module/README.md)
 
 Security Copilot content for Entra ID investigations, access governance, conditional access analysis, and incident response workflows.
+
+### [Intune Module](Intune%20Module/README.md)
+
+Security Copilot content for managed device investigations, policy and compliance analysis, endpoint troubleshooting, and Intune automation workflows.
 
 ### [Purview Module](Purview%20Module/README.md)
 
@@ -58,6 +62,15 @@ Model Context Protocol (MCP) server for Security Copilot threat intelligence enr
 - **[Entra Embedded Experiences](Entra%20Module/Embedded%20Experiences/README.md)**
 - **[Entra Agents](Entra%20Module/Agents/README.md)**
 - **[Entra Plugins](Entra%20Module/Plugins/README.md)**
+
+### Intune
+
+- **[Intune Embedded Experiences](Intune%20Module/Embedded%20Experiences/README.md)**
+- **[Device Investigation Guide](Intune%20Module/Embedded%20Experiences/Device%20Investigation%20Guide.md)**
+- **[Intune Agents](Intune%20Module/Agents/README.md)**
+- **[Intune Plugins](Intune%20Module/Plugins/README.md)**
+- **[Intune Promptbooks](Intune%20Module/Promptbook/README.md)**
+- **[Intune Sample Prompts](Intune%20Module/Sample%20Prompts/Intune%20Sample%20Prompts.md)**
 
 ### Purview IRM
 
