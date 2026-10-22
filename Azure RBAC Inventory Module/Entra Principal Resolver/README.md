@@ -86,6 +86,14 @@ Resolving a known object ID directly confirms the plugin works end-to-end:
 | `d5a157af-...` | `ResolveEntraUserById` | displayName: `System Administrator`, UPN: `admin@<tenant>.onmicrosoft.com` |
 | `15d05821-...` | `ResolveEntraServicePrincipalById` | displayName: matches the RBAC Inventory plugin's own service principal, appId matches its ClientId |
 
+![Live test — user resolved successfully](../Images/24.png)
+
+## Known Behavior: Ask About One Principal Type at a Time
+
+When a single prompt asks Security Copilot to resolve **multiple different principal types in one go** (e.g. "resolve this user ID and this service principal ID"), the orchestrator may only invoke one of the two matching skills and report the other as "could not be resolved" — even though both skills work correctly in isolation. This is a documented Security Copilot behavior called **skill collision**, where very similarly described skills (`ResolveEntraUserById` vs. `ResolveEntraServicePrincipalById`) can be under-disambiguated when requested together.
+
+**Workaround**: Ask about one principal (or one principal type) per prompt — e.g. *"Who is the Entra user with object ID \<id\>?"* — rather than a single compound request covering users and service principals together. Both skills were verified to work correctly end-to-end when asked individually.
+
 ---
 
 **Developer**: Dr Muataz Awad
