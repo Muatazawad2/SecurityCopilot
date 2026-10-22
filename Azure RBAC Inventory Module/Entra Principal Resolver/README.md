@@ -30,17 +30,43 @@ So instead of trying to force both APIs into one plugin, this is a **second, ind
 
 ## Setup
 
-### 1. Add Microsoft Graph API permissions to the existing app registration
+### Step 1 — Open API permissions on the existing app registration
 
-In the Azure Portal, open the app registration from the RBAC Inventory plugin setup (**API permissions > Add a permission > Microsoft Graph > Application permissions**) and add:
+Go to the same app registration used for the RBAC Inventory plugin, then **API permissions**.
 
-- `User.Read.All`
-- `Application.Read.All`
-- `Group.Read.All`
+![Step 1 — API permissions page](../Images/25.png)
 
-Then click **Grant admin consent** — Application permissions do not work until an administrator consents.
+### Step 2 — Add a permission → Microsoft Graph
 
-Equivalent Azure CLI:
+Click **Add a permission**, then select **Microsoft Graph**.
+
+![Step 2 — Request API permissions, Microsoft Graph](../Images/26.png)
+
+### Step 3 — Choose "Application permissions"
+
+Since this plugin runs as a background service with no signed-in user, choose **Application permissions**, not Delegated.
+
+![Step 3 — Application permissions selected](../Images/27.png)
+
+### Step 4 — Search for and select each permission
+
+Search for and check each of the three: `User.Read.All`, `Application.Read.All`, `Group.Read.All`.
+
+![Step 4 — User.Read.All selected](../Images/28.png)
+
+Click **Add permissions** once all three are checked.
+
+### Step 5 — Grant admin consent
+
+Click **Grant admin consent** and confirm. Application permissions are inert until an administrator consents — they won't work just by being added.
+
+![Step 5 — Grant admin consent confirmation](../Images/29.png)
+
+### Step 6 — Confirm all three show "Granted"
+
+![Step 6 — All three permissions granted](../Images/30.png)
+
+Equivalent Azure CLI (if you prefer scripting this step):
 
 ```powershell
 $graphAppId   = "00000003-0000-0000-c000-000000000000"
@@ -54,13 +80,13 @@ az ad app permission add --id <app-client-id> --api $graphAppId `
 az ad app permission admin-consent --id <app-client-id>
 ```
 
-### 2. Upload the plugin to Security Copilot
+### Step 7 — Upload the plugin to Security Copilot
 
 Same flow as the RBAC Inventory plugin (**Sources > Custom > Upload plugin > Security Copilot plugin > Upload as a link**), pointing at [`manifest.yaml`](manifest.yaml).
 
-### 3. Configure auth
+### Step 8 — Configure auth with the Graph scope
 
-Security Copilot will again prompt for OAuth Client Credentials fields — reuse the same ClientId/ClientSecret, but change the scope:
+Security Copilot prompts for OAuth Client Credentials fields again — reuse the same ClientId/ClientSecret from the RBAC Inventory plugin, but change the scope:
 
 | Field | Value |
 |---|---|
@@ -69,7 +95,15 @@ Security Copilot will again prompt for OAuth Client Credentials fields — reuse
 | **TokenEndpoint** | `https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token` |
 | **Scopes** | `https://graph.microsoft.com/.default` |
 
-### 4. Test it
+### Step 9 — Confirm it's active
+
+![Step 9 — Entra Principal Resolver enabled in Security Copilot](../Images/31.png)
+
+Its settings show the Graph-scoped configuration (ClientId and TokenEndpoint redacted below, same values as the RBAC Inventory plugin):
+
+![Settings showing the Graph scope](../Images/32.png)
+
+### Step 10 — Test it
 
 With both plugins enabled, ask Security Copilot something like:
 
