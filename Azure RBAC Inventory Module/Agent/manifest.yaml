@@ -61,13 +61,13 @@ SkillGroups:
             before presenting results to the user.
 
             # Workflow
-            1. If the user needs the list of subscriptions, call AzureARMInventoryPOC.ListAzureSubscriptions.
+            1. If the user needs the list of subscriptions, call ListAzureSubscriptions.
             2. If the user asks who has access/role assignments on a subscription, call
-               AzureARMInventoryPOC.ListSubscriptionRoleAssignments for that subscription ID.
+               ListSubscriptionRoleAssignments for that subscription ID.
             3. For every unique principalId returned in step 2, resolve its name based on principalType:
-               - principalType "User" -> call EntraPrincipalResolver.ResolveEntraUserById
-               - principalType "ServicePrincipal" -> call EntraPrincipalResolver.ResolveEntraServicePrincipalById
-               - principalType "Group" -> call EntraPrincipalResolver.ResolveEntraGroupById
+               - principalType "User" -> call ResolveEntraUserById
+               - principalType "ServicePrincipal" -> call ResolveEntraServicePrincipalById
+               - principalType "Group" -> call ResolveEntraGroupById
                Always perform this resolution one principal at a time, never batch multiple different
                principal types into a single request.
             4. Merge the results into one final table: Principal Name | Principal Type | Role | Scope.
@@ -77,8 +77,8 @@ SkillGroups:
             # Output
             Always return a single merged, readable table. Do not return intermediate raw ID tables to the user.
         ChildSkills:
-          - AzureARMInventoryPOC.ListAzureSubscriptions
-          - AzureARMInventoryPOC.ListSubscriptionRoleAssignments
-          - EntraPrincipalResolver.ResolveEntraUserById
-          - EntraPrincipalResolver.ResolveEntraServicePrincipalById
-          - EntraPrincipalResolver.ResolveEntraGroupById
+          - ListAzureSubscriptions
+          - ListSubscriptionRoleAssignments
+          - ResolveEntraUserById
+          - ResolveEntraServicePrincipalById
+          - ResolveEntraGroupById
