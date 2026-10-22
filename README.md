@@ -127,6 +127,8 @@ Model Context Protocol (MCP) server for Security Copilot threat intelligence enr
 - **[OpenAPI Spec](Azure%20RBAC%20Inventory%20Module/Plugin/openapi.yaml)** — ARM endpoints: list subscriptions, list role assignments
 - **[Entra Principal Resolver](Azure%20RBAC%20Inventory%20Module/Entra%20Principal%20Resolver/README.md)** — Companion Microsoft Graph plugin that resolves principal GUIDs to real names
 - **[Logic App (Managed Identity) Alternative](Azure%20RBAC%20Inventory%20Module/Logic%20App/README.md)** — Deterministic, zero-secret workflow chaining ARM + Graph natively, with a [workflow definition](Azure%20RBAC%20Inventory%20Module/Logic%20App/workflow-definition.json) and [Graph permission grant script](Azure%20RBAC%20Inventory%20Module/Logic%20App/Grant-ManagedIdentityGraphPermissions.ps1)
+- **[Azure RBAC Access Review Promptbook](Azure%20RBAC%20Inventory%20Module/Promptbook/Azure%20RBAC%20Access%20Review%20Promptbook.md)** — 6-step saved promptbook: discover subscriptions, review access, resolve names, apply governance guidance
+- **[Azure RBAC Inventory Sample Prompts](Azure%20RBAC%20Inventory%20Module/Sample%20Prompts/Azure%20RBAC%20Inventory%20Sample%20Prompts.md)** — Standalone prompts by category: discovery, access review, name resolution, governance
 
 ### Logic Apps Module
 

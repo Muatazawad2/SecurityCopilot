@@ -60,6 +60,8 @@ Security Copilot --(OAuth Client Credentials, Graph scope)--> Microsoft Entra ID
 | [`Entra Principal Resolver/openapi.yaml`](Entra%20Principal%20Resolver/openapi.yaml) | OpenAPI 3.0 spec: resolve user, service principal, group |
 | [`Logic App/workflow-definition.json`](Logic%20App/workflow-definition.json) | Full deterministic Logic App workflow (no Security Copilot involved) |
 | [`Logic App/Grant-ManagedIdentityGraphPermissions.ps1`](Logic%20App/Grant-ManagedIdentityGraphPermissions.ps1) | Grants the managed identity's Graph application permissions |
+| [`Promptbook/Azure RBAC Access Review Promptbook.md`](Promptbook/Azure%20RBAC%20Access%20Review%20Promptbook.md) | 6-step saved Security Copilot promptbook: discover, review access, resolve names, apply governance guidance |
+| [`Sample Prompts/Azure RBAC Inventory Sample Prompts.md`](Sample%20Prompts/Azure%20RBAC%20Inventory%20Sample%20Prompts.md) | Standalone prompts by category: discovery, access review, name resolution, governance |
 
 ---
 
@@ -287,6 +289,7 @@ And `Compose Row` shows the fully merged record for that same iteration — subs
 4. Ask: *"List all Azure subscriptions in my tenant"* or *"Who has role assignments on subscription \<id\>?"*
 5. **(Optional, for readable names)** Add Graph permissions + admin consent (Part 2, Steps 1–6), upload `Entra Principal Resolver/manifest.yaml` (Part 2, Steps 7–9). Ask about one principal ID at a time.
 6. **(No-secret alternative)** Create the Logic App with a system-assigned managed identity, grant it Reader + the three Graph permissions, paste in `workflow-definition.json`, and trigger it (Part 3). One run returns every subscription's access list with every principal and role already resolved to a name — no chat prompt needed.
+7. **(Ready-made prompts)** Don't want to write prompts yourself? Use the [Azure RBAC Access Review promptbook](Promptbook/Azure%20RBAC%20Access%20Review%20Promptbook.md) for a saved, repeatable 6-step review, or browse the [Sample Prompts](Sample%20Prompts/Azure%20RBAC%20Inventory%20Sample%20Prompts.md) for standalone prompts by category.
 
 ## Important Notes
 
