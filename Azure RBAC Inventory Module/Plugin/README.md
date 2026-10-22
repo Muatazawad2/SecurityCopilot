@@ -4,8 +4,6 @@
 
 A native Security Copilot API plugin that lists Azure subscriptions and Azure RBAC role assignments by calling Azure Resource Manager (ARM) directly, authenticated with an Entra App Registration using OAuth 2.0 Client Credentials.
 
-**Developer**: Dr Muataz Awad
-
 ---
 
 ## Why This Plugin Exists
@@ -196,3 +194,7 @@ You can now also ask follow-up prompts like *"Who has role assignments on subscr
 - The client secret is a long-lived credential with read access to your subscription's resource and RBAC metadata. Store it only in Security Copilot's plugin configuration — never in source control or chat.
 - Rotate the secret periodically and before its expiry date.
 - Prefer the narrowest RBAC scope that satisfies the requirement (single subscription over management group root, Reader over Owner).
+
+---
+
+**Developer**: Dr Muataz Awad

@@ -1,7 +1,5 @@
 # Azure RBAC Inventory Module
 
-**Developer**: Dr Muataz Awad
-
 A custom Security Copilot plugin that answers a question none of the built-in Microsoft plugins can: *"List all Azure subscriptions in my tenant and show who has role assignments (access) on each one."*
 
 ---
@@ -49,3 +47,7 @@ See **[Plugin/README.md](Plugin/README.md)** for the complete walkthrough with s
 - **Security Copilot cannot create the App Registration or grant RBAC itself.** Someone with Entra/Azure admin rights must provision the identity and access outside Security Copilot first (Azure Portal, CLI, or PowerShell). The plugin only *consumes* those credentials — it does not create them.
 - Scope the Reader grant as narrowly as possible (single subscription, not tenant root) unless a full tenant-wide inventory is genuinely required.
 - Rotate the client secret regularly — it is a long-lived credential with read access to your subscription's resource and RBAC metadata.
+
+---
+
+**Developer**: Dr Muataz Awad
