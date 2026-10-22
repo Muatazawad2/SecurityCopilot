@@ -11,7 +11,7 @@ AgentDefinitions:
     Product: SecurityCopilot
     RequiredSkillsets:
       - AzureRBACInventoryAgent
-      - AzureRBACInventory
+      - AzureARMInventoryPOC
       - EntraPrincipalResolver
     AgentSingleInstanceConstraint: None
     Triggers:
