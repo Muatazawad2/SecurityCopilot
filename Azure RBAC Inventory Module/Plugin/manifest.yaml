@@ -1,0 +1,11 @@
+Descriptor:
+  Name: AzureRBACInventory
+  DisplayName: Azure Subscription & RBAC Inventory
+  Description: Lists Azure subscriptions and who has Azure RBAC role assignments (access) on them, using the Azure Resource Manager API.
+  SupportedAuthTypes:
+    - OAuthClientCredentialsFlow
+
+SkillGroups:
+  - Format: API
+    Settings:
+      OpenApiSpecUrl: https://raw.githubusercontent.com/Muatazawad2/SecurityCopilot/main/Azure%20RBAC%20Inventory%20Module/Plugin/openapi.yaml

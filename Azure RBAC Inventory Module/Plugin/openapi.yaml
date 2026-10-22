@@ -1,0 +1,96 @@
+openapi: 3.0.0
+
+info:
+  title: Azure Subscription and RBAC Inventory API
+  description: Read-only access to Azure Resource Manager for listing subscriptions and role assignments (who has access).
+  version: "1.0"
+
+servers:
+  - url: https://management.azure.com
+
+paths:
+  /subscriptions:
+    get:
+      operationId: ListAzureSubscriptions
+      summary: List all Azure subscriptions visible to the caller
+      description: |
+        Returns all Azure subscriptions that the authenticated service principal can see in the tenant.
+        #ExamplePrompts List all Azure subscriptions in my tenant
+        #ExamplePrompts What Azure subscriptions do we have?
+      parameters:
+        - in: query
+          name: api-version
+          schema:
+            type: string
+            default: "2020-01-01"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        subscriptionId:
+                          type: string
+                        displayName:
+                          type: string
+                        state:
+                          type: string
+                        tenantId:
+                          type: string
+
+  /subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleAssignments:
+    get:
+      operationId: ListSubscriptionRoleAssignments
+      summary: List who has Azure RBAC role assignments (access) on a subscription
+      description: |
+        Returns every Azure RBAC role assignment at or inherited down to the given subscription scope,
+        including the principal (user, group, or service principal) and the role assigned.
+        #ExamplePrompts Who has access to subscription subscriptionId?
+        #ExamplePrompts List role assignments for subscription subscriptionId
+      parameters:
+        - in: path
+          name: subscriptionId
+          schema:
+            type: string
+          required: true
+          description: The Azure subscription ID to inspect
+        - in: query
+          name: api-version
+          schema:
+            type: string
+            default: "2022-04-01"
+          required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        properties:
+                          type: object
+                          properties:
+                            principalId:
+                              type: string
+                            principalType:
+                              type: string
+                            roleDefinitionId:
+                              type: string
+                            scope:
+                              type: string

@@ -1,6 +1,6 @@
 # Security Copilot Workshop
 
-Comprehensive workshop materials for Microsoft Security Copilot across Microsoft Purview, Microsoft Entra, Microsoft Intune, Microsoft Defender Threat Intelligence, Azure AI Search, Custom OpenAI Plugins, Azure Logic Apps automation, and MCP server integration. This repository provides prompt engineering best practices, investigation workflows, agent setup guides, knowledge base integration, security automation Logic Apps, and practical SOC-focused playbooks.
+Comprehensive workshop materials for Microsoft Security Copilot across Microsoft Purview, Microsoft Entra, Microsoft Intune, Microsoft Defender Threat Intelligence, Azure AI Search, Custom OpenAI Plugins, Azure RBAC Inventory, Azure Logic Apps automation, and MCP server integration. This repository provides prompt engineering best practices, investigation workflows, agent setup guides, knowledge base integration, security automation Logic Apps, and practical SOC-focused playbooks.
 
 **Developer**: Dr Muataz Awad
 
@@ -16,6 +16,7 @@ This repository contains curated content designed to help security analysts and 
 - Agent-driven automation and embedded investigation experiences
 - Organizational knowledge base integration via Azure AI Search
 - Custom OpenAI plugins connecting Security Copilot to external and internal REST APIs
+- Azure subscription and RBAC inventory via a custom OAuth-authenticated native plugin
 - Automated security workflows via Azure Logic Apps (no-code, Managed Identity)
 - Threat intelligence enrichment via MCP server deployed on Azure Container Apps
 
@@ -44,6 +45,10 @@ End-to-end setup and resources for connecting an organizational knowledge base t
 ### [Custom OpenAI Plugins Module](Custom%20OpenAI%20Plugins%20Module/README.md)
 
 OpenAI-format plugins for extending Security Copilot with external REST APIs. Includes a working CVE Lookup plugin (queries CIRCL CVE Search — no auth required), an internal security API template for wrapping SIEM/CMDB/incident management tools, and a CVE triage promptbook.
+
+### [Azure RBAC Inventory Module](Azure%20RBAC%20Inventory%20Module/README.md)
+
+A native Security Copilot API plugin (OAuth Client Credentials auth) that lists Azure subscriptions and who has Azure RBAC role assignments on them — capability the built-in Microsoft plugins don't cover since they don't call Azure Resource Manager. Includes a complete setup guide with 23 screenshots covering the Entra App Registration, least-privilege RBAC grant, and Security Copilot plugin configuration.
 
 ### [Logic Apps Module](Logic%20Apps%20Module/README.md)
 
@@ -114,6 +119,12 @@ Model Context Protocol (MCP) server for Security Copilot threat intelligence enr
 - **[CVE Lookup Sample Prompts](Custom%20OpenAI%20Plugins%20Module/CVE%20Lookup%20Plugin/CVE%20Lookup%20Sample%20Prompts.md)**
 - **[CVE Vulnerability Triage and Patch Priority Assessment Promptbook](Custom%20OpenAI%20Plugins%20Module/Promptbook/CVE%20Vulnerability%20Triage%20and%20Patch%20Priority%20Assessment%20Promptbook.md)**
 - **[Internal Security API Template](Custom%20OpenAI%20Plugins%20Module/Internal%20Security%20API%20Template/README.md)**
+
+### Azure RBAC Inventory Module
+
+- **[Plugin Setup Guide](Azure%20RBAC%20Inventory%20Module/Plugin/README.md)** — Step-by-step guide with 23 screenshots: Entra App Registration, RBAC grant, and Security Copilot plugin upload
+- **[Plugin Manifest](Azure%20RBAC%20Inventory%20Module/Plugin/manifest.yaml)** — Native Security Copilot plugin manifest (OAuth Client Credentials)
+- **[OpenAPI Spec](Azure%20RBAC%20Inventory%20Module/Plugin/openapi.yaml)** — ARM endpoints: list subscriptions, list role assignments
 
 ### Logic Apps Module
 
