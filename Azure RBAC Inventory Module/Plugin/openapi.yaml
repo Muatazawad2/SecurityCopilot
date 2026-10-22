@@ -22,8 +22,10 @@ paths:
           name: api-version
           schema:
             type: string
+            enum: ["2020-01-01"]
             default: "2020-01-01"
           required: true
+          description: Fixed API version for this operation. Always use exactly "2020-01-01" — do not substitute any other value.
       responses:
         "200":
           description: OK
@@ -66,8 +68,10 @@ paths:
           name: api-version
           schema:
             type: string
+            enum: ["2022-04-01"]
             default: "2022-04-01"
           required: true
+          description: Fixed API version for this operation. Always use exactly "2022-04-01" — do not substitute any other value.
       responses:
         "200":
           description: OK
