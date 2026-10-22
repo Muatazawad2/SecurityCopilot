@@ -1,0 +1,128 @@
+openapi: 3.0.0
+
+info:
+  title: Entra Principal Resolver API
+  description: Resolves Microsoft Entra ID object IDs (users, service principals, groups) returned by Azure RBAC role assignments into human-readable display names and identifiers.
+  version: "1.0"
+
+servers:
+  - url: https://graph.microsoft.com/v1.0
+
+paths:
+  /users/{id}:
+    get:
+      operationId: ResolveEntraUserById
+      summary: Resolve an Entra ID user object ID to a display name and UPN
+      description: |
+        Looks up a Microsoft Entra ID user by object ID (GUID) and returns their display name,
+        user principal name (email/sign-in name), and account enabled status. Use this to resolve
+        a "User" principalId returned by an Azure RBAC role assignment into a readable identity.
+        #ExamplePrompts Who is the user with object ID objectId?
+        #ExamplePrompts Resolve principal objectId to a name
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Entra ID object ID (GUID) of the user
+        - in: query
+          name: $select
+          schema:
+            type: string
+            default: "displayName,userPrincipalName,id,accountEnabled"
+          required: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  displayName:
+                    type: string
+                  userPrincipalName:
+                    type: string
+                  accountEnabled:
+                    type: boolean
+
+  /servicePrincipals/{id}:
+    get:
+      operationId: ResolveEntraServicePrincipalById
+      summary: Resolve an Entra ID service principal object ID to a display name and app ID
+      description: |
+        Looks up a Microsoft Entra ID service principal (app registration or managed identity) by
+        object ID (GUID) and returns its display name and associated application (client) ID. Use
+        this to resolve a "ServicePrincipal" principalId returned by an Azure RBAC role assignment.
+        #ExamplePrompts Which app or service principal has object ID objectId?
+        #ExamplePrompts Resolve service principal objectId to a name
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Entra ID object ID (GUID) of the service principal
+        - in: query
+          name: $select
+          schema:
+            type: string
+            default: "displayName,appId,id,servicePrincipalType"
+          required: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  displayName:
+                    type: string
+                  appId:
+                    type: string
+                  servicePrincipalType:
+                    type: string
+
+  /groups/{id}:
+    get:
+      operationId: ResolveEntraGroupById
+      summary: Resolve an Entra ID group object ID to a display name
+      description: |
+        Looks up a Microsoft Entra ID group by object ID (GUID) and returns its display name and
+        mail nickname. Use this to resolve a "Group" principalId returned by an Azure RBAC role
+        assignment into a readable group name.
+        #ExamplePrompts Which group has object ID objectId?
+        #ExamplePrompts Resolve group objectId to a name
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The Entra ID object ID (GUID) of the group
+        - in: query
+          name: $select
+          schema:
+            type: string
+            default: "displayName,mailNickname,id"
+          required: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  displayName:
+                    type: string
+                  mailNickname:
+                    type: string
