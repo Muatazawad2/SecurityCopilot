@@ -1,6 +1,23 @@
 # Azure RBAC Inventory Module
 
-A custom Security Copilot plugin that answers a question none of the built-in Microsoft plugins can: *"List all Azure subscriptions in my tenant and show who has role assignments (access) on each one."*
+Answers a question none of the built-in Microsoft Security Copilot plugins can: *"List all Azure subscriptions in my tenant and show who has role assignments (access) on each one."*
+
+This module ships **two working ways** to get that answer — pick based on how you want to use it.
+
+---
+
+## Two Ways to Get This Done
+
+| | [Security Copilot Plugins](#part-1--step-by-step-azure-subscription--rbac-inventory-plugin) (Parts 1–2) | [Logic App — Managed Identity](Logic%20App/README.md) (Part 3) |
+|---|---|---|
+| **How you use it** | Ask in chat — *"List all Azure subscriptions"*, *"Who has access to subscription X, with names?"* | Trigger it (manually or on a schedule) — get back the full resolved report, no prompting |
+| **Best for** | Ad-hoc investigation, analysts asking follow-up questions | Scheduled reporting, audits, feeding results into another system |
+| **Credentials** | Entra App Registration + client secret (must be rotated) | **Zero secrets** — system-assigned managed identity only |
+| **Determinism** | Chat orchestrator decides which skill to call | Fixed sequence every run — no orchestrator judgment |
+| **Known caveat** | Asking about a user + service principal together in one prompt can hit a "skill collision" — ask one at a time | Synchronous response window scales with role assignment count (mitigated with `Foreach` concurrency) |
+| **Setup** | [Part 1](#part-1--step-by-step-azure-subscription--rbac-inventory-plugin) + [Part 2](#part-2--step-by-step-entra-principal-resolver-companion-plugin) | [Part 3](#part-3--step-by-step-logic-app-managed-identity-alternative) |
+
+> A native Security Copilot **Agent** (a third idea, to auto-chain the two plugins so the chat UI could do this deterministically) was evaluated and did not work — Security Copilot's Agent `ChildSkills` cannot currently call skills across separately uploaded plugins, confirmed via a minimal reproducible test. That finding is what led to building the Logic App alternative instead; it is **not** a third option today. See [Part 3's "Why a Logic App Instead of (or Alongside) an Agent"](#why-a-logic-app-instead-of-or-alongside-an-agent) for the full explanation.
 
 ---
 
@@ -31,9 +48,7 @@ Security Copilot --(OAuth Client Credentials, Graph scope)--> Microsoft Entra ID
 - **Skills exposed** (`Plugin/` — ARM, subscription-scoped): `ListAzureSubscriptions`, `ListSubscriptionRoleAssignments`
 - **Skills exposed** (`Entra Principal Resolver/` — Graph-scoped, same identity, different token audience): `ResolveEntraUserById`, `ResolveEntraServicePrincipalById`, `ResolveEntraGroupById`
 
-> ARM and Microsoft Graph are different OAuth token audiences, so this is two separate Security Copilot plugins sharing one app registration — not one plugin calling both APIs.
-
-A third approach, the [**Logic App (Managed Identity) alternative**](Logic%20App/README.md), chains both APIs **deterministically with zero secrets**, using the Logic App's system-assigned managed identity instead of an app registration client secret. See [Part 3](#part-3--step-by-step-logic-app-managed-identity-alternative) below for why it exists — in short, a native Security Copilot **Agent** was evaluated first to orchestrate the two plugins automatically, but a confirmed platform limitation (Agent `ChildSkills` only resolve within the agent's own uploaded manifest, never across separately uploaded plugins) ruled that out.
+> ARM and Microsoft Graph are different OAuth token audiences, so this is two separate Security Copilot plugins sharing one app registration — not one plugin calling both APIs. See the comparison table at the top of this page for the Logic App alternative.
 
 ## What's Included
 
