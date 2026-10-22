@@ -48,7 +48,7 @@ OpenAI-format plugins for extending Security Copilot with external REST APIs. In
 
 ### [Azure RBAC Inventory Module](Azure%20RBAC%20Inventory%20Module/README.md)
 
-A native Security Copilot API plugin (OAuth Client Credentials auth) that lists Azure subscriptions and who has Azure RBAC role assignments on them — capability the built-in Microsoft plugins don't cover since they don't call Azure Resource Manager. Includes a complete setup guide with 23 screenshots covering the Entra App Registration, least-privilege RBAC grant, and Security Copilot plugin configuration.
+A native Security Copilot API plugin (OAuth Client Credentials auth) that lists Azure subscriptions and who has Azure RBAC role assignments on them — capability the built-in Microsoft plugins don't cover since they don't call Azure Resource Manager. Includes a complete setup guide with 23 screenshots covering the Entra App Registration, least-privilege RBAC grant, and Security Copilot plugin configuration, plus a companion Microsoft Graph plugin for resolving principal IDs to names. Also includes a **Logic App (Managed Identity) alternative** — a deterministic, zero-secret workflow that chains both APIs natively, built after confirming that Security Copilot's Agent `ChildSkills` cannot currently call skills across separately uploaded plugins.
 
 ### [Logic Apps Module](Logic%20Apps%20Module/README.md)
 
@@ -125,6 +125,8 @@ Model Context Protocol (MCP) server for Security Copilot threat intelligence enr
 - **[Plugin Setup Guide](Azure%20RBAC%20Inventory%20Module/Plugin/README.md)** — Step-by-step guide with 23 screenshots: Entra App Registration, RBAC grant, and Security Copilot plugin upload
 - **[Plugin Manifest](Azure%20RBAC%20Inventory%20Module/Plugin/manifest.yaml)** — Native Security Copilot plugin manifest (OAuth Client Credentials)
 - **[OpenAPI Spec](Azure%20RBAC%20Inventory%20Module/Plugin/openapi.yaml)** — ARM endpoints: list subscriptions, list role assignments
+- **[Entra Principal Resolver](Azure%20RBAC%20Inventory%20Module/Entra%20Principal%20Resolver/README.md)** — Companion Microsoft Graph plugin that resolves principal GUIDs to real names
+- **[Logic App (Managed Identity) Alternative](Azure%20RBAC%20Inventory%20Module/Logic%20App/README.md)** — Deterministic, zero-secret workflow chaining ARM + Graph natively, with a [workflow definition](Azure%20RBAC%20Inventory%20Module/Logic%20App/workflow-definition.json) and [Graph permission grant script](Azure%20RBAC%20Inventory%20Module/Logic%20App/Grant-ManagedIdentityGraphPermissions.ps1)
 
 ### Logic Apps Module
 

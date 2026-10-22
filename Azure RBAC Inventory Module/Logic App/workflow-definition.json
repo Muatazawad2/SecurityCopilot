@@ -1,0 +1,150 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "manual": {
+        "type": "Request",
+        "kind": "Http",
+        "inputs": {
+          "method": "GET"
+        }
+      }
+    },
+    "actions": {
+      "List_Subscriptions": {
+        "type": "Http",
+        "inputs": {
+          "method": "GET",
+          "uri": "https://management.azure.com/subscriptions?api-version=2020-01-01",
+          "authentication": {
+            "type": "ManagedServiceIdentity",
+            "audience": "https://management.azure.com/"
+          }
+        },
+        "runAfter": {}
+      },
+      "Initialize_FinalReport": {
+        "type": "InitializeVariable",
+        "inputs": {
+          "variables": [
+            {
+              "name": "FinalReport",
+              "type": "array",
+              "value": []
+            }
+          ]
+        },
+        "runAfter": {
+          "List_Subscriptions": ["Succeeded"]
+        }
+      },
+      "For_each_subscription": {
+        "type": "Foreach",
+        "foreach": "@body('List_Subscriptions')?['value']",
+        "runtimeConfiguration": {
+          "concurrency": {
+            "repetitions": 5
+          }
+        },
+        "actions": {
+          "List_Role_Assignments": {
+            "type": "Http",
+            "inputs": {
+              "method": "GET",
+              "uri": "https://management.azure.com/subscriptions/@{items('For_each_subscription')?['subscriptionId']}/providers/Microsoft.Authorization/roleAssignments?api-version=2022-04-01",
+              "authentication": {
+                "type": "ManagedServiceIdentity",
+                "audience": "https://management.azure.com/"
+              }
+            },
+            "runAfter": {}
+          },
+          "For_each_role_assignment": {
+            "type": "Foreach",
+            "foreach": "@body('List_Role_Assignments')?['value']",
+            "runtimeConfiguration": {
+              "concurrency": {
+                "repetitions": 20
+              }
+            },
+            "actions": {
+              "Get_Role_Definition": {
+                "type": "Http",
+                "inputs": {
+                  "method": "GET",
+                  "uri": "https://management.azure.com/@{items('For_each_role_assignment')?['properties']?['roleDefinitionId']}?api-version=2022-04-01",
+                  "authentication": {
+                    "type": "ManagedServiceIdentity",
+                    "audience": "https://management.azure.com/"
+                  }
+                },
+                "runAfter": {}
+              },
+              "Resolve_Principal": {
+                "type": "Http",
+                "inputs": {
+                  "method": "GET",
+                  "uri": "https://graph.microsoft.com/v1.0/directoryObjects/@{items('For_each_role_assignment')?['properties']?['principalId']}",
+                  "authentication": {
+                    "type": "ManagedServiceIdentity",
+                    "audience": "https://graph.microsoft.com/"
+                  }
+                },
+                "runAfter": {
+                  "Get_Role_Definition": ["Succeeded", "Failed", "Skipped", "TimedOut"]
+                }
+              },
+              "Compose_Row": {
+                "type": "Compose",
+                "inputs": {
+                  "SubscriptionId": "@items('For_each_subscription')?['subscriptionId']",
+                  "SubscriptionName": "@items('For_each_subscription')?['displayName']",
+                  "PrincipalId": "@items('For_each_role_assignment')?['properties']?['principalId']",
+                  "PrincipalName": "@if(equals(actions('Resolve_Principal')['status'], 'Succeeded'), coalesce(body('Resolve_Principal')?['displayName'], concat('Unresolved (', items('For_each_role_assignment')?['properties']?['principalId'], ')')), concat('Unresolved (', items('For_each_role_assignment')?['properties']?['principalId'], ')'))",
+                  "PrincipalType": "@if(equals(actions('Resolve_Principal')['status'], 'Succeeded'), coalesce(body('Resolve_Principal')?['@odata.type'], items('For_each_role_assignment')?['properties']?['principalType']), items('For_each_role_assignment')?['properties']?['principalType'])",
+                  "RoleName": "@if(equals(actions('Get_Role_Definition')['status'], 'Succeeded'), coalesce(body('Get_Role_Definition')?['properties']?['roleName'], items('For_each_role_assignment')?['properties']?['roleDefinitionId']), items('For_each_role_assignment')?['properties']?['roleDefinitionId'])",
+                  "Scope": "@items('For_each_role_assignment')?['properties']?['scope']"
+                },
+                "runAfter": {
+                  "Resolve_Principal": ["Succeeded", "Failed", "Skipped", "TimedOut"]
+                }
+              },
+              "Append_to_FinalReport": {
+                "type": "AppendToArrayVariable",
+                "inputs": {
+                  "name": "FinalReport",
+                  "value": "@outputs('Compose_Row')"
+                },
+                "runAfter": {
+                  "Compose_Row": ["Succeeded"]
+                }
+              }
+            },
+            "runAfter": {
+              "List_Role_Assignments": ["Succeeded"]
+            }
+          }
+        },
+        "runAfter": {
+          "Initialize_FinalReport": ["Succeeded"]
+        }
+      },
+      "Response": {
+        "type": "Response",
+        "kind": "Http",
+        "inputs": {
+          "statusCode": 200,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": "@variables('FinalReport')"
+        },
+        "runAfter": {
+          "For_each_subscription": ["Succeeded"]
+        }
+      }
+    },
+    "outputs": {}
+  }
+}

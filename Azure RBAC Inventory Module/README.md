@@ -33,6 +33,8 @@ Security Copilot --(OAuth Client Credentials, Graph scope)--> Microsoft Entra ID
 
 > ARM and Microsoft Graph are different OAuth token audiences, so this is two separate Security Copilot plugins sharing one app registration — not one plugin calling both APIs.
 
+A third approach, the [**Logic App (Managed Identity) alternative**](Logic%20App/README.md), chains both APIs **deterministically with zero secrets**, using the Logic App's system-assigned managed identity instead of an app registration client secret. See [Part 3](#part-3--step-by-step-logic-app-managed-identity-alternative) below for why it exists — in short, a native Security Copilot **Agent** was evaluated first to orchestrate the two plugins automatically, but a confirmed platform limitation (Agent `ChildSkills` only resolve within the agent's own uploaded manifest, never across separately uploaded plugins) ruled that out.
+
 ## What's Included
 
 | Item | Description |
@@ -41,6 +43,8 @@ Security Copilot --(OAuth Client Credentials, Graph scope)--> Microsoft Entra ID
 | [`Plugin/openapi.yaml`](Plugin/openapi.yaml) | OpenAPI 3.0 spec: list subscriptions, list role assignments |
 | [`Entra Principal Resolver/manifest.yaml`](Entra%20Principal%20Resolver/manifest.yaml) | Companion plugin manifest (Graph) |
 | [`Entra Principal Resolver/openapi.yaml`](Entra%20Principal%20Resolver/openapi.yaml) | OpenAPI 3.0 spec: resolve user, service principal, group |
+| [`Logic App/workflow-definition.json`](Logic%20App/workflow-definition.json) | Full deterministic Logic App workflow (no Security Copilot involved) |
+| [`Logic App/Grant-ManagedIdentityGraphPermissions.ps1`](Logic%20App/Grant-ManagedIdentityGraphPermissions.ps1) | Grants the managed identity's Graph application permissions |
 
 ---
 
@@ -208,6 +212,58 @@ Its settings show the Graph-scoped configuration (credentials redacted):
 
 ---
 
+# Part 3 — Step-by-Step: Logic App (Managed Identity) Alternative
+
+An Azure Logic App that performs the same inventory and name resolution as Parts 1 and 2 above, but as a **deterministic workflow with zero secrets** — using the Logic App's **system-assigned managed identity** instead of an Entra App Registration client secret. Full details, sample output, and known considerations are in the [Logic App README](Logic%20App/README.md); the short version and all screenshots are below.
+
+## Why a Logic App Instead of (or Alongside) an Agent
+
+A native Security Copilot **Agent** was tried first, to chain the two plugins above deterministically instead of leaving tool selection to the chat orchestrator's judgment. A controlled, minimal reproduction confirmed a platform limitation: an Agent's `ChildSkills` only resolve skills that live **inside the agent's own uploaded manifest** — never skills belonging to a *separately uploaded* plugin, even when that plugin is correctly listed in `RequiredSkillsets` and fully enabled. Every attempt to call a `ChildSkill` owned by another plugin failed with `Unable to find skill '<name>'`, regardless of whether it was referenced by bare name or fully qualified as `SkillsetName.SkillName` — both documented as valid. Since ARM and Microsoft Graph are different OAuth token audiences, the two plugins can't be merged into one manifest to work around this (one Security Copilot manifest supports exactly one `Authorization` config).
+
+A Logic App has no such limitation — it's pure Azure control flow, not an LLM-mediated tool call, so it can call both APIs in one deterministic sequence with no orchestrator ambiguity at all.
+
+## Create the Logic App and Grant Access
+
+**Step 1 — Create the Logic App with a system-assigned managed identity enabled** (via `az logic workflow create --mi-system-assigned`, or Portal + Identity blade).
+
+**Step 2 — Confirm the identity and note its Object (principal) ID**
+
+![Step 2 — System-assigned identity On, Object (principal) ID shown](Logic%20App/Images/02-identity.png)
+
+**Step 3 — Grant Azure RBAC Reader on the subscription** to the managed identity (Access control (IAM), or the "Azure role assignments" shortcut on the Identity page)
+
+![Step 3 — Reader role assigned at the subscription scope](Logic%20App/Images/03-role-assignments.png)
+
+**Step 4 — Grant Microsoft Graph application permissions.** The Portal has no "API permissions" UI for a managed identity the way it does for an App Registration — run [`Grant-ManagedIdentityGraphPermissions.ps1`](Logic%20App/Grant-ManagedIdentityGraphPermissions.ps1) to grant `User.Read.All`, `Group.Read.All`, and `Application.Read.All` via the Graph API directly. Verify afterward under **Enterprise applications > (Logic App name) > Permissions**:
+
+![Step 4 — Microsoft Graph permissions granted to the managed identity](Logic%20App/Images/08-enterprise-app-permissions.png)
+
+## Review and Run the Workflow
+
+**Step 5 — Paste [`workflow-definition.json`](Logic%20App/workflow-definition.json) into Logic app code view** (or deploy with `az logic workflow update --definition`). The designer shows the entire deterministic chain in one diagram — list subscriptions, then for each subscription list role assignments, then for each role assignment resolve the role name and principal name, compose a row, and append it to the final report:
+
+![Step 5 — Full workflow: deterministic chain, no LLM orchestration](Logic%20App/Images/04-designer-full.png)
+
+**Step 6 — Trigger a run.** The Overview page shows run history with status and duration:
+
+![Step 6 — Logic App overview with run history](Logic%20App/Images/01-overview.png)
+
+**Step 7 — Inspect a successful run.** Every action is green, including the live iteration count — this run processed 163 role assignments across its subscriptions, fully automatically:
+
+![Step 7 — Successful run: all green, 163 role assignments processed](Logic%20App/Images/05-run-monitor.png)
+
+Drilling into `Resolve Principal` for one iteration shows the real Microsoft Graph call and its result — `GET /directoryObjects/{id}` returning `@odata.type: #microsoft.graph.user` and a resolved display name:
+
+![Step 7b — Resolve Principal: real Graph call and resolved name](Logic%20App/Images/06-resolve-principal-detail.png)
+
+And `Compose Row` shows the fully merged record for that same iteration — subscription, resolved principal name and type, resolved role name (including custom roles, not just built-ins like Owner/Reader), and scope:
+
+![Step 7c — Compose Row: one fully merged, human-readable record](Logic%20App/Images/07-compose-row-detail.png)
+
+> See the [Logic App README](Logic%20App/README.md) for the full architecture explanation, sample JSON output, and known considerations (synchronous response window, stale-principal handling, least privilege).
+
+---
+
 ## Quick Start
 
 1. Create an Entra App Registration and a client secret (Part 1, Steps 1–8).
@@ -215,12 +271,14 @@ Its settings show the Graph-scoped configuration (credentials redacted):
 3. Upload `Plugin/manifest.yaml` to Security Copilot (Part 1, Steps 16–22).
 4. Ask: *"List all Azure subscriptions in my tenant"* or *"Who has role assignments on subscription \<id\>?"*
 5. **(Optional, for readable names)** Add Graph permissions + admin consent (Part 2, Steps 1–6), upload `Entra Principal Resolver/manifest.yaml` (Part 2, Steps 7–9). Ask about one principal ID at a time.
+6. **(No-secret alternative)** Create the Logic App with a system-assigned managed identity, grant it Reader + the three Graph permissions, paste in `workflow-definition.json`, and trigger it (Part 3). One run returns every subscription's access list with every principal and role already resolved to a name — no chat prompt needed.
 
 ## Important Notes
 
 - **Security Copilot cannot create the App Registration or grant RBAC itself.** Someone with Entra/Azure admin rights must provision the identity and access outside Security Copilot first (Azure Portal, CLI, or PowerShell). The plugin only *consumes* those credentials — it does not create them.
 - Scope the Reader grant as narrowly as possible (single subscription, not tenant root) unless a full tenant-wide inventory is genuinely required.
 - Rotate the client secret regularly — it is a long-lived credential with read access to your subscription's resource, RBAC metadata, and (with the companion plugin) directory user/app/group data.
+- The Logic App alternative (Part 3) needs no client secret at all — the system-assigned managed identity is the credential, and Azure manages and rotates it automatically.
 
 ---
 
