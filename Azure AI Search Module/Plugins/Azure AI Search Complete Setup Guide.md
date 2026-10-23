@@ -149,8 +149,8 @@ Copy the **PrincipalId** value from the output — you will use it in the next t
 
 Example output:
 ```
-PrincipalId : a1e576a2-cd4e-4b9e-b13a-8fb572f6aa00
-TenantId    : e6cf700c-2029-4e98-aedd-f589e62f7316
+PrincipalId : <principalId>
+TenantId    : <tenantId>
 Type        : SystemAssigned
 ```
 
