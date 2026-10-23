@@ -59,3 +59,7 @@ Use the [Intune Plugin Guides](Plugins/README.md) to enable the Microsoft Intune
 **Developer**: Dr Muataz Awad
 
 <!-- Repository maintenance marker -->
+
+---
+
+*Personal project — not an official Microsoft product. [Full disclaimer](../README.md#disclaimer).*

@@ -30,3 +30,7 @@ All workflows in this module are designed to use System-Assigned Managed Identit
 
 - Use the scenario-specific README files for full setup steps, architecture diagrams, deployment scripts, troubleshooting, and images.
 - Keep this file as a module-level index only.
+
+---
+
+*Personal project — not an official Microsoft product. [Full disclaimer](../README.md#disclaimer).*

@@ -56,3 +56,7 @@ Each plugin consists of:
 | **Auth options** | None, API key, OAuth | None, API key, AAD |
 
 <!-- Repository maintenance marker -->
+
+---
+
+*Personal project — not an official Microsoft product. [Full disclaimer](../README.md#disclaimer).*

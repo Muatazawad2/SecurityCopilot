@@ -103,3 +103,7 @@ step-by-step guide (Azure CLI and Portal methods, plus verification):
 ---
 
 **Developer**: Dr Muataz Awad
+
+---
+
+*Personal project — not an official Microsoft product. [Full disclaimer](../README.md#disclaimer).*

@@ -67,3 +67,7 @@ Future MCP Server/deploy.ps1
 ```
 
 <!-- Repository maintenance marker -->
+
+---
+
+*Personal project — not an official Microsoft product. [Full disclaimer](../README.md#disclaimer).*

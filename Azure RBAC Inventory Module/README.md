@@ -303,3 +303,7 @@ And `Compose Row` shows the fully merged record for that same iteration — subs
 ---
 
 **Developer**: Dr Muataz Awad
+
+---
+
+*Personal project — not an official Microsoft product. [Full disclaimer](../README.md#disclaimer).*

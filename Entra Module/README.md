@@ -13,3 +13,7 @@ Comprehensive guides and resources for using Microsoft Security Copilot with Mic
 - [Entra Plugins](Plugins/README.md)
 
 <!-- Repository maintenance marker -->
+
+---
+
+*Personal project — not an official Microsoft product. [Full disclaimer](../README.md#disclaimer).*

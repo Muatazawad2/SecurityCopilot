@@ -140,3 +140,9 @@ Model Context Protocol (MCP) server for Security Copilot threat intelligence enr
 
 - **[SOC IOC Enricher — Setup Guide](MCP%20Module/README.md)** — Full deployment guide for the MCP server on Azure Container Apps
 - **[SOC IOC Enricher Source](MCP%20Module/SOC%20IOC%20Enricher/)** — TypeScript source, Dockerfile, deploy script, and Security Copilot plugin manifest
+
+---
+
+## Disclaimer
+
+This is a personal project I maintain in an individual capacity. It is **not an official Microsoft product** and is not endorsed, reviewed, or supported by Microsoft. All opinions, code, and content here are my own and do not represent the views of my employer. Provided **"as-is"**, with no warranty — use at your own risk.

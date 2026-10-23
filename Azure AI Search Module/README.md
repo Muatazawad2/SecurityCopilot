@@ -73,3 +73,7 @@ Azure AI Search Module/
 - Private link endpoints are not supported.
 
 <!-- Repository maintenance marker -->
+
+---
+
+*Personal project — not an official Microsoft product. [Full disclaimer](../README.md#disclaimer).*
