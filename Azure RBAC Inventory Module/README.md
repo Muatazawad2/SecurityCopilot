@@ -10,12 +10,14 @@ This module ships **two working ways** to get that answer — pick based on how 
 
 | | [Security Copilot Plugins](#part-1--step-by-step-azure-subscription--rbac-inventory-plugin) (Parts 1–2) | [Logic App — Managed Identity](Logic%20App/README.md) (Part 3) |
 |---|---|---|
-| **How you use it** | Ask in chat — *"List all Azure subscriptions"*, *"Who has access to subscription X, with names?"* | Trigger it (manually or on a schedule) — get back the full resolved report, no prompting |
+| **How you use it** | Ask in chat — *"List all Azure subscriptions"*, *"Who has role assignments on subscription X?"* (names: ask about one principal ID at a time — see warning below) | Trigger it (manually or on a schedule) — get back the full resolved report, no prompting |
 | **Best for** | Ad-hoc investigation, analysts asking follow-up questions | Scheduled reporting, audits, feeding results into another system |
 | **Credentials** | Entra App Registration + client secret (must be rotated) | **Zero secrets** — system-assigned managed identity only |
 | **Determinism** | Chat orchestrator decides which skill to call | Fixed sequence every run — no orchestrator judgment |
-| **Known caveat** | Asking about a user + service principal together in one prompt can hit a "skill collision" — ask one at a time | Synchronous response window scales with role assignment count (mitigated with `Foreach` concurrency) |
+| **Known caveat** | ⚠️ See warning below — do not use chat for bulk name resolution | Synchronous response window scales with role assignment count (mitigated with `Foreach` concurrency) |
 | **Setup** | [Part 1](#part-1--step-by-step-azure-subscription--rbac-inventory-plugin) + [Part 2](#part-2--step-by-step-entra-principal-resolver-companion-plugin) | [Part 3](#part-3--step-by-step-logic-app-managed-identity-alternative) |
+
+> ⚠️ **Do not use the Security Copilot plugins to bulk-resolve names for a customer-facing demo or report.** Asking for every principal's name in one prompt (even an insistent, explicit one) was confirmed by live testing to sometimes **fabricate plausible-but-fake names** instead of either returning real data or honestly failing — the activity trace shows the resolver skills were never actually called, yet the response is presented with full confidence. Name resolution is reliable only when asked **one principal ID at a time** in chat. For any full-list, customer-facing output, use the **Logic App** — it calls Microsoft Graph directly with no LLM step, so there's nothing to fabricate. Full detail in the [Entra Principal Resolver "Known Behavior" section](Entra%20Principal%20Resolver/README.md#️-known-behavior-do-not-ask-for-bulk-name-resolution-in-one-prompt).
 
 > A native Security Copilot **Agent** (a third idea, to auto-chain the two plugins so the chat UI could do this deterministically) was evaluated and did not work — Security Copilot's Agent `ChildSkills` cannot currently call skills across separately uploaded plugins, confirmed via a minimal reproducible test. That finding is what led to building the Logic App alternative instead; it is **not** a third option today. See [Part 3's "Why a Logic App Instead of (or Alongside) an Agent"](#why-a-logic-app-instead-of-or-alongside-an-agent) for the full explanation.
 
@@ -225,7 +227,7 @@ Its settings show the Graph-scoped configuration (credentials redacted):
 
 ![Live test — user resolved successfully](Images/24.png)
 
-> **Known behavior**: asking about a user and a service principal **together in one compound prompt** may cause the orchestrator to only resolve one of them ("skill collision"). Asking about one principal per prompt works reliably every time — both skills were verified end-to-end in isolation.
+> ⚠️ **Known behavior — do not use for bulk/customer-facing output**: asking about a user and a service principal **together in one compound prompt** may cause the orchestrator to only resolve one of them ("skill collision"). Worse, asking it to resolve **every principal in a role assignment list** in one prompt — even with explicit, insistent instructions — can cause the model to silently skip calling the resolver entirely and **fabricate plausible-but-fake names** instead, confirmed via live testing and activity-trace inspection. Asking about **one principal per prompt** works reliably every time — both skills were verified end-to-end in isolation. For a full, automatically resolved list with no fabrication risk, use the [Logic App alternative](#part-3--step-by-step-logic-app-managed-identity-alternative) instead. Full detail: [Entra Principal Resolver README](Entra%20Principal%20Resolver/README.md#️-known-behavior-do-not-ask-for-bulk-name-resolution-in-one-prompt).
 
 ---
 

@@ -109,7 +109,7 @@ With both plugins enabled, ask Security Copilot something like:
 
 > "Who has role assignments on subscription \<id\>, and what are their names?"
 
-The orchestrator calls `ListSubscriptionRoleAssignments` (ARM plugin) to get principal IDs and types, then calls `ResolveEntraUserById` / `ResolveEntraServicePrincipalById` (this plugin) for each one to resolve a readable name — turning a table of GUIDs into a table of actual people, apps, and groups.
+In practice, the orchestrator does **not** reliably chain `ListSubscriptionRoleAssignments` into this plugin's skills on its own — see the warning below before relying on this for anything customer-facing. Name resolution works reliably only when you ask about **one specific object ID** at a time, as in the Verified Example.
 
 ## Verified Example
 
@@ -121,6 +121,21 @@ Resolving a known object ID directly confirms the plugin works end-to-end:
 | `15d05821-...` | `ResolveEntraServicePrincipalById` | displayName: matches the RBAC Inventory plugin's own service principal, appId matches its ClientId |
 
 ![Live test — user resolved successfully](../Images/24.png)
+
+## ⚠️ Known Behavior: Do Not Ask for Bulk Name Resolution in One Prompt
+
+Asking Security Copilot to resolve **every principal in a role assignment list** within a single prompt — even a very explicit, insistent one (e.g. *"for every principal ID returned, you must call the resolver before answering"*) — has two observed failure modes, confirmed by live testing:
+
+1. **Honest failure**: the response says names are "not available" and returns only raw GUIDs and principal types. This is safe but unhelpful.
+2. **Silent fabrication (more dangerous)**: the activity trace shows the orchestrator calling `ListSubscriptionRoleAssignments` exactly once and then going straight to "Prepared your response" / "Composed Message" — **the resolver skills (`ResolveEntraUserById`, `ResolveEntraServicePrincipalById`, `ResolveEntraGroupById`) are never actually invoked.** Instead, the underlying model fills in plausible-sounding, generic Azure identity names (e.g. a human name, "Microsoft Azure CLI", "Azure Machine Learning", "Azure OpenAI") that are **not the real tenant data** and do not match any actual resolved result. The response is presented with full confidence and no indication it is fabricated.
+
+**Do not present confidence-worded "resolved" multi-row name tables from a single compound Security Copilot prompt to a customer or in any report** — verify every name against a known-good source first, or avoid the pattern entirely.
+
+**Reliable options instead**:
+- Ask about **one principal ID per prompt** (e.g. *"Who is the Entra user with object ID \<id\>?"*) — verified accurate every time, including for multiple principal types across separate prompts.
+- For a complete, automatically resolved list in one pass with **zero hallucination risk**, use the [Logic App (Managed Identity) alternative](../Logic%20App/README.md) instead — it calls Microsoft Graph directly via deterministic workflow logic, not an LLM, so there is nothing for a model to fabricate.
+
+This is a different and more serious issue than the skill-collision behavior below (which at least fails honestly); treat it as the primary reason not to use chat-based bulk name resolution for anything you plan to share externally.
 
 ## Known Behavior: Ask About One Principal Type at a Time
 

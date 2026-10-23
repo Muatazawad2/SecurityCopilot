@@ -53,6 +53,8 @@ Based on Azure RBAC least-privilege best practices, how many subscription Owners
 
 Steps 2–5 depend on custom plugins (not built-in Microsoft plugins), so they only return data if the [Azure Subscription & RBAC Inventory plugin](../Plugin/README.md) and [Entra Principal Resolver plugin](../Entra%20Principal%20Resolver/README.md) are both installed, enabled, and authorized for your tenant. Step 6 works with no plugins at all — it's general knowledge.
 
+⚠️ **Do not edit step 2 to ask for names in the same prompt** (e.g. "...and what are their real names?"). This promptbook is deliberately designed to keep name resolution in separate, single-principal steps (3–5) because asking for bulk name resolution in one prompt — confirmed by live testing — can cause Security Copilot to **fabricate plausible-but-fake names** instead of calling the resolver, with no indication the output isn't real. If you need every principal in a subscription resolved automatically in one pass for a customer-facing report, use the [Logic App alternative](../Logic%20App/README.md) instead — it has no fabrication risk since it calls Microsoft Graph directly with no LLM step.
+
 ---
 
 **Developer**: Dr Muataz Awad
