@@ -183,12 +183,6 @@ You can now also ask follow-up prompts like *"Who has role assignments on subscr
 
 ---
 
-## Troubleshooting
-
-- **"Couldn't match your prompt with any of the plugins you're using."** — The orchestrator didn't recognize the prompt as matching this plugin's skill descriptions. Rephrase closer to the skill's `summary`/`description` text (e.g., "List all subscriptions in my tenant") rather than a long compound ask.
-- **No data returned / auth error** — Double-check the ClientSecret hasn't expired, and that the Reader role assignment is still present at the correct scope.
-- **Only some subscriptions appear** — The plugin can only see subscriptions where the app registration's service principal has at least Reader access. Grant Reader at additional scopes (or management group root) to broaden visibility.
-
 ## Security Notes
 
 - The client secret is a long-lived credential with read access to your subscription's resource and RBAC metadata. Store it only in Security Copilot's plugin configuration — never in source control or chat.
