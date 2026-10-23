@@ -117,7 +117,7 @@ Resolving a known object ID directly confirms the plugin works end-to-end:
 
 | Object ID | Resolved via | Result |
 |---|---|---|
-| `d5a157af-...` | `ResolveEntraUserById` | displayName: `System Administrator`, UPN: `admin@<tenant>.onmicrosoft.com` |
+| `d5a157af-...` | `ResolveEntraUserById` | displayName: `<resolved user display name>`, UPN: `admin@<tenant>.onmicrosoft.com` |
 | `15d05821-...` | `ResolveEntraServicePrincipalById` | displayName: matches the RBAC Inventory plugin's own service principal, appId matches its ClientId |
 
 ![Live test — user resolved successfully](../Images/24.png)

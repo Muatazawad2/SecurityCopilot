@@ -128,7 +128,7 @@ And the `Compose Row` action shows the final merged structure for that same iter
 
 ## Sample Output
 
-A single run returns a JSON array where every row is fully resolved — no raw GUIDs left for the reader to decode:
+A single run returns a JSON array where every row is fully resolved — no raw GUIDs left for the reader to decode. The following is illustrative, fictional example data (not real tenant output):
 
 ```json
 [
@@ -136,7 +136,7 @@ A single run returns a JSON array where every row is fully resolved — no raw G
     "SubscriptionId": "<subscription-id>",
     "SubscriptionName": "<subscription-name>",
     "PrincipalId": "<principal-id>",
-    "PrincipalName": "System Administrator",
+    "PrincipalName": "Jane Doe",
     "PrincipalType": "#microsoft.graph.user",
     "RoleName": "Owner",
     "Scope": "/subscriptions/<subscription-id>"
@@ -145,7 +145,7 @@ A single run returns a JSON array where every row is fully resolved — no raw G
     "SubscriptionId": "<subscription-id>",
     "SubscriptionName": "<subscription-name>",
     "PrincipalId": "<principal-id>",
-    "PrincipalName": "CDX-SecurityScanner",
+    "PrincipalName": "Contoso-SecurityScanner",
     "PrincipalType": "#microsoft.graph.servicePrincipal",
     "RoleName": "Reader",
     "Scope": "/subscriptions/<subscription-id>"
