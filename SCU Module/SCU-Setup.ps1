@@ -30,6 +30,19 @@
     the script prompts for it. Saved to config.json and used to build the
     usage API URL.
 
+.PARAMETER PodId
+    Your tenant's Security Copilot pod GUID (part of the usage API's base
+    URL). This is tenant/region-specific — there is no universal default.
+    If omitted, the script prompts for it. To find yours: open the Security
+    Copilot portal, open your browser's dev tools Network tab, and look for
+    any request to "securityplatform.microsoft.com/pods/<guid>/..." — that
+    GUID is your pod ID.
+
+.PARAMETER Workspace
+    Your tenant's Security Copilot workspace name. Default: 'default' (this
+    is the standard workspace name for nearly every tenant; override only if
+    yours differs).
+
 .PARAMETER ConfigDir
     Where the config + encrypted refresh token are stored.
     Default: $env:USERPROFILE\.scu-puller
@@ -48,6 +61,8 @@ param(
     [string]$AppName    = 'SCU-Usage-Puller',
     [string]$AppId,
     [string]$Capacity,
+    [string]$PodId,
+    [string]$Workspace  = 'default',
     [string]$ConfigDir  = "$env:USERPROFILE\.scu-puller"
 )
 
@@ -57,8 +72,6 @@ $ErrorActionPreference = 'Stop'
 $PurviewAppId     = '73c2949e-da2d-457a-9607-fcc665198967'  # Microsoft Purview SPN
 $DelegatedScopeId = '817468d0-81dd-4cb5-94ac-07ca133fbbf6'  # Purview.DelegatedAccess
 $AppRoleId        = '8d48872e-7710-4001-bfd0-7dac15c28f69'  # Purview app role
-$PodId            = 'ee221a39-3ce7-48ee-8b63-18bd56c52288'  # Security Copilot US pod
-$Workspace        = 'default'
 
 function Write-Step($m) { Write-Host "`n===  $m  ===" -ForegroundColor Cyan }
 function Write-OK($m)   { Write-Host "  [OK]   $m" -ForegroundColor Green }
@@ -117,6 +130,19 @@ if (-not $Capacity) {
     exit 1
 }
 Write-OK "Using capacity '$Capacity'"
+
+# ---- Security Copilot pod (tenant/region-specific; provide via -PodId or prompt) ----
+if (-not $PodId) {
+    Write-Host "  Pod ID isn't visible in any admin UI - find yours by opening the"
+    Write-Host "  Security Copilot portal, opening your browser's dev tools Network tab,"
+    Write-Host "  and looking for a request to securityplatform.microsoft.com/pods/<guid>/..."
+    $PodId = (Read-Host "  Enter your Security Copilot pod ID (GUID)").Trim()
+}
+if (-not $PodId) {
+    Write-Fail "Pod ID is required. Re-run with -PodId <guid>."
+    exit 1
+}
+Write-OK "Using pod '$PodId' (workspace '$Workspace')"
 
 # ---- 3. App registration ----
 Write-Step "3/5  Entra app registration"

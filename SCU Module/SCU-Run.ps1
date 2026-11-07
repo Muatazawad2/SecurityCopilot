@@ -27,6 +27,11 @@
     Where the encrypted refresh token + config live.
     Default: $env:USERPROFILE\.scu-puller (must match what SCU-Setup.ps1 used)
 
+.PARAMETER CreditLine
+    Optional credit/attribution text shown in a small footer on both the
+    HTML dashboard and the Power BI template's cover/guide/users pages.
+    Default: empty (no credit line shown). Example: -CreditLine "Built by Contoso IT"
+
 .PARAMETER NoRefresh
     Skip the data pull - just rebuild dashboards from the existing SCU-Report.xlsx/json.
 
@@ -60,6 +65,7 @@ param(
     [string]$OutDir    = (Join-Path $PSScriptRoot 'scu-output'),
     [int]$Days         = 90,
     [string]$ConfigDir = "$env:USERPROFILE\.scu-puller",
+    [string]$CreditLine = '',
     [switch]$NoRefresh,
     [switch]$SkipPbit,
     [switch]$SkipHtml,
@@ -1818,8 +1824,8 @@ function Add-PageHeader([string]$title, [string]$subtitle, [array]$visuals, [int
         $v.config = $cfg | ConvertTo-Json -Depth 20 -Compress
         $result += $v
     }
-    # Developer footer bottom-right, small
-    $result += (New-TextBox 1060 686 200 22 'Developed by Muataz Awad' 7 '#9CA3AF' 'normal' 'right')
+    # Developer footer bottom-right, small (blank unless -CreditLine is passed)
+    $result += (New-TextBox 1060 686 200 22 $CreditLine 7 '#9CA3AF' 'normal' 'right')
     return $result
 }
 
@@ -1848,8 +1854,8 @@ $coverVisuals = @(
     # Refresh / source strip
     (New-TextBox 30 510 1220 30 'Data source: Security Copilot portal API + Azure Cost Management. To refresh, run SCU-Run.ps1 then Home ribbon > Refresh.' 9 '#6B7280' 'normal')
 
-    # Developer credit bottom-right
-    (New-TextBox 1060 686 200 22 'Developed by Muataz Awad' 7 '#9CA3AF' 'normal' 'right')
+    # Developer credit bottom-right (blank unless -CreditLine is passed)
+    (New-TextBox 1060 686 200 22 $CreditLine 7 '#9CA3AF' 'normal' 'right')
 )
 
 # Page 0.5: Guide - dedicated page for glossary + navigation help (generous heights, nothing clips)
@@ -1908,7 +1914,7 @@ $guideVisuals = @(
     (New-TextBox 30 620 1220 28 'Data source: Security Copilot portal API (undocumented) + Azure Cost Management + Microsoft Graph. Refresh: run SCU-Run.ps1 then use Home > Refresh in Power BI.' 8 '#6B7280' 'normal')
     (New-TextBox 30 650 1220 28 'Estimated Cost = SCU x 6 USD (list price). Actual Azure Bill comes from Cost Management and reflects your negotiated rate.' 8 '#6B7280' 'normal')
 
-    (New-TextBox 1060 686 200 22 'Developed by Muataz Awad' 7 '#9CA3AF' 'normal' 'right')
+    (New-TextBox 1060 686 200 22 $CreditLine 7 '#9CA3AF' 'normal' 'right')
 )
 
 # Page 1: Overview (unchanged - 7 KPI visuals)
@@ -2823,7 +2829,7 @@ $html = @'
 
 </div><!-- /content -->
 
-<footer>Developed by Muataz Awad</footer>
+<footer>__CREDIT_LINE__</footer>
 
 <script>
 /* ============================================================ */
@@ -3243,6 +3249,7 @@ renderers.analytics = () => {
 
 # Inject the data
 $html = $html.Replace('__DATA_JS__', $dataJs)
+$html = $html.Replace('__CREDIT_LINE__', $CreditLine)
 
 # Write output
 $outDir = Split-Path $OutputHtml -Parent
